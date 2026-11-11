@@ -4,7 +4,7 @@ Can a language model work directly with neural network weights, reading them, re
 
 Claude Fable 5.1 ran all three experiments in one Claude Code session on 10 November 2026. It had terminal access to this repository and blindness rules on the answer keys. How it reasoned is written up in [`eurosat_wsp/runs/fable_reasoning_log.md`](eurosat_wsp/runs/fable_reasoning_log.md).
 
-**Scope.** This is a tool-assisted pilot, not a replication of Takehi et al. Fable could use Python throughout, wrote only the first layer in the WRITE experiment, and repaired random noise rather than a behavioural flaw. The READ result is genuine weight-space reading. The EDIT result shows sound diagnosis with a simple edit. The WRITE result is not weight-space programming in Takehi et al.'s sense, because training followed. See [how this relates to Takehi et al.](docs/comparison_with_takehi_et_al.md) and the [planned experiments](docs/next_steps.md) that test their claims directly.
+**Scope.** This is a tool-assisted pilot, not a replication of Takehi et al. Fable could use Python throughout, wrote only the first layer in the WRITE experiment, and repaired random noise rather than a behavioural flaw. The READ result is genuine weight-space reading. The EDIT result shows sound diagnosis with a simple edit. The WRITE result is not weight-space programming in Takehi et al.'s sense, because training followed. See [how this relates to Takehi et al.](docs/comparison_with_takehi_et_al.md). The follow-up experiments W1 and W2 below test their write claim directly, with no tools and no training.
 
 ## Results
 
@@ -13,6 +13,18 @@ Claude Fable 5.1 ran all three experiments in one Claude Code session on 10 Nove
 | READ | Label 9 blind CNNs by training regime from their weights | 9 / 9 correct | 1 in 1,680 by chance |
 | EDIT | Repair a noise-damaged ResNet-18 layer from the tensor alone | 95.5% test accuracy | 57.7% damaged, 98.2% original, 94.1% by zeroing the damaged filters |
 | WRITE | Hand-write the first conv layer of a CNN, then train it | 90.81% ± 0.22 over 3 seeds | 90.35% ± 0.48 with Kaiming initialisation |
+
+### Follow-up: writing whole networks with no tools and no training
+
+The pilot let Fable use Python and train afterwards. Two follow-up experiments test Takehi et al.'s stronger claim directly. Fable ran in a claude.ai chat with code execution, web search and memory switched off, and every network was evaluated exactly as written, with no training. Designs and success criteria were fixed before any attempt ([docs/next_steps.md](docs/next_steps.md)).
+
+| Experiment | What Fable wrote | Test accuracy | Reference points |
+|---|---|---|---|
+| W1 | All 618 weights of a one-layer CNN, typed as numbers in one reply | **49.4%** (1 attempt) | best constant guess 11.3%, mean-colour classifier 30.4%, same network trained 62.9% |
+| W2, round 0 | A program building all 5,418 weights of a two-layer CNN, no feedback | **40.3%** | random weights 8.1%, same network trained 78.7% |
+| W2, rounds 1 to 3 | Revised programs after feedback on 1,000 validation images | **45.5%, 47.5%, 49.2%** | |
+
+Both designs are interpretable: colour, darkness, smoothness and edge detectors feeding a nearest-centroid classifier whose class profiles Fable estimated from its own knowledge of EuroSAT. Feedback improved the result every round, by re-estimating those profiles rather than changing what the network computes. The deeper network did not beat the single-layer one (49.2% against 49.4%). The limit appears to be how well the model knows the class statistics, not network capacity. Logs: [W1](eurosat_wsp/experiment_4_write_full/), [W2](eurosat_wsp/experiment_5_write_code/runs/log.md).
 
 ### READ: the seed structure is visible in the weights
 
@@ -49,7 +61,9 @@ Fable worked only on variant A. Variants B and C, and every method other than Fa
 - **Variant A has an easy baseline.** Zeroing the damaged filters reaches 94.1% against Fable's 95.5%.
 - **Three seeds for WRITE.** Enough to show the hand-written layer is not worse; not enough to claim it is better.
 - **Answer keys are in the repository.** Anyone evaluating a new model must withhold `eurosat_wsp/prompts/key_*.json`, `experiment_1_read/checkpoints/` and `experiment_2_edit/original/` from it.
-- **Tools were allowed.** Takehi et al.'s headline results use no tools at all. The no-tools versions of these experiments are planned in [docs/next_steps.md](docs/next_steps.md).
+- **Tools were allowed in the pilot.** Takehi et al.'s headline results use no tools at all. W1 and W2 follow that rule; the no-tools versions of READ and EDIT are still planned in [docs/next_steps.md](docs/next_steps.md).
+- **W1 rests on a single attempt.** The pre-registered second attempt was skipped to save model usage, so W1's 49.4% may be a favourable draw. W2 is one chat of four rounds.
+- **The model used remembered knowledge of EuroSAT.** In W1 it cited dataset colour statistics from memory. This is allowed, but it means part of the result reflects training-time knowledge of this specific benchmark.
 
 ## Reproduce
 

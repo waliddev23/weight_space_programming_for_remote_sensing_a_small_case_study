@@ -1,0 +1,15 @@
+Practice set results (round 2, 1000 validation images, 100 per class):
+accuracy 49.0%
+recall per class: 0 52%, 1 62%, 2 40%, 3 10%, 4 84%, 5 60%, 6 29%, 7 42%, 8 35%, 9 76%
+confusion matrix (rows = true class 0-9, columns = predicted 0-9):
+  0:  52   4  16   0   1   9  14   1   2   1
+  1:   0  62   0   0   0   5   0   0   0  33
+  2:   5  11  40   2  11   0  19   6   5   1
+  3:   8  18  13  10   7   5  12  15  10   2
+  4:   0   0   0   0  84   0   0  16   0   0
+  5:   0  10  12   0   0  60   1   0  13   4
+  6:  19   4  30   1   9   1  29   5   2   0
+  7:   0   0   1  21  26   0   3  42   7   0
+  8:   0  21  13   8   2  17   0   3  35   1
+  9:   0   1   4   0   0  18   0   0   1  76
+You may send a revised build_weights() (1 feedback round left).
