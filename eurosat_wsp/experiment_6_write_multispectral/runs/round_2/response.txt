@@ -1,0 +1,89 @@
+[Round 2 reply. Only the code block was transferred from the chat; no explanation was saved.]
+
+```python
+import numpy as np
+
+def build_weights():
+    w1 = np.zeros((16, 13, 3, 3)); b1 = np.zeros(16)
+    w2 = np.zeros((32, 16, 3, 3)); b2 = np.zeros(32)
+    GX = np.outer(np.array([1, 2, 1]) / 4.0, np.array([-1.0, 0, 1])); GY = GX.T
+    LAP = np.array([[0, -.25, 0], [-.25, 1, -.25], [0, -.25, 0]])
+
+    # conv1: 0-6 raw bands B02,B03,B04,B08,B11,B12,B05
+    for o, band in enumerate([1, 2, 3, 7, 10, 11, 4]):
+        w1[o, band, 1, 1] = 1
+    w1[7, 2, 1, 1] = 1; w1[7, 7, 1, 1] = -.5; w1[7, 10, 1, 1] = -.5   # water
+    w1[8, 7, 1, 1] = 1; w1[8, 3, 1, 1] = -2                           # vegetation
+    w1[9, 11, 1, 1] = 1; w1[9, 7, 1, 1] = -.5                         # bare / built-up
+    for o, k in [(10, GX), (11, GY), (12, LAP), (13, -LAP)]:          # visible texture
+        for band in (1, 2, 3):
+            w1[o, band] = k / 3
+    w1[14, 7] = GX; w1[15, 7] = GY                                    # NIR texture
+
+    # conv2: pass-through + per-cell thresholds + coarse edges
+    for i in range(16):
+        w2[i, i, 1, 1] = 1
+    for o, ch, sg, bias in [(16, 3, -1, .12), (17, 3, 1, -.30), (18, 2, -1, .06),
+                            (19, 2, 1, -.14), (20, 4, -1, .10), (21, 4, 1, -.26),
+                            (22, 13, 1, -.0035), (23, 13, -1, .002),
+                            (30, 8, 1, -.08), (31, 9, 1, -.05)]:
+        w2[o, ch, 1, 1] = sg; b2[o] = bias
+    w2[24, 3] = GX; w2[25, 3] = GY; w2[26, 3] = -LAP
+    w2[27, 2] = LAP; w2[28, 2] = GX; w2[29, 2] = GY
+
+    # prototypes (x1e-3): AnnCrop Forest Herb Highway Indust Pasture PermCrop Resid River SeaLake | sigma
+    gv = [4, 2, 4, 4, 11, 2.5, 5, 7, 4, 1]
+    gn = [8, 8, 8, 9, 10, 6, 9, 10, 10, 1.5]
+    cn = [12, 5, 8, 10, 8, 8, 10, 10, 20, 2]
+    cr = [10, 2, 5, 7, 12, 4, 8, 7, 6, 1]
+    T = [
+        [113, 85, 105, 115, 140, 100, 115, 120, 105, 95, 20],   # 0 B02
+        [110, 72, 100, 110, 140, 100, 115, 115, 100, 75, 20],   # 1 B03
+        [115, 48, 95, 100, 145, 75, 120, 110, 85, 50, 25],      # 2 B04
+        [230, 250, 215, 225, 215, 290, 240, 215, 165, 35, 40],  # 3 B08
+        [250, 110, 210, 190, 220, 190, 250, 185, 120, 15, 40],  # 4 B11
+        [170, 50, 135, 125, 175, 100, 170, 130, 75, 10, 30],    # 5 B12
+        [140, 75, 125, 125, 160, 120, 145, 125, 100, 45, 25],   # 6 B05
+        [0, 0, 0, 0, 0, 0, 0, 0, 12, 50, 10],                   # 7 water
+        [40, 150, 50, 50, 10, 150, 30, 40, 50, 0, 50],          # 8 vegetation
+        [60, 0, 30, 25, 70, 3, 50, 30, 10, 0, 20],              # 9 built/bare
+        gv + [4], gv + [4],                                     # 10,11 vis gradients
+        [v / 2 for v in gv] + [2], [v / 2 for v in gv] + [2],   # 12,13 vis laplacian
+        gn + [5], gn + [5],                                     # 14,15 NIR gradients
+        [0, 0, 0, 1, 2, 0, 0, 0, 12, 85, 15],                   # 16 low-NIR cells
+        [12, 15, 6, 8, 3, 30, 12, 3, 4, 0, 25],                 # 17 high-NIR cells
+        [1, 14, 2, 2, 1, 4, 1, 1, 6, 12, 5],                    # 18 dark-red cells
+        [12, 0, 5, 5, 25, 0, 12, 5, 2, 0, 10],                  # 19 bright-red cells
+        [0, 10, 1, 1, 1, 1, 0, 1, 20, 85, 15],                  # 20 low-SWIR cells
+        [25, 0, 8, 4, 15, 2, 20, 3, 0, 0, 12],                  # 21 high-SWIR cells
+        [.3, .2, .3, .4, 2.5, .2, .5, 1.5, .4, .1, 1.0],        # 22 built-up cells
+        [.8, 1, .5, .5, .2, .9, .4, .2, .7, 1.5, .5],           # 23 smooth cells
+        cn + [6], cn + [6],                                     # 24,25 coarse NIR edges
+        [5, 3, 4, 6, 5, 4, 5, 6, 12, 1, 4],                     # 26 coarse dark NIR line
+        [5, 1, 3, 5, 8, 2, 4, 5, 4, .5, 3],                     # 27 coarse bright red spot
+        cr + [5], cr + [5],                                     # 28,29 coarse red edges
+        [12, 70, 8, 10, 1, 70, 5, 8, 10, 0, 35],                # 30 strongly vegetated cells
+        [25, 0, 6, 5, 30, 0, 15, 5, 0, 0, 12],                  # 31 strongly bare cells
+    ]
+    T = np.array(T, dtype=float) * 1e-3
+    P, s = T[:, :10], T[:, 10:11]
+
+    # linear correction for zero-padding artefacts in edge features
+    A = np.eye(32)
+    for o in (10, 11, 12):
+        A[o, [0, 1, 2]] -= 1 / 192.0
+    A[14, 3] -= 1 / 64.0; A[15, 3] -= 1 / 64.0
+    A[24, 3] -= .061; A[25, 3] -= .061
+    A[27, 2] -= .0625; A[28, 2] -= .061; A[29, 2] -= .061
+
+    Wg = (P / s ** 2).T                       # [10, 32]
+    fc_w = Wg @ A
+    fc_b = -0.5 * np.sum(P ** 2 / s ** 2, axis=0)
+    fc_b[5] -= 3.0                            # Pasture over-predicted
+    fc_b[4] -= 1.0                            # Industrial over-predicted
+    fc_b[7] += 0.5                            # Residential under-predicted
+
+    return {"conv1_weight": w1, "conv1_bias": b1,
+            "conv2_weight": w2, "conv2_bias": b2,
+            "fc_weight": fc_w, "fc_bias": fc_b}
+```

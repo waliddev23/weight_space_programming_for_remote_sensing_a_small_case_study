@@ -1,0 +1,15 @@
+Practice set results (round 3, 1000 validation images, 100 per class):
+accuracy 60.3%
+recall per class: 0 41%, 1 99%, 2 46%, 3 21%, 4 57%, 5 79%, 6 33%, 7 39%, 8 88%, 9 100%
+confusion matrix (rows = true class 0-9, columns = predicted 0-9):
+  0:  41   4   6   6  17  19   7   0   0   0
+  1:   0  99   0   0   0   1   0   0   0   0
+  2:   6   5  46   1  15   8  12   0   7   0
+  3:   9  16   9  21   9  10  13   2  11   0
+  4:   0   0   0   4  57   0   7  30   2   0
+  5:   0   3   5   5   0  79   3   0   5   0
+  6:  13   3  21  11  15   4  33   0   0   0
+  7:   0   0   4  13  18   0  17  39   9   0
+  8:   3   0   1   5   0   2   0   0  88   1
+  9:   0   0   0   0   0   0   0   0   0 100
+This was the last round.

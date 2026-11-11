@@ -16,15 +16,19 @@ Claude Fable 5.1 ran all three experiments in one Claude Code session on 10 Nove
 
 ### Follow-up: writing whole networks with no tools and no training
 
-The pilot let Fable use Python and train afterwards. Two follow-up experiments test Takehi et al.'s stronger claim directly. They were run on 11 November with **Claude Fable 5.2** (the pilot used Fable 5.1), in a claude.ai chat with code execution, web search and memory switched off, and every network was evaluated exactly as written, with no training. Designs and success criteria were fixed before any attempt ([docs/next_steps.md](docs/next_steps.md)).
+The pilot let Fable use Python and train afterwards. Three follow-up experiments test Takehi et al.'s stronger claim directly. They were run on 11 November with **Claude Fable 5.2** (the pilot used Fable 5.1), in a claude.ai chat with code execution, web search and memory switched off, and every network was evaluated exactly as written, with no training. Designs and success criteria were fixed before any attempt ([docs/next_steps.md](docs/next_steps.md)).
 
 | Experiment | What Fable wrote | Test accuracy | Reference points |
 |---|---|---|---|
 | W1 | All 618 weights of a one-layer CNN, typed as numbers in one reply | **49.4%** (1 attempt) | best constant guess 11.3%, mean-colour classifier 30.4%, same network trained 62.9% |
 | W2, round 0 | A program building all 5,418 weights of a two-layer CNN, no feedback | **40.3%** | random weights 8.1%, same network trained 78.7% |
 | W2, rounds 1 to 3 | Revised programs after feedback on 1,000 validation images | **45.5%, 47.5%, 49.2%** | |
+| W3, round 0 | W2 on 13-band multispectral EuroSAT, same test images, no feedback | **51.8%** | mean-spectrum classifier 48.6%, same network trained 81.5% |
+| W3, rounds 1 to 3 | Revised programs after feedback | **59.0%, 60.4%, 59.5%** | |
 
-Both designs are interpretable: colour, darkness, smoothness and edge detectors feeding a nearest-centroid classifier whose class profiles Fable estimated from its own knowledge of EuroSAT. Feedback improved the result every round, by re-estimating those profiles rather than changing what the network computes. The deeper network did not beat the single-layer one (49.2% against 49.4%). The limit appears to be how well the model knows the class statistics, not network capacity. Logs: [W1](eurosat_wsp/experiment_4_write_full/), [W2](eurosat_wsp/experiment_5_write_code/runs/log.md).
+Both designs are interpretable: colour, darkness, smoothness and edge detectors feeding a nearest-centroid classifier whose class profiles Fable estimated from its own knowledge of EuroSAT. Feedback improved the result every round, by re-estimating those profiles rather than changing what the network computes. The deeper network did not beat the single-layer one (49.2% against 49.4%). The limit appears to be how well the model knows the class statistics, not network capacity.
+
+With all 13 Sentinel-2 bands (W3), Fable built vegetation, water and bare-soil indices from the infrared bands and scored higher at every round, reaching 60.4% at best. Part of that gain is in the data itself: a trivial mean-spectrum classifier also rises, from 30.4% to 48.6%, so Fable's margin over it is smaller than with RGB. Natural classes became almost perfect (SeaLake 99%, Forest 96%, River 83%), while highways, houses and industrial sites stayed hard to tell apart, and feedback stopped helping after one round. Logs: [W1](eurosat_wsp/experiment_4_write_full/), [W2](eurosat_wsp/experiment_5_write_code/runs/log.md), [W3](eurosat_wsp/experiment_6_write_multispectral/runs/log.md).
 
 ### READ: the seed structure is visible in the weights
 
