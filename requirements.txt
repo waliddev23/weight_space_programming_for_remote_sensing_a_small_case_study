@@ -1,0 +1,9 @@
+# Versions used for every result in this repository (Python 3.14, CUDA 12.6).
+# Install PyTorch first from https://pytorch.org for your CUDA version, then: pip install -r requirements.txt
+torch==2.14.1
+torchvision==0.29.1
+numpy==2.5.4
+datasets==5.1.0
+matplotlib==3.11.2
+scikit-learn==1.9.1
+pillow==13.0.0

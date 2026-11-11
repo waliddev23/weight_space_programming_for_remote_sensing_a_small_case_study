@@ -1,262 +1,320 @@
-"""Generate publication-quality figures for the EuroSAT WSP benchmark.
+"""Figures for the EuroSAT weight-space programming write-up.
 
-Saves to weight_space_programming/assets/:
-  1. write_training_curves.png       — 20-epoch curves: Claude Init vs Kaiming
-  2. read_seed_correlation_heatmap.png — 9×9 Pearson correlation matrix
-  3. edit_resnet18_recovery.png       — Original / Corrupted / Repaired bar chart
-  4. write_synthesized_filters.png    — 16 synthesised 3×3 RGB filter gallery
+    python eurosat_wsp/generate_figures.py            # all figures
+    python eurosat_wsp/generate_figures.py fig3 fig4  # a subset
+
+Every figure is rebuilt from result files on disk (no hard-coded numbers) and
+saved to assets/ as PNG (for Medium) and SVG (for GitHub / print). Figures carry
+no titles: the claim belongs in the caption next to the image (see README).
+
+Inputs
+  fig1, fig2  experiment_1_read/checkpoints + prompts/key_read_exp1_all9_models.json
+  fig3        experiment_2_edit/metrics/edit_baselines.json  (run_edit_baselines.py)
+  fig4        experiment_3_write/trained_runs/*.json          (wsp.py eval-write --train)
+  fig5        runs/write_run_001/parsed_output/first_conv_fable.pt
 """
 
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
+import matplotlib
+import matplotlib.ticker
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 import numpy as np
 import torch
+from matplotlib.colors import LinearSegmentedColormap
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
-WSP_ROOT  = Path(__file__).resolve().parent
-REPO_ROOT = WSP_ROOT.parent
-ASSETS_DIR = REPO_ROOT / "assets"
-ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+WSP_ROOT = Path(__file__).resolve().parent
+if str(WSP_ROOT) not in sys.path:
+    sys.path.insert(0, str(WSP_ROOT))
 
-# ── Global style (applied once, shared by all figures) ─────────────────────────
+import common as wsp
+import edit_repairs
+import read_features as rf
+
+ASSETS = WSP_ROOT.parent / "assets"
+WRITE_RUN = WSP_ROOT / "runs" / "write_run_001"
+
+# ── Palette (validated: dataviz reference palette, light surface) ────────────
+SURFACE = "#ffffff"
+INK = "#0b0b0b"
+INK_2 = "#52514e"
+MUTED = "#898781"
+GRID = "#e1e0d9"
+AXIS = "#c3c2b7"
+BLUE = "#2a78d6"          # series 1: the LLM-written / proposed method
+ORANGE = "#eb6834"        # series 2: Kaiming baseline
+CONDITION = {             # ordinal ramp, one hue, light -> dark = more augmentation
+    "no_augmentation": "#86b6ef",
+    "standard_augmentation": "#2a78d6",
+    "strong_augmentation": "#104281",
+}
+CONDITION_LABEL = {"no_augmentation": "none", "standard_augmentation": "standard",
+                   "strong_augmentation": "strong"}
+CONDITION_LEGEND = {"no_augmentation": "no augmentation", "standard_augmentation": "standard augmentation",
+                    "strong_augmentation": "strong augmentation"}
+SEQ = LinearSegmentedColormap.from_list("blue_seq", ["#f4f8fd", "#86b6ef", "#2a78d6", "#104281"])
+DIV = LinearSegmentedColormap.from_list("blue_red", ["#2a78d6", "#f0efec", "#e34948"])
+
 plt.rcParams.update({
-    "font.family":       "DejaVu Sans",
-    "font.size":         11,
-    "axes.titlesize":    13,
-    "axes.labelsize":    11,
-    "axes.spines.top":   False,
+    "font.family": ["Arial", "DejaVu Sans"],
+    "font.size": 9,
+    "axes.labelsize": 9,
+    "axes.titlesize": 9,
+    "axes.titleweight": "normal",
+    "axes.titlelocation": "left",
+    "axes.labelcolor": INK_2,
+    "axes.edgecolor": AXIS,
+    "axes.linewidth": 0.8,
+    "axes.spines.top": False,
     "axes.spines.right": False,
-    "axes.grid":         True,
-    "grid.color":        "#E8E8E8",
-    "grid.linewidth":    0.8,
-    "lines.linewidth":   2.2,
-    "figure.facecolor":  "white",
-    "axes.facecolor":    "white",
-    "savefig.dpi":       300,
-    "savefig.bbox":      "tight",
+    "axes.grid": False,
+    "grid.color": GRID,
+    "grid.linewidth": 0.6,
+    "xtick.color": MUTED,
+    "ytick.color": MUTED,
+    "xtick.labelcolor": INK_2,
+    "ytick.labelcolor": INK_2,
+    "xtick.major.size": 3,
+    "ytick.major.size": 3,
+    "legend.frameon": False,
+    "legend.fontsize": 8.5,
+    "lines.linewidth": 1.8,
+    "figure.facecolor": SURFACE,
+    "axes.facecolor": SURFACE,
+    "savefig.facecolor": SURFACE,
+    "svg.fonttype": "none",
 })
 
-# Colour palette
-C_CLAUDE  = "#2176AE"   # blue
-C_KAIMING = "#E07B39"   # orange
-C_GREEN   = "#2CA02C"
-C_RED     = "#D62728"
+
+def save(fig, name: str) -> None:
+    ASSETS.mkdir(parents=True, exist_ok=True)
+    for ext, kw in (("png", {"dpi": 250}), ("svg", {})):
+        fig.savefig(ASSETS / f"{name}.{ext}", bbox_inches="tight", pad_inches=0.08, **kw)
+    plt.close(fig)
+    print(f"saved assets/{name}.png/.svg")
 
 
-# ── Figure 1: Training Curves ─────────────────────────────────────────────────
-def plot_training_curves():
-    """20-epoch val accuracy & loss: Claude Fable 5.1 init vs Kaiming baseline."""
-    claude_p  = WSP_ROOT / "experiment_3_write" / "baseline" / "llm_trained_metrics.json"
-    kaiming_p = WSP_ROOT / "experiment_1_read" / "metrics" / "cnn_standard_seed0.json"
-
-    with open(claude_p,  encoding="utf-8") as f: claude_data  = json.load(f)
-    with open(kaiming_p, encoding="utf-8") as f: kaiming_data = json.load(f)
-
-    epochs = np.arange(1, 21)
-    ch = claude_data["history"]
-    kh = kaiming_data["history"]
-
-    c_val_acc  = [h["val_acc"]  * 100 for h in ch]
-    c_tr_acc   = [h["train_acc"]* 100 for h in ch]
-    c_val_loss = [h["val_loss"]       for h in ch]
-    c_tr_loss  = [h["train_loss"]     for h in ch]
-
-    k_val_acc  = [a * 100 for a in kh["val_acc"]]
-    k_tr_acc   = [a * 100 for a in kh["train_acc"]]
-    k_val_loss = kh["val_loss"]
-    k_tr_loss  = kh["train_loss"]
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5), constrained_layout=True)
-
-    # Accuracy
-    ax1.plot(epochs, c_val_acc,  color=C_CLAUDE,  label="Claude Fable 5.1 — Val")
-    ax1.plot(epochs, c_tr_acc,   color=C_CLAUDE,  alpha=0.35, linestyle=":")
-    ax1.plot(epochs, k_val_acc,  color=C_KAIMING, linestyle="--", label="Kaiming (Std Aug) — Val")
-    ax1.plot(epochs, k_tr_acc,   color=C_KAIMING, alpha=0.35, linestyle=":")
-    ax1.axhline(claude_data["test_acc"]*100,       color=C_CLAUDE,  linestyle="-.", alpha=0.7,
-                label=f"Fable test: {claude_data['test_acc']*100:.2f}%")
-    ax1.axhline(kaiming_data["test"]["accuracy"]*100, color=C_KAIMING, linestyle="-.", alpha=0.7,
-                label=f"Kaiming test: {kaiming_data['test']['accuracy']*100:.2f}%")
-    ax1.set_title("Validation Accuracy", fontweight="bold")
-    ax1.set_xlabel("Epoch"); ax1.set_ylabel("Accuracy (%)")
-    ax1.set_xlim(1, 20); ax1.set_ylim(50, 97)
-    ax1.xaxis.set_major_locator(mticker.MultipleLocator(2))
-    ax1.legend(loc="lower right", fontsize=10, framealpha=0.9, edgecolor="#ccc")
-
-    # Loss
-    ax2.plot(epochs, c_val_loss,  color=C_CLAUDE,  label="Claude Fable 5.1 — Val")
-    ax2.plot(epochs, c_tr_loss,   color=C_CLAUDE,  alpha=0.35, linestyle=":")
-    ax2.plot(epochs, k_val_loss,  color=C_KAIMING, linestyle="--", label="Kaiming (Std Aug) — Val")
-    ax2.plot(epochs, k_tr_loss,   color=C_KAIMING, alpha=0.35, linestyle=":")
-    ax2.set_title("Validation Loss", fontweight="bold")
-    ax2.set_xlabel("Epoch"); ax2.set_ylabel("Loss (CE + Label Smooth)")
-    ax2.set_xlim(1, 20)
-    ax2.xaxis.set_major_locator(mticker.MultipleLocator(2))
-    ax2.legend(loc="upper right", fontsize=10, framealpha=0.9, edgecolor="#ccc")
-
-    fig.suptitle(
-        "Experiment 3 — WRITE: Training Dynamics\n"
-        "LLM-Initialised conv1 (Claude Fable 5.1)  vs.  Kaiming-Normal Baseline",
-        fontsize=13, fontweight="bold", y=1.02
-    )
-    out = ASSETS_DIR / "write_training_curves.png"
-    plt.savefig(out); plt.close()
-    print(f"Saved → {out}")
+def panel_label(ax, text: str) -> None:
+    ax.set_title(text, loc="left", color=INK, fontsize=9, pad=8)
 
 
-# ── Figure 2: Seed Correlation Heatmap ───────────────────────────────────────
-def plot_seed_correlation_heatmap():
-    """9×9 Pearson correlation matrix of conv1 weight vectors for 9 blind models."""
-    ckpt_dir = WSP_ROOT / "experiment_1_read" / "checkpoints"
-    key_p    = WSP_ROOT / "prompts" / "key_read_exp1_all9_models.json"
-    with open(key_p, encoding="utf-8") as f:
-        key_data = json.load(f)
+# ── READ: load the nine models in seed-major order ───────────────────────────
+def load_read_models():
+    key = wsp.read_json(WSP_ROOT / "prompts" / "key_read_exp1_all9_models.json")["models"]
+    order = list(CONDITION)
+    items = sorted(key.items(), key=lambda kv: (kv[1]["train_seed"], order.index(kv[1]["condition"])))
+    models = []
+    for model_id, meta in items:
+        sd = wsp.load_state_dict(WSP_ROOT / "experiment_1_read" / "checkpoints" / meta["source_file"])
+        models.append({"id": model_id, "seed": meta["train_seed"], "condition": meta["condition"],
+                       "state": sd, **rf.fingerprint(sd)})
+    return models
 
-    model_labels = [f"Model_{i:02d}" for i in range(1, 10)]
-    weights, tick_labels = [], []
 
-    for label in model_labels:
-        src = key_data["models"][label]["source_file"]
-        state = torch.load(ckpt_dir / src, map_location="cpu", weights_only=True)
-        weights.append(state["conv1.weight"].detach().cpu().numpy().flatten())
-        raw = key_data["models"][label]["raw_condition"]
-        s   = key_data["models"][label]["train_seed"]
-        tick_labels.append(f"{label}\n({raw[:3]}, s{s})")
+def fig1_read_seed_structure(models) -> None:
+    corr = rf.correlation_matrix([m["state"]["conv1.weight"] for m in models])
+    labels = [f"M{m['id'][-2:]} · {CONDITION_LABEL[m['condition']]}" for m in models]
 
-    corr = np.corrcoef(np.array(weights))
-
-    fig, ax = plt.subplots(figsize=(8.5, 7.5))
-    im = ax.imshow(corr, cmap="Blues", vmin=0.0, vmax=1.0)
-    cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label("Pearson r", fontsize=11)
-
-    ax.set_xticks(range(9)); ax.set_yticks(range(9))
-    ax.set_xticklabels(tick_labels, rotation=45, ha="right", fontsize=9)
-    ax.set_yticklabels(tick_labels, fontsize=9)
-    ax.spines[:].set_visible(False)
-
-    for i in range(9):
+    fig, ax = plt.subplots(figsize=(4.6, 4.0))
+    im = ax.imshow(np.clip(corr, 0, 1), cmap=SEQ, vmin=0, vmax=1)
+    ax.set_xticks(range(9), labels, rotation=50, ha="right", rotation_mode="anchor")
+    ax.set_yticks(range(9), labels)
+    ax.tick_params(length=0)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    for b in (2.5, 5.5):                      # surface gaps between seed blocks
+        ax.axhline(b, color=SURFACE, lw=3)
+        ax.axvline(b, color=SURFACE, lw=3)
+    for i in range(9):                        # label only the within-seed pairs
         for j in range(9):
-            v = corr[i, j]
-            ax.text(j, i, f"{v:.2f}", ha="center", va="center",
-                    color="white" if v > 0.55 else "#222",
-                    fontsize=8.5, fontweight="bold")
-
-    ax.set_title(
-        "Experiment 1 — READ: Pairwise conv1 Weight Correlation (9 Blind Models)\n"
-        "Latent seed clusters: {01,02,08}  |  {03,04,09}  |  {05,06,07}",
-        fontsize=12, fontweight="bold", pad=14
-    )
-    out = ASSETS_DIR / "read_seed_correlation_heatmap.png"
-    plt.savefig(out, bbox_inches="tight"); plt.close()
-    print(f"Saved → {out}")
+            if i != j and i // 3 == j // 3:
+                ax.text(j, i, f"{corr[i, j]:.2f}", ha="center", va="center", fontsize=7.5, color="white")
+    for g in range(3):
+        ax.text(g * 3 + 1, -0.85, f"seed {models[g * 3]['seed']}", ha="center", va="bottom",
+                color=INK_2, fontsize=8.5)
+    cb = fig.colorbar(im, ax=ax, fraction=0.04, pad=0.03, ticks=[0, 0.5, 1])
+    cb.outline.set_visible(False)
+    cb.ax.tick_params(length=0, labelsize=8, labelcolor=INK_2)
+    cb.set_label("Pearson r of conv1 weights", color=INK_2)
+    save(fig, "fig1_read_seed_structure")
 
 
-# ── Figure 3: EDIT Recovery Bar Chart ────────────────────────────────────────
-def plot_resnet18_recovery():
-    """Original / Corrupted / Repaired ResNet-18 accuracy comparison."""
-    p = WSP_ROOT / "experiment_2_edit" / "metrics" / "llm_repair_a_result.json"
-    with open(p, encoding="utf-8") as f:
-        d = json.load(f)
-
-    orig_acc    = d["original_accuracy"]  * 100
-    corrupt_acc = d["corrupted_accuracy"] * 100
-    repair_acc  = d["repaired_accuracy"]  * 100
-    recovery    = d["recovery_percentage"]
-
-    fig, ax = plt.subplots(figsize=(8, 5.5), constrained_layout=True)
-
-    bars = ax.bar(
-        ["Original ResNet-18\n(Pristine Baseline)",
-         "Corrupted Variant A\n(Gaussian Noise, SNR 1:35)",
-         "Repaired by Fable 5.1\n(Debiased Wiener-MMSE)"],
-        [orig_acc, corrupt_acc, repair_acc],
-        color=[C_GREEN, C_RED, C_CLAUDE],
-        width=0.52, edgecolor="white", linewidth=0
-    )
-
-    for bar, val in zip(bars, [orig_acc, corrupt_acc, repair_acc]):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1.2,
-                f"{val:.2f}%", ha="center", va="bottom",
-                fontsize=12, fontweight="bold", color="#222")
-
-    ax.annotate(
-        f"+{recovery:.1f}% Recovery\n(zero data, no backprop)",
-        xy=(2, repair_acc * 0.55),
-        xytext=(1.35, 72),
-        arrowprops=dict(arrowstyle="->", color=C_CLAUDE, lw=1.8),
-        fontsize=10, fontweight="bold", color=C_CLAUDE,
-        bbox=dict(boxstyle="round,pad=0.4", facecolor="#e8f4ff", edgecolor=C_CLAUDE, alpha=0.9)
-    )
-
-    ax.set_ylim(0, 115)
-    ax.set_ylabel("EuroSAT Test Accuracy (%)")
-    ax.yaxis.grid(True, color="#E8E8E8", linewidth=0.8)
+def fig2_read_fingerprints(models) -> None:
+    fig, ax = plt.subplots(figsize=(4.8, 3.4))
+    ax.grid(True, axis="both")
     ax.set_axisbelow(True)
-    ax.spines["bottom"].set_visible(False)
-    ax.set_title(
-        "Experiment 2 — EDIT: Surgical Weight Repair of ResNet-18\n"
-        "layer3.0.conv1 — no training data, no gradient descent",
-        fontsize=13, fontweight="bold", pad=12
-    )
-
-    out = ASSETS_DIR / "edit_resnet18_recovery.png"
-    plt.savefig(out); plt.close()
-    print(f"Saved → {out}")
-
-
-# ── Figure 4: Synthesised Filters ────────────────────────────────────────────
-def plot_synthesized_filters():
-    """4×4 gallery of the 16 LLM-synthesised 3×3 RGB conv1 filters."""
-    weights_p = WSP_ROOT / "runs" / "write_run_001" / "parsed_output" / "first_conv_fable.pt"
-    weights   = torch.load(weights_p, map_location="cpu", weights_only=True).numpy()  # (16,3,3,3)
-
-    names = [
-        "F00  VARI Green-Excess",   "F01  Green-Red Contrast",
-        "F02  Laplacian of VARI",   "F03  Dark-Green (Forest)",
-        "F04  Water B-R Contrast",  "F05  SeaLake (Blue Dom.)",
-        "F06  River Ripple/Edge",   "F07  Sobel-X Edge",
-        "F08  Sobel-Y Edge",        "F09  45° Diagonal Edge",
-        "F10  135° Diagonal Edge",  "F11  Crop Row (Horiz.)",
-        "F12  Crop Row (Vert.)",    "F13  Diagonal Furrow",
-        "F14  Urban Spot/Corner",   "F15  Built Structure",
-    ]
-
-    fig, axes = plt.subplots(4, 4, figsize=(10, 10), constrained_layout=True)
-    fig.patch.set_facecolor("white")
-
-    for i, ax in enumerate(axes.flatten()):
-        f = weights[i].transpose(1, 2, 0)          # HWC
-        f_norm = (f - f.min()) / (f.max() - f.min() + 1e-12)
-        ax.imshow(f_norm, interpolation="nearest")
-        ax.set_title(names[i], fontsize=8.5, fontweight="bold", pad=4)
-        ax.set_xticks([]); ax.set_yticks([])
-        for spine in ax.spines.values():
-            spine.set_edgecolor("#cccccc"); spine.set_linewidth(0.8)
-
-    fig.suptitle(
-        "Experiment 3 — WRITE: 16 LLM-Synthesised 3×3 RGB Satellite Filters\n"
-        "Physical priors compiled directly into weight space by Claude Fable 5.1",
-        fontsize=13, fontweight="bold", y=1.02
-    )
-    out = ASSETS_DIR / "write_synthesized_filters.png"
-    plt.savefig(out); plt.close()
-    print(f"Saved → {out}")
+    for seed in sorted({m["seed"] for m in models}):
+        trio = [m for m in models if m["seed"] == seed]
+        xs = [m["luminance_fraction"] for m in trio]
+        ys = [m["head_effective_rank"] for m in trio]
+        ax.plot(xs, ys, color=AXIS, lw=1.0, zorder=1)
+        # label the strong-augmentation end, alternating sides so neighbours never touch
+        side = -1 if seed % 2 == 0 and seed != max(m["seed"] for m in models) else 1
+        ax.annotate(f"seed {seed}", (xs[-1], ys[-1]), xytext=(9 * side, 0), textcoords="offset points",
+                    ha="right" if side < 0 else "left", va="center", fontsize=8, color=MUTED)
+    for cond, color in CONDITION.items():
+        pts = [m for m in models if m["condition"] == cond]
+        ax.scatter([m["luminance_fraction"] for m in pts], [m["head_effective_rank"] for m in pts],
+                   s=46, color=color, edgecolor=SURFACE, linewidth=1.5, zorder=3,
+                   label=CONDITION_LEGEND[cond])
+    ax.set_xlabel("conv1 luminance fraction  (higher = more colour-invariant)")
+    ax.set_ylabel("classifier effective rank")
+    ax.set_ylim(9.1, 9.85)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, handletextpad=0.2,
+              columnspacing=1.2)
+    save(fig, "fig2_read_fingerprints")
 
 
-def main():
-    print("Generating 4 publication-quality figures …")
-    plot_training_curves()
-    plot_seed_correlation_heatmap()
-    plot_resnet18_recovery()
-    plot_synthesized_filters()
-    print("Done — all figures saved to assets/")
+# ── EDIT ─────────────────────────────────────────────────────────────────────
+EDIT_ORDER = ["corrupted", "zero_rows", "norm_match", "clip_range", "global_svd",
+              "mean_filter", "conditional_mean"]
+VARIANT_TITLE = {"A": "A  noise on 32 filters",
+                 "B": "B  90% pruned in 96 filters",
+                 "C": "C  96 filters removed"}
+
+
+def fig3_edit_methods() -> None:
+    res = wsp.read_json(WSP_ROOT / "experiment_2_edit" / "metrics" / "edit_baselines.json")
+    orig = res["original_test_accuracy"] * 100
+    variants = list(res["variants"])
+    fig, axes = plt.subplots(1, len(variants), figsize=(7.4, 3.0), sharey=True)
+    y = np.arange(len(EDIT_ORDER))[::-1]
+    for ax, v in zip(np.atleast_1d(axes), variants):
+        rows = res["variants"][v]["methods"]
+        acc = [rows[m]["test_accuracy"] * 100 for m in EDIT_ORDER]
+        corrupted = res["variants"][v]["corrupted_test_accuracy"] * 100
+        ax.grid(True, axis="x")
+        ax.set_axisbelow(True)
+        ax.axvline(orig, color=INK_2, lw=0.9)
+        if v == variants[0]:
+            ax.text(orig - 1.5, y[1] + 0.5, f"original{chr(10)}{orig:.1f}", ha="right", va="center",
+                    fontsize=7.5, color=INK_2, linespacing=1.1)
+        ax.hlines(y, corrupted, acc, color=GRID, lw=2.0, zorder=1)
+        colors = [BLUE if m == "conditional_mean" else MUTED for m in EDIT_ORDER]
+        ax.scatter(acc, y, s=34, color=colors, edgecolor=SURFACE, linewidth=1.2, zorder=3)
+        best = acc[EDIT_ORDER.index("conditional_mean")]
+        ax.annotate(f"{best:.1f}", (best, y[EDIT_ORDER.index("conditional_mean")]),
+                    xytext=(0, 7), textcoords="offset points", ha="center",
+                    fontsize=8, color=INK)
+        ax.set_xlim(40, 101)
+        ax.set_xticks([40, 60, 80, 100])
+        ax.set_xlabel("test accuracy (%)")
+        ax.spines["left"].set_visible(False)
+        ax.tick_params(axis="y", length=0)
+        panel_label(ax, VARIANT_TITLE.get(v, v))
+    axes[0].set_yticks(y, [edit_repairs.LABELS[m] for m in EDIT_ORDER])
+    fig.tight_layout(w_pad=1.2)
+    save(fig, "fig3_edit_methods")
+
+
+# ── WRITE ────────────────────────────────────────────────────────────────────
+def load_trained(prefix: str):
+    runs = {}
+    for p in sorted((WSP_ROOT / "experiment_3_write" / "trained_runs").glob(f"{prefix}*_seed*.json")):
+        d = json.loads(p.read_text(encoding="utf-8"))
+        runs[d["seed"]] = d
+    return runs
+
+
+def fig4_write_training() -> None:
+    fable = load_trained("first_conv_fable")
+    kaiming = load_trained("first_conv_kaiming")
+    seeds = sorted(set(fable) & set(kaiming))
+    if not seeds:
+        raise SystemExit("no paired runs in experiment_3_write/trained_runs; run eval-write --train first")
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.4, 2.9), width_ratios=[2.3, 1])
+    ax1.grid(True, axis="y")
+    ax1.set_axisbelow(True)
+    for runs, color, name in ((kaiming, ORANGE, "Kaiming init"), (fable, BLUE, "LLM-written conv1")):
+        curves = np.array([[h["val_acc"] * 100 for h in runs[s]["history"]] for s in seeds])
+        ep = np.arange(1, curves.shape[1] + 1)
+        ax1.fill_between(ep, curves.min(0), curves.max(0), color=color, alpha=0.15, lw=0)
+        ax1.plot(ep, curves.mean(0), color=color, label=name)
+    ax1.set_xlim(1, ep[-1])
+    ax1.set_xticks([1, 5, 10, 15, 20])
+    ax1.set_xlabel("epoch")
+    ax1.set_ylabel("validation accuracy (%)")
+    ax1.legend(loc="lower right")
+    panel_label(ax1, f"Validation accuracy, mean and range over {len(seeds)} seeds")
+
+    ax2.grid(True, axis="y")
+    ax2.set_axisbelow(True)
+    for s in seeds:
+        k, f = kaiming[s]["test_acc"] * 100, fable[s]["test_acc"] * 100
+        ax2.plot([0, 1], [k, f], color=AXIS, lw=1.0, zorder=1)
+        ax2.annotate(f"seed {s}", (0, k), xytext=(-8, 0), textcoords="offset points",
+                     ha="right", va="center", fontsize=7.5, color=MUTED)
+    for x, runs, color in ((0, kaiming, ORANGE), (1, fable, BLUE)):
+        ax2.scatter([x] * len(seeds), [runs[s]["test_acc"] * 100 for s in seeds], s=38,
+                    color=color, edgecolor=SURFACE, linewidth=1.3, zorder=3)
+    ax2.set_xticks([0, 1], ["Kaiming", "LLM-written"])
+    ax2.set_xlim(-0.75, 1.35)
+    lo = min(r["test_acc"] for runs in (fable, kaiming) for r in runs.values()) * 100
+    hi = max(r["test_acc"] for runs in (fable, kaiming) for r in runs.values()) * 100
+    ax2.set_ylim(np.floor((lo - 0.25) * 2) / 2, np.ceil((hi + 0.25) * 2) / 2)
+    ax2.set_ylabel("test accuracy (%)")
+    ax2.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(0.5))
+    panel_label(ax2, "Test accuracy per seed")
+    fig.tight_layout(w_pad=2.0)
+    save(fig, "fig4_write_training")
+
+
+FILTER_NAMES = [
+    "VARI, smoothed", "green − red", "VARI edges", "dark green",
+    "blue − red", "dark blue (water)", "blue texture", "vertical edge",
+    "horizontal edge", "45° edge", "135° edge", "horizontal rows",
+    "vertical rows", "diagonal rows", "bright spot", "corner",
+]
+
+
+def fig5_write_filters() -> None:
+    W = torch.load(WRITE_RUN / "parsed_output" / "first_conv_fable.pt",
+                   map_location="cpu", weights_only=True).numpy()
+    vmax = float(np.abs(W).max())
+    fig = plt.figure(figsize=(7.4, 4.6))
+    outer = fig.add_gridspec(4, 4, wspace=0.18, hspace=0.62, bottom=0.12)
+    for i in range(16):
+        inner = outer[i // 4, i % 4].subgridspec(1, 3, wspace=0.08)
+        for c, ch in enumerate("RGB"):
+            ax = fig.add_subplot(inner[0, c])
+            im = ax.imshow(W[i, c], cmap=DIV, vmin=-vmax, vmax=vmax, interpolation="nearest")
+            ax.set_xticks([])
+            ax.set_yticks([])
+            for s in ax.spines.values():
+                s.set_visible(False)
+            if i < 4:
+                ax.text(1, -0.75, ch, ha="center", va="bottom", fontsize=7.5, color=MUTED)
+            if c == 1:
+                ax.text(1, 2.9, f"{i:02d}  {FILTER_NAMES[i]}", ha="center", va="top",
+                        fontsize=7.8, color=INK_2)
+    cax = fig.add_axes([0.35, 0.03, 0.3, 0.016])
+    cb = fig.colorbar(im, cax=cax, orientation="horizontal", ticks=[-0.4, 0, 0.4])
+    cb.outline.set_visible(False)
+    cb.ax.tick_params(length=0, labelsize=8, labelcolor=INK_2)
+    cb.set_label("weight value", color=INK_2, fontsize=8)
+    save(fig, "fig5_write_filters")
+
+
+FIGURES = {
+    "fig1": lambda: fig1_read_seed_structure(load_read_models()),
+    "fig2": lambda: fig2_read_fingerprints(load_read_models()),
+    "fig3": fig3_edit_methods,
+    "fig4": fig4_write_training,
+    "fig5": fig5_write_filters,
+}
+
+
+def main(names: list[str]) -> None:
+    for name in names or FIGURES:
+        FIGURES[name]()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

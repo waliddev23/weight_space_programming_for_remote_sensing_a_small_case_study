@@ -142,7 +142,8 @@ def evaluate_write_zero_shot(weights_path: Path, seed: int = 0) -> dict:
     metrics = wsp.classification_metrics(y_true, y_pred)
 
     # Reference untrained Kaiming baselines
-    kaiming_acc = {0: 0.086, 1: 0.113, 2: 0.043}.get(seed, 0.100)
+    untrained = wsp.read_json(WSP_ROOT / "experiment_3_write" / "baseline" / "untrained_metrics.json")
+    kaiming_acc = float(untrained["untrained_baseline"][str(seed)]["test_accuracy"])
 
     print(f"Claude Synthesized Weights: Test Loss = {loss:.4f} | Test Acc = {acc * 100:.2f}%")
     print(f"Kaiming Baseline (Seed {seed}): Test Acc = {kaiming_acc * 100:.2f}%")
@@ -171,6 +172,9 @@ def evaluate_write_train(weights_path: Path, seed: int = 0, epochs: int = 20) ->
 
     device = wsp.get_device()
     use_amp = (device.type == "cuda")
+    # Match run_experiment_1.py exactly so the Kaiming references are a fair control.
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
 
     weights = wsp.load_external_first_conv(weights_path)
     model = wsp.build_smallcnn(seed=seed)
@@ -190,10 +194,11 @@ def evaluate_write_train(weights_path: Path, seed: int = 0, epochs: int = 20) ->
     test_loader = wsp.make_loader(test_ds, batch_size=256, shuffle=False)
 
     criterion = nn.CrossEntropyLoss(label_smoothing=wsp.TRAIN_CONFIG["label_smoothing"])
+    eval_criterion = nn.CrossEntropyLoss()  # val/test loss without smoothing, as in Experiment 1
     optimizer = wsp.make_optimizer(model, lr=wsp.TRAIN_CONFIG["lr"],
                                   weight_decay=wsp.TRAIN_CONFIG["weight_decay"])
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
-    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    scaler = torch.amp.GradScaler(device.type, enabled=use_amp)
 
     best_val_acc = -1.0
     best_state = None
@@ -204,7 +209,7 @@ def evaluate_write_train(weights_path: Path, seed: int = 0, epochs: int = 20) ->
         t0 = wsp.time.time()
         tr_loss, tr_acc = wsp.train_one_epoch(model, train_loader, criterion, optimizer,
                                              scaler, device, use_amp)
-        val_loss, val_acc, _, _ = wsp.evaluate(model, val_loader, criterion, device, use_amp)
+        val_loss, val_acc, _, _ = wsp.evaluate(model, val_loader, eval_criterion, device, use_amp)
         scheduler.step()
         dt = wsp.time.time() - t0
 
@@ -226,12 +231,13 @@ def evaluate_write_train(weights_path: Path, seed: int = 0, epochs: int = 20) ->
 
     # Evaluate best model on test split
     model.load_state_dict(best_state)
-    test_loss, test_acc, y_pred, y_true = wsp.evaluate(model, test_loader, criterion, device, use_amp)
+    test_loss, test_acc, y_pred, y_true = wsp.evaluate(model, test_loader, eval_criterion, device, use_amp)
     test_metrics = wsp.classification_metrics(y_true, y_pred)
 
-    # Reference: Kaiming seed-0 under standard augmentation
-    ref_val = 0.9039
-    ref_test = 0.9081
+    # Reference: Experiment 1 Kaiming model with the same seed, standard augmentation
+    ref = wsp.read_json(WSP_ROOT / "experiment_1_read" / "metrics" / f"cnn_standard_seed{seed}.json")
+    ref_val = float(ref["best_val_acc"])
+    ref_test = float(ref["test"]["accuracy"])
 
     print("\n--- Training Complete ---")
     print(f"Claude Init: Best Val Acc = {best_val_acc * 100:.2f}% | Test Acc = {test_acc * 100:.2f}%")
@@ -240,6 +246,9 @@ def evaluate_write_train(weights_path: Path, seed: int = 0, epochs: int = 20) ->
 
     out_payload = {
         "weights_source": str(weights_path),
+        "seed": seed,
+        "epochs": epochs,
+        "per_class": test_metrics.get("per_class"),
         "best_val_acc": float(best_val_acc),
         "test_acc": float(test_acc),
         "test_loss": float(test_loss),
@@ -249,7 +258,8 @@ def evaluate_write_train(weights_path: Path, seed: int = 0, epochs: int = 20) ->
         "history": history,
         "evaluated_at": wsp.now(),
     }
-    save_path = WSP_ROOT / "experiment_3_write" / "baseline" / "llm_trained_metrics.json"
+    save_path = (WSP_ROOT / "experiment_3_write" / "trained_runs"
+                 / f"{Path(weights_path).stem}_seed{seed}.json")
     wsp.write_json(out_payload, save_path)
     print(f"Saved training history to {save_path}\n")
     return out_payload

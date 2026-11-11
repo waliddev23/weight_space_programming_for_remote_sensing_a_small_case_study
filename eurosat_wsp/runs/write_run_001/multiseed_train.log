@@ -1,0 +1,210 @@
+### weight_space_programming/eurosat_wsp/runs/write_run_001/parsed_output/first_conv_fable.pt seed 0
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+============================================================
+=== WRITE EXPERIMENT: 20-EPOCH TRAINING SCHEDULE ===
+============================================================
+Starting training for 20 epochs on cuda (AMP=True)...
+Epoch 01/20 | train loss 1.3783 acc 0.620 | val loss 1.0475 acc 0.622 | 27.7s
+Epoch 02/20 | train loss 1.1539 acc 0.727 | val loss 0.7429 acc 0.772 | 22.2s
+Epoch 03/20 | train loss 1.0699 acc 0.771 | val loss 0.8055 acc 0.737 | 26.2s
+Epoch 04/20 | train loss 1.0249 acc 0.792 | val loss 0.6542 acc 0.804 | 34.6s
+Epoch 05/20 | train loss 0.9899 acc 0.805 | val loss 0.7116 acc 0.763 | 64.1s
+Epoch 06/20 | train loss 0.9445 acc 0.829 | val loss 0.5784 acc 0.837 | 46.1s
+Epoch 07/20 | train loss 0.9184 acc 0.842 | val loss 0.5287 acc 0.840 | 50.2s
+Epoch 08/20 | train loss 0.8981 acc 0.855 | val loss 0.4941 acc 0.853 | 45.5s
+Epoch 09/20 | train loss 0.8722 acc 0.866 | val loss 0.4664 acc 0.867 | 63.0s
+Epoch 10/20 | train loss 0.8537 acc 0.873 | val loss 0.5078 acc 0.850 | 53.0s
+Epoch 11/20 | train loss 0.8502 acc 0.877 | val loss 0.4427 acc 0.871 | 38.5s
+Epoch 12/20 | train loss 0.8409 acc 0.878 | val loss 0.4077 acc 0.892 | 44.6s
+Epoch 13/20 | train loss 0.8220 acc 0.891 | val loss 0.4353 acc 0.879 | 46.1s
+Epoch 14/20 | train loss 0.8086 acc 0.893 | val loss 0.3931 acc 0.894 | 45.7s
+Epoch 15/20 | train loss 0.8038 acc 0.898 | val loss 0.3814 acc 0.896 | 42.1s
+Epoch 16/20 | train loss 0.8009 acc 0.901 | val loss 0.3638 acc 0.901 | 34.8s
+Epoch 17/20 | train loss 0.7934 acc 0.903 | val loss 0.3657 acc 0.898 | 21.7s
+Epoch 18/20 | train loss 0.7907 acc 0.901 | val loss 0.3716 acc 0.898 | 21.2s
+Epoch 19/20 | train loss 0.7900 acc 0.905 | val loss 0.3914 acc 0.895 | 24.3s
+Epoch 20/20 | train loss 0.7858 acc 0.907 | val loss 0.3837 acc 0.897 | 21.0s
+
+--- Training Complete ---
+Claude Init: Best Val Acc = 90.13% | Test Acc = 90.94%
+Kaiming Ref: Best Val Acc = 90.39% | Test Acc = 90.81%
+Δ Test Acc: +0.13%
+Saved training history to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\trained_runs\first_conv_fable_seed0.json
+
+EXIT 0
+### weight_space_programming/eurosat_wsp/experiment_3_write/baseline/first_conv_kaiming_seed0.pt seed 0
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+============================================================
+=== WRITE EXPERIMENT: 20-EPOCH TRAINING SCHEDULE ===
+============================================================
+Starting training for 20 epochs on cuda (AMP=True)...
+Epoch 01/20 | train loss 1.4525 acc 0.583 | val loss 1.0688 acc 0.661 | 23.4s
+Epoch 02/20 | train loss 1.2156 acc 0.696 | val loss 0.8123 acc 0.738 | 18.9s
+Epoch 03/20 | train loss 1.1200 acc 0.745 | val loss 0.7593 acc 0.760 | 20.2s
+Epoch 04/20 | train loss 1.0671 acc 0.770 | val loss 0.7874 acc 0.740 | 20.2s
+Epoch 05/20 | train loss 1.0236 acc 0.788 | val loss 0.6451 acc 0.802 | 20.3s
+Epoch 06/20 | train loss 0.9812 acc 0.814 | val loss 0.6192 acc 0.838 | 21.5s
+Epoch 07/20 | train loss 0.9433 acc 0.831 | val loss 0.5846 acc 0.826 | 20.1s
+Epoch 08/20 | train loss 0.9189 acc 0.845 | val loss 0.5341 acc 0.858 | 21.1s
+Epoch 09/20 | train loss 0.8949 acc 0.858 | val loss 0.5379 acc 0.844 | 20.3s
+Epoch 10/20 | train loss 0.8766 acc 0.864 | val loss 0.4701 acc 0.863 | 20.4s
+Epoch 11/20 | train loss 0.8693 acc 0.868 | val loss 0.5476 acc 0.836 | 22.3s
+Epoch 12/20 | train loss 0.8578 acc 0.872 | val loss 0.4230 acc 0.887 | 24.3s
+Epoch 13/20 | train loss 0.8359 acc 0.884 | val loss 0.4084 acc 0.891 | 23.5s
+Epoch 14/20 | train loss 0.8214 acc 0.887 | val loss 0.3967 acc 0.898 | 22.9s
+Epoch 15/20 | train loss 0.8162 acc 0.893 | val loss 0.3917 acc 0.896 | 22.8s
+Epoch 16/20 | train loss 0.8154 acc 0.894 | val loss 0.3729 acc 0.904 | 23.2s
+Epoch 17/20 | train loss 0.8036 acc 0.898 | val loss 0.3717 acc 0.902 | 23.1s
+Epoch 18/20 | train loss 0.8041 acc 0.897 | val loss 0.3772 acc 0.901 | 23.4s
+Epoch 19/20 | train loss 0.8036 acc 0.898 | val loss 0.3941 acc 0.898 | 23.2s
+Epoch 20/20 | train loss 0.7970 acc 0.902 | val loss 0.3912 acc 0.897 | 23.7s
+
+--- Training Complete ---
+Claude Init: Best Val Acc = 90.39% | Test Acc = 90.81%
+Kaiming Ref: Best Val Acc = 90.39% | Test Acc = 90.81%
+Δ Test Acc: +0.00%
+Saved training history to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\trained_runs\first_conv_kaiming_seed0_seed0.json
+
+EXIT 0
+### weight_space_programming/eurosat_wsp/runs/write_run_001/parsed_output/first_conv_fable.pt seed 1
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+============================================================
+=== WRITE EXPERIMENT: 20-EPOCH TRAINING SCHEDULE ===
+============================================================
+Starting training for 20 epochs on cuda (AMP=True)...
+Epoch 01/20 | train loss 1.3669 acc 0.622 | val loss 1.0908 acc 0.638 | 22.2s
+Epoch 02/20 | train loss 1.1548 acc 0.726 | val loss 0.7735 acc 0.753 | 19.5s
+Epoch 03/20 | train loss 1.0702 acc 0.769 | val loss 0.8171 acc 0.735 | 20.8s
+Epoch 04/20 | train loss 1.0166 acc 0.796 | val loss 0.7026 acc 0.766 | 20.8s
+Epoch 05/20 | train loss 0.9813 acc 0.813 | val loss 0.5441 acc 0.850 | 25.6s
+Epoch 06/20 | train loss 0.9482 acc 0.829 | val loss 0.5757 acc 0.833 | 23.2s
+Epoch 07/20 | train loss 0.9265 acc 0.838 | val loss 0.6188 acc 0.804 | 35.1s
+Epoch 08/20 | train loss 0.8907 acc 0.860 | val loss 0.4779 acc 0.856 | 33.8s
+Epoch 09/20 | train loss 0.8728 acc 0.867 | val loss 0.4960 acc 0.852 | 34.2s
+Epoch 10/20 | train loss 0.8641 acc 0.872 | val loss 0.4598 acc 0.864 | 21.5s
+Epoch 11/20 | train loss 0.8484 acc 0.877 | val loss 0.4623 acc 0.872 | 20.1s
+Epoch 12/20 | train loss 0.8395 acc 0.882 | val loss 0.4017 acc 0.890 | 20.3s
+Epoch 13/20 | train loss 0.8225 acc 0.889 | val loss 0.4607 acc 0.864 | 20.0s
+Epoch 14/20 | train loss 0.8138 acc 0.893 | val loss 0.4276 acc 0.874 | 20.2s
+Epoch 15/20 | train loss 0.8042 acc 0.897 | val loss 0.4014 acc 0.889 | 19.9s
+Epoch 16/20 | train loss 0.7993 acc 0.901 | val loss 0.4011 acc 0.896 | 19.6s
+Epoch 17/20 | train loss 0.7930 acc 0.905 | val loss 0.3951 acc 0.894 | 19.7s
+Epoch 18/20 | train loss 0.7894 acc 0.908 | val loss 0.3773 acc 0.906 | 19.9s
+Epoch 19/20 | train loss 0.7857 acc 0.906 | val loss 0.3819 acc 0.900 | 20.3s
+Epoch 20/20 | train loss 0.7872 acc 0.905 | val loss 0.3802 acc 0.901 | 19.4s
+
+--- Training Complete ---
+Claude Init: Best Val Acc = 90.56% | Test Acc = 90.93%
+Kaiming Ref: Best Val Acc = 90.13% | Test Acc = 90.39%
+Δ Test Acc: +0.54%
+Saved training history to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\trained_runs\first_conv_fable_seed1.json
+
+EXIT 0
+### weight_space_programming/eurosat_wsp/experiment_3_write/baseline/first_conv_kaiming_seed1.pt seed 1
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+============================================================
+=== WRITE EXPERIMENT: 20-EPOCH TRAINING SCHEDULE ===
+============================================================
+Starting training for 20 epochs on cuda (AMP=True)...
+Epoch 01/20 | train loss 1.4375 acc 0.588 | val loss 0.9799 acc 0.679 | 20.8s
+Epoch 02/20 | train loss 1.2227 acc 0.691 | val loss 0.9073 acc 0.671 | 18.9s
+Epoch 03/20 | train loss 1.1344 acc 0.738 | val loss 0.9827 acc 0.669 | 19.9s
+Epoch 04/20 | train loss 1.0707 acc 0.769 | val loss 0.8353 acc 0.717 | 20.0s
+Epoch 05/20 | train loss 1.0303 acc 0.791 | val loss 0.6095 acc 0.833 | 19.9s
+Epoch 06/20 | train loss 0.9912 acc 0.808 | val loss 0.6680 acc 0.816 | 20.6s
+Epoch 07/20 | train loss 0.9606 acc 0.823 | val loss 0.6334 acc 0.807 | 20.2s
+Epoch 08/20 | train loss 0.9252 acc 0.842 | val loss 0.5331 acc 0.837 | 20.1s
+Epoch 09/20 | train loss 0.8994 acc 0.853 | val loss 0.5001 acc 0.860 | 19.6s
+Epoch 10/20 | train loss 0.8860 acc 0.861 | val loss 0.5316 acc 0.841 | 19.6s
+Epoch 11/20 | train loss 0.8654 acc 0.868 | val loss 0.4899 acc 0.859 | 19.6s
+Epoch 12/20 | train loss 0.8553 acc 0.877 | val loss 0.4010 acc 0.898 | 19.6s
+Epoch 13/20 | train loss 0.8377 acc 0.882 | val loss 0.4207 acc 0.883 | 20.3s
+Epoch 14/20 | train loss 0.8274 acc 0.889 | val loss 0.4594 acc 0.868 | 21.0s
+Epoch 15/20 | train loss 0.8187 acc 0.891 | val loss 0.4299 acc 0.884 | 20.4s
+Epoch 16/20 | train loss 0.8157 acc 0.893 | val loss 0.4015 acc 0.894 | 20.1s
+Epoch 17/20 | train loss 0.8048 acc 0.900 | val loss 0.3902 acc 0.896 | 20.6s
+Epoch 18/20 | train loss 0.8057 acc 0.898 | val loss 0.4018 acc 0.896 | 21.3s
+Epoch 19/20 | train loss 0.7996 acc 0.900 | val loss 0.3859 acc 0.901 | 19.9s
+Epoch 20/20 | train loss 0.8014 acc 0.899 | val loss 0.3871 acc 0.895 | 19.3s
+
+--- Training Complete ---
+Claude Init: Best Val Acc = 90.13% | Test Acc = 90.39%
+Kaiming Ref: Best Val Acc = 90.13% | Test Acc = 90.39%
+Δ Test Acc: +0.00%
+Saved training history to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\trained_runs\first_conv_kaiming_seed1_seed1.json
+
+EXIT 0
+### weight_space_programming/eurosat_wsp/runs/write_run_001/parsed_output/first_conv_fable.pt seed 2
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+============================================================
+=== WRITE EXPERIMENT: 20-EPOCH TRAINING SCHEDULE ===
+============================================================
+Starting training for 20 epochs on cuda (AMP=True)...
+Epoch 01/20 | train loss 1.3687 acc 0.623 | val loss 0.9662 acc 0.683 | 19.1s
+Epoch 02/20 | train loss 1.1454 acc 0.733 | val loss 0.7662 acc 0.770 | 17.8s
+Epoch 03/20 | train loss 1.0709 acc 0.771 | val loss 0.8107 acc 0.739 | 19.8s
+Epoch 04/20 | train loss 1.0186 acc 0.792 | val loss 0.7959 acc 0.749 | 19.3s
+Epoch 05/20 | train loss 0.9859 acc 0.813 | val loss 0.6975 acc 0.769 | 19.4s
+Epoch 06/20 | train loss 0.9475 acc 0.829 | val loss 0.6382 acc 0.793 | 19.3s
+Epoch 07/20 | train loss 0.9154 acc 0.846 | val loss 0.5555 acc 0.839 | 19.3s
+Epoch 08/20 | train loss 0.8965 acc 0.855 | val loss 0.6041 acc 0.828 | 19.4s
+Epoch 09/20 | train loss 0.8821 acc 0.863 | val loss 0.4748 acc 0.860 | 19.6s
+Epoch 10/20 | train loss 0.8604 acc 0.872 | val loss 0.4284 acc 0.890 | 19.4s
+Epoch 11/20 | train loss 0.8496 acc 0.875 | val loss 0.4328 acc 0.873 | 19.9s
+Epoch 12/20 | train loss 0.8326 acc 0.886 | val loss 0.4658 acc 0.866 | 20.1s
+Epoch 13/20 | train loss 0.8263 acc 0.888 | val loss 0.4366 acc 0.875 | 21.3s
+Epoch 14/20 | train loss 0.8094 acc 0.896 | val loss 0.3834 acc 0.901 | 21.2s
+Epoch 15/20 | train loss 0.8043 acc 0.897 | val loss 0.4234 acc 0.886 | 21.2s
+Epoch 16/20 | train loss 0.7993 acc 0.898 | val loss 0.3798 acc 0.897 | 20.3s
+Epoch 17/20 | train loss 0.7960 acc 0.901 | val loss 0.3859 acc 0.901 | 20.2s
+Epoch 18/20 | train loss 0.7855 acc 0.908 | val loss 0.3889 acc 0.897 | 20.4s
+Epoch 19/20 | train loss 0.7860 acc 0.905 | val loss 0.3835 acc 0.902 | 19.5s
+Epoch 20/20 | train loss 0.7845 acc 0.907 | val loss 0.3805 acc 0.899 | 18.8s
+
+--- Training Complete ---
+Claude Init: Best Val Acc = 90.20% | Test Acc = 90.56%
+Kaiming Ref: Best Val Acc = 89.54% | Test Acc = 89.85%
+Δ Test Acc: +0.70%
+Saved training history to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\trained_runs\first_conv_fable_seed2.json
+
+EXIT 0
+### weight_space_programming/eurosat_wsp/experiment_3_write/baseline/first_conv_kaiming_seed2.pt seed 2
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+============================================================
+=== WRITE EXPERIMENT: 20-EPOCH TRAINING SCHEDULE ===
+============================================================
+Starting training for 20 epochs on cuda (AMP=True)...
+Epoch 01/20 | train loss 1.4286 acc 0.591 | val loss 1.1153 acc 0.611 | 18.2s
+Epoch 02/20 | train loss 1.1995 acc 0.701 | val loss 0.7496 acc 0.768 | 18.8s
+Epoch 03/20 | train loss 1.1161 acc 0.749 | val loss 0.9198 acc 0.690 | 18.8s
+Epoch 04/20 | train loss 1.0588 acc 0.773 | val loss 0.7341 acc 0.775 | 18.8s
+Epoch 05/20 | train loss 1.0130 acc 0.796 | val loss 0.7133 acc 0.787 | 18.8s
+Epoch 06/20 | train loss 0.9769 acc 0.813 | val loss 0.7373 acc 0.751 | 19.4s
+Epoch 07/20 | train loss 0.9437 acc 0.831 | val loss 0.5382 acc 0.844 | 21.3s
+Epoch 08/20 | train loss 0.9189 acc 0.846 | val loss 0.6304 acc 0.821 | 20.4s
+Epoch 09/20 | train loss 0.8991 acc 0.854 | val loss 0.5334 acc 0.833 | 19.9s
+Epoch 10/20 | train loss 0.8829 acc 0.861 | val loss 0.5330 acc 0.848 | 21.0s
+Epoch 11/20 | train loss 0.8702 acc 0.866 | val loss 0.4886 acc 0.854 | 19.9s
+Epoch 12/20 | train loss 0.8485 acc 0.880 | val loss 0.5173 acc 0.846 | 20.8s
+Epoch 13/20 | train loss 0.8429 acc 0.880 | val loss 0.4586 acc 0.869 | 23.5s
+Epoch 14/20 | train loss 0.8287 acc 0.885 | val loss 0.4402 acc 0.882 | 20.1s
+Epoch 15/20 | train loss 0.8242 acc 0.888 | val loss 0.4709 acc 0.864 | 19.5s
+Epoch 16/20 | train loss 0.8139 acc 0.892 | val loss 0.4113 acc 0.888 | 19.4s
+Epoch 17/20 | train loss 0.8109 acc 0.896 | val loss 0.4062 acc 0.894 | 19.4s
+Epoch 18/20 | train loss 0.8033 acc 0.899 | val loss 0.4039 acc 0.894 | 20.0s
+Epoch 19/20 | train loss 0.8020 acc 0.899 | val loss 0.4129 acc 0.895 | 18.9s
+Epoch 20/20 | train loss 0.7994 acc 0.900 | val loss 0.4087 acc 0.895 | 18.8s
+
+--- Training Complete ---
+Claude Init: Best Val Acc = 89.54% | Test Acc = 89.85%
+Kaiming Ref: Best Val Acc = 89.54% | Test Acc = 89.85%
+Δ Test Acc: +0.00%
+Saved training history to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\trained_runs\first_conv_kaiming_seed2_seed2.json
+
+EXIT 0

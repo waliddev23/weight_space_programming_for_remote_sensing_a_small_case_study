@@ -1,0 +1,112 @@
+{
+  "original_test_accuracy": 0.9818518518518519,
+  "variants": {
+    "A": {
+      "name": "gaussian_noise",
+      "corrupted_test_accuracy": 0.5766666666666667,
+      "methods": {
+        "corrupted": {
+          "test_accuracy": 0.5766666666666667,
+          "recovery": 0.0
+        },
+        "zero_rows": {
+          "test_accuracy": 0.9405555555555556,
+          "recovery": 0.8980804387568556
+        },
+        "norm_match": {
+          "test_accuracy": 0.9525925925925925,
+          "recovery": 0.9277879341864715
+        },
+        "clip_range": {
+          "test_accuracy": 0.7824074074074074,
+          "recovery": 0.5077696526508227
+        },
+        "global_svd": {
+          "test_accuracy": 0.4577777777777778,
+          "recovery": -0.29341864716636196
+        },
+        "mean_filter": {
+          "test_accuracy": 0.9546296296296296,
+          "recovery": 0.9328153564899451
+        },
+        "conditional_mean": {
+          "test_accuracy": 0.9546296296296296,
+          "recovery": 0.9328153564899451
+        },
+        "submitted": {
+          "test_accuracy": 0.9546296296296296,
+          "recovery": 0.9328153564899451
+        }
+      }
+    },
+    "B": {
+      "name": "pruning",
+      "corrupted_test_accuracy": 0.6453703703703704,
+      "methods": {
+        "corrupted": {
+          "test_accuracy": 0.6453703703703704,
+          "recovery": 0.0
+        },
+        "zero_rows": {
+          "test_accuracy": 0.4866666666666667,
+          "recovery": -0.4716565767749036
+        },
+        "norm_match": {
+          "test_accuracy": 0.8131481481481482,
+          "recovery": 0.4986241056686847
+        },
+        "clip_range": {
+          "test_accuracy": 0.644074074074074,
+          "recovery": -0.0038525041276831562
+        },
+        "global_svd": {
+          "test_accuracy": 0.4853703703703704,
+          "recovery": -0.4755090809025866
+        },
+        "mean_filter": {
+          "test_accuracy": 0.7905555555555556,
+          "recovery": 0.43148046230049536
+        },
+        "conditional_mean": {
+          "test_accuracy": 0.8938888888888888,
+          "recovery": 0.7385800770500824
+        }
+      }
+    },
+    "C": {
+      "name": "filter_removal",
+      "corrupted_test_accuracy": 0.4866666666666667,
+      "methods": {
+        "corrupted": {
+          "test_accuracy": 0.4866666666666667,
+          "recovery": 0.0
+        },
+        "zero_rows": {
+          "test_accuracy": 0.4866666666666667,
+          "recovery": 0.0
+        },
+        "norm_match": {
+          "test_accuracy": 0.4866666666666667,
+          "recovery": 0.0
+        },
+        "clip_range": {
+          "test_accuracy": 0.4866666666666667,
+          "recovery": 0.0
+        },
+        "global_svd": {
+          "test_accuracy": 0.43796296296296294,
+          "recovery": -0.09835452505609583
+        },
+        "mean_filter": {
+          "test_accuracy": 0.7905555555555556,
+          "recovery": 0.6136873597606581
+        },
+        "conditional_mean": {
+          "test_accuracy": 0.7905555555555556,
+          "recovery": 0.6136873597606581
+        }
+      }
+    }
+  },
+  "evaluated_at": "2026-11-11T15:59:26"
+}

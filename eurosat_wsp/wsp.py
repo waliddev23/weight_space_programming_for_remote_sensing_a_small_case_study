@@ -19,6 +19,12 @@ WSP_ROOT = Path(__file__).resolve().parent
 if str(WSP_ROOT) not in sys.path:
     sys.path.insert(0, str(WSP_ROOT))
 
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 import wsp_eval
 import wsp_parser
 import wsp_prompts
