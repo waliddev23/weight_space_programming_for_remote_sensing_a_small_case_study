@@ -41,3 +41,4 @@ Thumbs.db
 
 # W1 baselines stay private until all model attempts are recorded (docs/next_steps.md, rule 4)
 eurosat_wsp/experiment_4_write_full/baselines/
+eurosat_wsp/experiment_5_write_code/private/

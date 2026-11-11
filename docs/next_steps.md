@@ -50,6 +50,25 @@ linear 16 -> 10 classes, with bias          170 weights
 
 **Relaxed variant W1b,** reported separately: Fable may also see per-class mean and standard deviation of R, G and B from the training set, a few numbers of "documentation". This tests whether the bottleneck is domain knowledge or the translation of knowledge into weights.
 
+## Experiment W2 · Write a larger network as a program, with a little feedback
+
+Added 2026-11-11, after W1 attempt 1 scored 49.4%, before any W2 attempt. Matches Takehi et al.'s Experiment 6, scaled down. W1 attempt 2 was skipped to save model usage, so W1 rests on a single attempt.
+
+**Network.** Two convolutional layers, 5,418 weights: conv 3→16, ReLU, 4×4 average pooling, conv 16→32, ReLU, global average, linear 32→10.
+
+**Task.** The model writes a short Python function, numpy and math only, that returns every weight. The code cannot see data or run the network; the harness runs it in an isolated process and rejects file, network or random-number use. Code execution stays off in the chat, so the model never runs its own code.
+
+**Feedback.** After the first answer (round 0), up to 3 rounds. Each returns accuracy, recall per class and the confusion matrix on a fixed practice set of 1,000 validation images (100 per class). The test set is never shown. Every round is also scored on the test set privately.
+
+**Baselines.** Kaiming initialisation and the same network trained with AdamW (3 seeds each), plus W1 attempt 1 (49.4%).
+
+**Outcomes reported.** Test accuracy after each round, giving a small "accuracy against feedback budget" curve as in Takehi et al.
+
+**Success criteria.**
+- **Round 0 (no feedback):** test accuracy above 30.4%, the mean-RGB centroid.
+- **Feedback helps:** round 3 test accuracy above round 0.
+- **Depth helps:** any round above W1's 49.4%.
+
 ## Experiment R2 · Read what a network was trained to do
 
 Matches Takehi et al.'s Experiment 1: open-ended, no options, no tools.

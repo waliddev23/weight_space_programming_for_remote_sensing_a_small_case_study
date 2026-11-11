@@ -1,0 +1,40 @@
+You are an expert in remote sensing and neural networks.
+
+# Task
+Write a Python function that builds every weight of a small convolutional network that classifies EuroSAT satellite images into 10 land-cover classes, as accurately as possible. There is no training and no data. Your code cannot see any images and cannot run the network.
+
+# Data
+EuroSAT RGB: Sentinel-2 satellite image patches over Europe, 64 x 64 pixels at 10 m per pixel, true colour, seen from directly above.
+
+Classes (output index: name):
+  0: Annual Crop
+  1: Forest
+  2: Herbaceous Vegetation
+  3: Highway
+  4: Industrial Buildings
+  5: Pasture
+  6: Permanent Crop
+  7: Residential Buildings
+  8: River
+  9: SeaLake
+
+# Input
+Each image is a tensor [3, 64, 64], channels R, G, B. Pixels are scaled to [0, 1] and normalised per channel:
+  x_c = (pixel_c - mean_c) / std_c,  mean = (0.485, 0.456, 0.406), std = (0.229, 0.224, 0.225)
+
+# Network (5,418 weights)
+  h = relu(conv2d(x, conv1_weight, conv1_bias, 3x3, stride 1, padding 1))   # [16, 64, 64]
+  h = avg_pool2d(h, 4)                                                         # [16, 16, 16]
+  h = relu(conv2d(h, conv2_weight, conv2_bias, 3x3, stride 1, padding 1))    # [32, 16, 16]
+  f = mean of h over all 16 x 16 positions                                     # [32]
+  logits = fc_weight @ f + fc_bias                                             # [10]
+  prediction = argmax(logits)
+
+Shapes: conv1_weight [16,3,3,3], conv1_bias [16], conv2_weight [32,16,3,3], conv2_bias [32], fc_weight [10,32], fc_bias [10].
+Convolution weights are indexed (output channel, input channel, row, column).
+
+# What to return
+One ```python code block defining build_weights() that returns a dict with exactly those six keys, each a numpy array of the given shape. Only numpy and math may be imported. The code must not read files, access the network or use randomness. Keep the code short; explain the design in a few sentences before it.
+
+# Feedback
+After your first answer you may receive up to 3 rounds of feedback. Each reports your network's accuracy, recall per class and confusion matrix on a fixed practice set of 1000 validation images. You may then send a revised build_weights(). The final evaluation uses a separate test set that you never see.
