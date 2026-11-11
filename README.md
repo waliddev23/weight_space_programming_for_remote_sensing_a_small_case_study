@@ -16,7 +16,7 @@ Claude Fable 5.1 ran all three experiments in one Claude Code session on 10 Nove
 
 ### Follow-up: writing whole networks with no tools and no training
 
-The pilot let Fable use Python and train afterwards. Two follow-up experiments test Takehi et al.'s stronger claim directly. Fable ran in a claude.ai chat with code execution, web search and memory switched off, and every network was evaluated exactly as written, with no training. Designs and success criteria were fixed before any attempt ([docs/next_steps.md](docs/next_steps.md)).
+The pilot let Fable use Python and train afterwards. Two follow-up experiments test Takehi et al.'s stronger claim directly. They were run on 11 November with **Claude Fable 5.2** (the pilot used Fable 5.1), in a claude.ai chat with code execution, web search and memory switched off, and every network was evaluated exactly as written, with no training. Designs and success criteria were fixed before any attempt ([docs/next_steps.md](docs/next_steps.md)).
 
 | Experiment | What Fable wrote | Test accuracy | Reference points |
 |---|---|---|---|

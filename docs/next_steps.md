@@ -7,7 +7,7 @@ Each experiment has its success criteria and baselines fixed here, **before it i
 ## Rules that apply to every experiment
 
 1. **No tools means no tools.** The model is called through a plain chat or API request with tool use disabled, not inside Claude Code. It answers in a single reply.
-2. **Same model.** Claude Fable 5.1, so results connect to the pilot.
+2. **Same model.** Claude Fable 5.1, so results connect to the pilot. *Deviation:* the no-tools experiments W1, W2 and W3 were run on 2026-11-11 with **Claude Fable 5.2**, the version available in claude.ai that day. Differences between the pilot and these experiments may therefore partly reflect the model version.
 3. **Two attempts per task,** both reported, as in Takehi et al.
 4. **Keys stay outside the repository** until all answers are recorded. Answer keys, original checkpoints and trained ceilings are committed only afterwards.
 5. **Full logs.** The exact prompt, the full response and the evaluation output are saved for every attempt.

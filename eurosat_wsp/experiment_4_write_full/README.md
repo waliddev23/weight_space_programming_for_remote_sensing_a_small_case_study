@@ -17,7 +17,7 @@ The model has to decide what each of the 16 filters should detect (a colour, an 
 
 ## How to run an attempt
 
-**1. Open a new chat with Claude Fable 5.1, with tools off.** In claude.ai, start a new conversation, select Fable 5.1, and switch off code execution (the analysis tool) and web search. The model must not be able to run code. Use a new chat for every attempt.
+**1. Open a new chat with Claude Fable 5.2, with tools off.** In claude.ai, start a new conversation, select Fable 5.2 (the version used for attempt 1), and switch off code execution (the analysis tool) and web search. The model must not be able to run code. Use a new chat for every attempt.
 
 **2. Paste the whole prompt.**
 - W1, attempt 1 and 2: `prompts/prompt_w1.txt`

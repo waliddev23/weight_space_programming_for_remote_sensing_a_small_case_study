@@ -1,6 +1,6 @@
 # W2 run log
 
-Claude Fable 5.1 in claude.ai, code execution, web search and memory off. One chat for all rounds.
+Claude Fable 5.2 in claude.ai, code execution, web search and memory off. One chat for all rounds.
 The model sees only the practice-set feedback (1,000 validation images). Test scores (5,400 images) are recorded here and never shown to it.
 
 | Round | Practice accuracy (shown to model) | Test accuracy (never shown) | Test balanced accuracy | Notes |
