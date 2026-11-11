@@ -43,20 +43,23 @@ def to_tensor(x_mm, device, dtype):
 
 @torch.no_grad()
 def accuracy(net, x, y):
+    """Data may live on the GPU or in host memory; batches are moved to the model's device."""
     net.eval()
+    dev = next(net.parameters()).device
     correct = 0
     for i in range(0, len(x), 512):
-        correct += (net(x[i:i + 512].float()).argmax(1) == y[i:i + 512]).sum().item()
+        correct += (net(x[i:i + 512].to(dev).float()).argmax(1) == y[i:i + 512].to(dev)).sum().item()
     return correct / len(x)
 
 
-def fable_net(rescale: bool, x_cal) -> SmallNetMS:
+def fable_net(rescale: bool, x_cal, device) -> SmallNetMS:
     w = dict(np.load(HERE / "runs" / f"round_{FABLE_ROUND}" / "weights.npz"))
     net = SmallNetMS().load_written(w)
     if rescale:
         with torch.no_grad():
             net.eval()
-            logits = torch.cat([net.to(x_cal.device)(x_cal[i:i + 256].float()) for i in range(0, len(x_cal), 256)])
+            net.to(device)
+            logits = torch.cat([net(x_cal[i:i + 256].to(device).float()) for i in range(0, len(x_cal), 256)])
             c = 1.0 / logits.std().item()
             net.fc.weight.mul_(c)
             net.fc.bias.mul_(c)
@@ -80,8 +83,7 @@ def subset(y: np.ndarray, frac: float, seed: int) -> np.ndarray:
     return np.sort(np.concatenate(idx))
 
 
-def train(net, xtr, ytr, xva, yva, xte, yte, epochs, seed):
-    device = xtr.device
+def train(net, xtr, ytr, xva, yva, xte, yte, epochs, seed, device):
     net = net.to(device)
     torch.manual_seed(seed)
     opt = torch.optim.AdamW(net.parameters(), lr=3e-3, weight_decay=1e-4)
@@ -91,8 +93,8 @@ def train(net, xtr, ytr, xva, yva, xte, yte, epochs, seed):
     for _ in range(epochs):
         net.train()
         for idx in torch.randperm(len(ytr), generator=g).split(128):
-            idx = idx.to(device)
-            loss = F.cross_entropy(net(xtr[idx].float()), ytr[idx])
+            idx = idx.to(xtr.device)
+            loss = F.cross_entropy(net(xtr[idx].to(device).float()), ytr[idx].to(device))
             opt.zero_grad(set_to_none=True)
             loss.backward()
             opt.step()
@@ -109,28 +111,28 @@ def train(net, xtr, ytr, xva, yva, xte, yte, epochs, seed):
 def run_all() -> None:
     device = wsp.get_device()
     free = torch.cuda.mem_get_info()[0] if device.type == "cuda" else 0
+    # About 2.9 GB in half precision: kept on the GPU when it fits, otherwise in host memory
     data_device = device if free > 4.5e9 else torch.device("cpu")
-    print(f"data on {data_device}", flush=True)
+    print(f"compute on {device}, data on {data_device}", flush=True)
     raw = {s: load_ms(s) for s in ("train", "validation", "test")}
     x = {s: to_tensor(raw[s][0], data_device, torch.float16) for s in raw}
     y = {s: raw[s][1].to(data_device) for s in raw}
-    if data_device != device:   # training needs batches on the GPU; keep data on CPU and move per batch
-        raise SystemExit("not enough GPU memory to hold the data; reduce budgets or add CPU batching")
     ytr_np = raw["train"][1].numpy()
     cal = x["train"][np.random.default_rng(0).choice(len(ytr_np), 1000, replace=False)]
 
     results = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
     for frac in sorted(BUDGETS):
         for seed in SEEDS:
-            idx = torch.from_numpy(subset(ytr_np, frac, seed)).to(device)
+            idx = torch.from_numpy(subset(ytr_np, frac, seed)).to(data_device)
             xtr, ytr = x["train"][idx], y["train"][idx]
             for init in INITS:
                 key = f"{frac}|{seed}|{init}"
                 if key in results:
                     continue
                 t0 = time.time()
-                net = kaiming_net(seed) if init == "kaiming" else fable_net(init == "fable_rescaled", cal)
-                r = train(net, xtr, ytr, x["validation"], y["validation"], x["test"], y["test"], BUDGETS[frac], seed)
+                net = kaiming_net(seed) if init == "kaiming" else fable_net(init == "fable_rescaled", cal, device)
+                r = train(net, xtr, ytr, x["validation"], y["validation"], x["test"], y["test"], BUDGETS[frac], seed,
+                          device)
                 r.update({"budget": frac, "n_train": int(len(idx)), "seed": seed, "init": init,
                           "epochs": BUDGETS[frac], "seconds": round(time.time() - t0, 1)})
                 results[key] = r

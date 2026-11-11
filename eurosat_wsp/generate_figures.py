@@ -326,8 +326,8 @@ def fig6_write_no_training() -> None:
     ax.grid(True, axis="y")
     ax.set_axisbelow(True)
     x = np.arange(len(rgb))
-    for vals, base, color, name, base_name in ((rgb, base_rgb, ORANGE, "RGB, 3 bands", "mean-colour classifier"),
-                                               (ms, base_ms, BLUE, "multispectral, 13 bands",
+    for vals, base, color, name, base_name in ((rgb, base_rgb, ORANGE, "Fable 5.2, RGB (W2)", "mean-colour classifier"),
+                                               (ms, base_ms, BLUE, "Fable 5.2, 13 bands (W3)",
                                                 "mean-spectrum classifier")):
         ax.axhline(base, color=color, lw=0.9, alpha=0.6, zorder=1)
         ax.text(len(vals) - 1 + 0.35, base, base_name, va="center", fontsize=7.5, color=INK_2,
@@ -336,13 +336,13 @@ def fig6_write_no_training() -> None:
         ax.annotate(f"{vals[-1]:.1f}", (x[-1], vals[-1]), xytext=(0, 8), textcoords="offset points",
                     ha="center", fontsize=8, color=INK)
     ax.scatter([0], [w1], marker="D", s=30, color=ORANGE, edgecolor=SURFACE, linewidth=1.2, zorder=3)
-    ax.annotate(f"RGB, one layer, typed by hand: {w1:.1f}", (0, w1), xytext=(8, 7), textcoords="offset points",
+    ax.annotate(f"W1: RGB, one layer, typed by hand ({w1:.1f})", (0, w1), xytext=(8, 7), textcoords="offset points",
                 va="center", fontsize=7.5, color=INK_2)
     ax.set_xticks(x, ["0\nno feedback", "1", "2", "3"])
     ax.set_xlim(-0.3, len(rgb) - 1 + 1.75)
     ax.set_ylim(25, 65)
     ax.set_xlabel("feedback rounds")
-    ax.set_ylabel("test accuracy, no training (%)")
+    ax.set_ylabel("test accuracy without training (%)")
     ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.36))
     save(fig, "fig6_write_no_training")
 
@@ -350,24 +350,64 @@ def fig6_write_no_training() -> None:
 def fig7_write_init() -> None:
     res = json.loads((WSP_ROOT / "experiment_6_write_multispectral" / "init_compare" / "results.json")
                      .read_text(encoding="utf-8"))
+    before = json.loads((WSP_ROOT / "experiment_6_write_multispectral" / "private" / "round_3.json")
+                        .read_text(encoding="utf-8"))["test"]["test_accuracy"] * 100
     budgets = [0.01, 0.1, 1.0]
-    inits = [("kaiming", ORANGE, "Kaiming init"), ("fable_as_written", AQUA, "Fable, as written"),
-             ("fable_rescaled", BLUE, "Fable, rescaled")]
-    fig, ax = plt.subplots(figsize=(6.2, 3.4))
-    ax.grid(True, axis="y")
-    ax.set_axisbelow(True)
+    budget_labels = ["1%\n(163)", "10%\n(1,620)", "100%\n(16,199)"]
+    inits = [("kaiming", ORANGE, "Kaiming initialisation"),
+             ("fable_as_written", AQUA, "Fable 5.2 network, as written"),
+             ("fable_rescaled", BLUE, "Fable 5.2 network, rescaled")]
+
+    def vals(b, key):
+        rows = sorted((r for r in res.values() if r["budget"] == b and r["init"] == key), key=lambda r: r["seed"])
+        return np.array([r["test_accuracy"] * 100 for r in rows])
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.6, 3.5), width_ratios=[1.45, 1])
+
+    # (a) test accuracy after training: mean ± s.d. over seeds, seeds as dots
+    ax1.grid(True, axis="y")
+    ax1.set_axisbelow(True)
+    ax1.axhline(before, color=INK_2, lw=0.8, zorder=1)
+    ax1.text(2.45, before - 0.6, f"Fable 5.2 network\nbefore training: {before:.1f}%", fontsize=7.5,
+             color=INK_2, va="top", ha="right", linespacing=1.15)
+    off = {0: -0.24, 1: 0.0, 2: 0.24}
     for j, (key, color, name) in enumerate(inits):
         for i, b in enumerate(budgets):
-            vals = [r["test_accuracy"] * 100 for r in res.values() if r["budget"] == b and r["init"] == key]
-            xpos = i + (j - 1) * 0.24
-            ax.scatter([xpos] * len(vals), vals, s=14, color=color, alpha=0.45, lw=0, zorder=2)
-            ax.hlines(np.mean(vals), xpos - 0.09, xpos + 0.09, color=color, lw=2.4, zorder=3,
-                      label=name if i == 0 else None)
-    ax.set_xticks(range(len(budgets)), ["1%\n163 images", "10%\n1,620 images", "100%\n16,199 images"])
-    ax.set_xlabel("training labels used")
-    ax.set_ylabel("test accuracy after training (%)")
-    ax.legend(loc="upper left", ncol=3, handlelength=1.2, columnspacing=1.0)
-    ax.set_ylim(55, 92)
+            v = vals(b, key)
+            xpos = i + off[j]
+            ax1.scatter(xpos + np.array([-0.035, 0, 0.035])[:len(v)], v, s=11, color=color, alpha=0.5, lw=0, zorder=2)
+            ax1.errorbar(xpos, v.mean(), yerr=v.std(ddof=1), fmt="o", ms=5.5, color=color, mec=SURFACE, mew=1.0,
+                         elinewidth=1.2, capsize=2.5, zorder=3, label=name if i == 0 else None)
+    ax1.set_xticks(range(3), budget_labels)
+    ax1.set_xlim(-0.5, 2.5)
+    ax1.set_ylim(55, 92)
+    ax1.set_xlabel("training labels used (images)")
+    ax1.set_ylabel("test accuracy after training (%)")
+    panel_label(ax1, "(a) Accuracy, mean ± s.d. over 3 seeds")
+
+    # (b) paired gain over Kaiming, same seed and same training images
+    ax2.grid(True, axis="y")
+    ax2.set_axisbelow(True)
+    ax2.axhline(0, color=INK_2, lw=0.9, zorder=1)
+    for j, (key, color, name) in enumerate(inits[1:]):
+        for i, b in enumerate(budgets):
+            d = vals(b, key) - vals(b, "kaiming")
+            xpos = i + (j - 0.5) * 0.32
+            ax2.scatter(xpos + np.array([-0.04, 0, 0.04])[:len(d)], d, s=12, color=color, alpha=0.55, lw=0, zorder=2)
+            ax2.hlines(d.mean(), xpos - 0.11, xpos + 0.11, color=color, lw=2.2, zorder=3)
+            if key == "fable_rescaled":
+                ax2.annotate(f"{d.mean():+.1f}", (xpos, d.max()), xytext=(0, 5), textcoords="offset points",
+                             ha="center", fontsize=7.5, color=INK)
+    ax2.set_xticks(range(3), budget_labels)
+    ax2.set_xlim(-0.5, 2.5)
+    ax2.set_ylabel("Fable minus Kaiming (points)")
+    ax2.set_xlabel("training labels used (images)")
+    panel_label(ax2, "(b) Gain over Kaiming, per seed")
+
+    handles, labels = ax1.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, frameon=False,
+               handletextpad=0.3, columnspacing=1.4)
+    fig.tight_layout(w_pad=2.2)
     save(fig, "fig7_write_init")
 
 
