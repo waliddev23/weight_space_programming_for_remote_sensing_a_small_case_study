@@ -1,0 +1,15 @@
+{
+  "all_correct": true,
+  "model_a": {
+    "predicted": "strong_augmentation",
+    "ground_truth": "strong_augmentation",
+    "correct": true
+  },
+  "model_b": {
+    "predicted": "no_augmentation",
+    "ground_truth": "no_augmentation",
+    "correct": true
+  },
+  "confidence": null,
+  "evaluated_at": "2026-11-10T17:36:03"
+}

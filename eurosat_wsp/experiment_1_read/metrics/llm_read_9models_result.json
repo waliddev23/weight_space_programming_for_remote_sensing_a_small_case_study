@@ -1,0 +1,64 @@
+{
+  "mode": "9_model_sweep",
+  "accuracy": 1.0,
+  "correct_count": 9,
+  "total_models": 9,
+  "details": {
+    "Model_01": {
+      "source_file": "cnn_standard_seed0.pt",
+      "ground_truth": "standard_augmentation",
+      "predicted": "standard_augmentation",
+      "correct": true
+    },
+    "Model_02": {
+      "source_file": "cnn_strong_seed0.pt",
+      "ground_truth": "strong_augmentation",
+      "predicted": "strong_augmentation",
+      "correct": true
+    },
+    "Model_03": {
+      "source_file": "cnn_strong_seed1.pt",
+      "ground_truth": "strong_augmentation",
+      "predicted": "strong_augmentation",
+      "correct": true
+    },
+    "Model_04": {
+      "source_file": "cnn_standard_seed1.pt",
+      "ground_truth": "standard_augmentation",
+      "predicted": "standard_augmentation",
+      "correct": true
+    },
+    "Model_05": {
+      "source_file": "cnn_strong_seed2.pt",
+      "ground_truth": "strong_augmentation",
+      "predicted": "strong_augmentation",
+      "correct": true
+    },
+    "Model_06": {
+      "source_file": "cnn_none_seed2.pt",
+      "ground_truth": "no_augmentation",
+      "predicted": "no_augmentation",
+      "correct": true
+    },
+    "Model_07": {
+      "source_file": "cnn_standard_seed2.pt",
+      "ground_truth": "standard_augmentation",
+      "predicted": "standard_augmentation",
+      "correct": true
+    },
+    "Model_08": {
+      "source_file": "cnn_none_seed0.pt",
+      "ground_truth": "no_augmentation",
+      "predicted": "no_augmentation",
+      "correct": true
+    },
+    "Model_09": {
+      "source_file": "cnn_none_seed1.pt",
+      "ground_truth": "no_augmentation",
+      "predicted": "no_augmentation",
+      "correct": true
+    }
+  },
+  "confidence": 80.0,
+  "evaluated_at": "2026-11-10T19:27:38"
+}

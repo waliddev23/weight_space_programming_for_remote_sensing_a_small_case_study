@@ -1,0 +1,77 @@
+{
+  "dataset": "blanchon/EuroSAT_RGB",
+  "source": "Hugging Face Hub (official EuroSAT_RGB release)",
+  "official_splits": true,
+  "num_classes": 10,
+  "class_names": [
+    "Annual Crop",
+    "Forest",
+    "Herbaceous Vegetation",
+    "Highway",
+    "Industrial Buildings",
+    "Pasture",
+    "Permanent Crop",
+    "Residential Buildings",
+    "River",
+    "SeaLake"
+  ],
+  "class_to_index": {
+    "Annual Crop": 0,
+    "Forest": 1,
+    "Herbaceous Vegetation": 2,
+    "Highway": 3,
+    "Industrial Buildings": 4,
+    "Pasture": 5,
+    "Permanent Crop": 6,
+    "Residential Buildings": 7,
+    "River": 8,
+    "SeaLake": 9
+  },
+  "label_column": "label",
+  "image_size": 64,
+  "channels": 3,
+  "dtype_on_disk": "uint8 RGB, native 64x64 (no resizing for the small CNN)",
+  "normalization": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "note": "ImageNet statistics, shared by the CNN and the ResNet-18"
+  },
+  "augmentation_policies": {
+    "none": [],
+    "standard": [
+      "RandomResizedCrop",
+      "RandomHorizontalFlip(p=0.5)",
+      "RandomVerticalFlip(p=0.5)",
+      "ColorJitter"
+    ],
+    "strong": [
+      "RandomResizedCrop",
+      "RandomHorizontalFlip(p=0.5)",
+      "RandomVerticalFlip(p=0.5)",
+      "RandomRotation",
+      "ColorJitter",
+      "RandomGrayscale(p=0.15)",
+      "RandomApply(p=0.3)"
+    ]
+  },
+  "eval_transform": "ToTensor + Normalize (no resize, no crop, no flip)",
+  "splits": {
+    "train": "official train (16,200) - the only split used for gradients",
+    "validation": "official validation (5,400) - model selection only",
+    "test": "official test (5,400) - held out, used once per final model"
+  },
+  "split_files": {
+    "train": "data/splits/train.json",
+    "validation": "data/splits/validation.json",
+    "test": "data/splits/test.json"
+  },
+  "created_at": "2026-11-05T15:42:02"
+}

@@ -1,0 +1,322 @@
+{
+  "name": "SmallCNN",
+  "experiment": "experiment_3_write (also used unchanged by experiment_1_read)",
+  "source": "eurosat_wsp/common.py::SmallCNN",
+  "input": {
+    "shape": [
+      3,
+      64,
+      64
+    ],
+    "dtype": "float32",
+    "normalization": "ImageNet mean/std",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "channels": [
+    16,
+    32,
+    64,
+    128
+  ],
+  "dropout": 0.2,
+  "num_classes": 10,
+  "class_names": [
+    "Annual Crop",
+    "Forest",
+    "Herbaceous Vegetation",
+    "Highway",
+    "Industrial Buildings",
+    "Pasture",
+    "Permanent Crop",
+    "Residential Buildings",
+    "River",
+    "SeaLake"
+  ],
+  "output": {
+    "shape": [
+      10
+    ],
+    "meaning": "unnormalized class logits"
+  },
+  "first_conv": {
+    "module": "conv1",
+    "state_dict_key": "conv1.weight",
+    "weight_shape": [
+      16,
+      3,
+      3,
+      3
+    ],
+    "num_weights": 432,
+    "bias_shape": [
+      16
+    ],
+    "num_biases": 16,
+    "bias_state_dict_key": "conv1.bias",
+    "layout": "out_channels x in_channels x kernel_h x kernel_w"
+  },
+  "forward_stages": [
+    {
+      "stage": "conv1",
+      "op": "Conv2d(3, 16, 3, stride=1, padding=1, bias=True)",
+      "activation": "none (BatchNorm/ReLU are applied inside stage 1)",
+      "output": "16 x 64 x 64"
+    },
+    {
+      "stage": "features.0",
+      "op": "Conv2d(16, 32, 3, padding=1, bias=False)+BN+ReLU+MaxPool2d(2)",
+      "output": "32 x 32 x 32"
+    },
+    {
+      "stage": "features.1",
+      "op": "Conv2d(32, 64, 3, padding=1, bias=False)+BN+ReLU+MaxPool2d(2)",
+      "output": "64 x 16 x 16"
+    },
+    {
+      "stage": "features.2",
+      "op": "Conv2d(64, 128, 3, padding=1, bias=False)+BN+ReLU+MaxPool2d(2)",
+      "output": "128 x 8 x 8"
+    },
+    {
+      "stage": "pool",
+      "op": "AdaptiveAvgPool2d(1)",
+      "output": "128 x 1 x 1"
+    },
+    {
+      "stage": "classifier",
+      "op": "Flatten + Dropout(0.2) + Linear(128, 10)",
+      "output": "10 logits"
+    }
+  ],
+  "parameters": {
+    "total": 98954,
+    "total_excluding_buffers": 98954,
+    "per_parameter": [
+      {
+        "name": "conv1.weight",
+        "shape": [
+          16,
+          3,
+          3,
+          3
+        ],
+        "numel": 432,
+        "dtype": "torch.float32",
+        "init": "kaiming_normal (fan_out, relu)"
+      },
+      {
+        "name": "conv1.bias",
+        "shape": [
+          16
+        ],
+        "numel": 16,
+        "dtype": "torch.float32",
+        "init": "zeros"
+      },
+      {
+        "name": "features.0.0.weight",
+        "shape": [
+          32,
+          16,
+          3,
+          3
+        ],
+        "numel": 4608,
+        "dtype": "torch.float32",
+        "init": "kaiming_normal (fan_out, relu)"
+      },
+      {
+        "name": "features.0.1.weight",
+        "shape": [
+          32
+        ],
+        "numel": 32,
+        "dtype": "torch.float32",
+        "init": "ones (BatchNorm)"
+      },
+      {
+        "name": "features.0.1.bias",
+        "shape": [
+          32
+        ],
+        "numel": 32,
+        "dtype": "torch.float32",
+        "init": "zeros (BatchNorm)"
+      },
+      {
+        "name": "features.0.1.running_mean",
+        "shape": [
+          32
+        ],
+        "numel": 32,
+        "dtype": "torch.float32",
+        "init": "n/a (BatchNorm buffers: mean 0, var 1)"
+      },
+      {
+        "name": "features.0.1.running_var",
+        "shape": [
+          32
+        ],
+        "numel": 32,
+        "dtype": "torch.float32",
+        "init": "n/a (BatchNorm buffers: mean 0, var 1)"
+      },
+      {
+        "name": "features.0.1.num_batches_tracked",
+        "shape": [],
+        "numel": 1,
+        "dtype": "torch.int64",
+        "init": "n/a (BatchNorm buffer: 0)"
+      },
+      {
+        "name": "features.1.0.weight",
+        "shape": [
+          64,
+          32,
+          3,
+          3
+        ],
+        "numel": 18432,
+        "dtype": "torch.float32",
+        "init": "kaiming_normal (fan_out, relu)"
+      },
+      {
+        "name": "features.1.1.weight",
+        "shape": [
+          64
+        ],
+        "numel": 64,
+        "dtype": "torch.float32",
+        "init": "ones (BatchNorm)"
+      },
+      {
+        "name": "features.1.1.bias",
+        "shape": [
+          64
+        ],
+        "numel": 64,
+        "dtype": "torch.float32",
+        "init": "zeros (BatchNorm)"
+      },
+      {
+        "name": "features.1.1.running_mean",
+        "shape": [
+          64
+        ],
+        "numel": 64,
+        "dtype": "torch.float32",
+        "init": "n/a (BatchNorm buffers: mean 0, var 1)"
+      },
+      {
+        "name": "features.1.1.running_var",
+        "shape": [
+          64
+        ],
+        "numel": 64,
+        "dtype": "torch.float32",
+        "init": "n/a (BatchNorm buffers: mean 0, var 1)"
+      },
+      {
+        "name": "features.1.1.num_batches_tracked",
+        "shape": [],
+        "numel": 1,
+        "dtype": "torch.int64",
+        "init": "n/a (BatchNorm buffer: 0)"
+      },
+      {
+        "name": "features.2.0.weight",
+        "shape": [
+          128,
+          64,
+          3,
+          3
+        ],
+        "numel": 73728,
+        "dtype": "torch.float32",
+        "init": "kaiming_normal (fan_out, relu)"
+      },
+      {
+        "name": "features.2.1.weight",
+        "shape": [
+          128
+        ],
+        "numel": 128,
+        "dtype": "torch.float32",
+        "init": "ones (BatchNorm)"
+      },
+      {
+        "name": "features.2.1.bias",
+        "shape": [
+          128
+        ],
+        "numel": 128,
+        "dtype": "torch.float32",
+        "init": "zeros (BatchNorm)"
+      },
+      {
+        "name": "features.2.1.running_mean",
+        "shape": [
+          128
+        ],
+        "numel": 128,
+        "dtype": "torch.float32",
+        "init": "n/a (BatchNorm buffers: mean 0, var 1)"
+      },
+      {
+        "name": "features.2.1.running_var",
+        "shape": [
+          128
+        ],
+        "numel": 128,
+        "dtype": "torch.float32",
+        "init": "n/a (BatchNorm buffers: mean 0, var 1)"
+      },
+      {
+        "name": "features.2.1.num_batches_tracked",
+        "shape": [],
+        "numel": 1,
+        "dtype": "torch.int64",
+        "init": "n/a (BatchNorm buffer: 0)"
+      },
+      {
+        "name": "classifier.2.weight",
+        "shape": [
+          10,
+          128
+        ],
+        "numel": 1280,
+        "dtype": "torch.float32",
+        "init": "kaiming_uniform_(a=sqrt(5))  [PyTorch Linear default]"
+      },
+      {
+        "name": "classifier.2.bias",
+        "shape": [
+          10
+        ],
+        "numel": 10,
+        "dtype": "torch.float32",
+        "init": "uniform(-1/sqrt(fan_in), 1/sqrt(fan_in))  [PyTorch Linear default]"
+      }
+    ]
+  },
+  "initialization_rules": {
+    "conv1.weight": "kaiming_normal_(mode='fan_out', nonlinearity='relu')",
+    "conv1.bias": "zeros",
+    "conv weights (features.*.0.weight)": "kaiming_normal_(mode='fan_out', nonlinearity='relu')",
+    "conv biases": "none (features convs use bias=False)",
+    "batchnorm weight": "ones",
+    "batchnorm bias": "zeros",
+    "classifier weight": "kaiming_uniform_(a=sqrt(5))  [PyTorch Linear default]",
+    "classifier bias": "uniform(-1/sqrt(fan_in), 1/sqrt(fan_in))  [PyTorch Linear default]"
+  },
+  "created_at": "2026-11-05T16:22:56"
+}

@@ -1,0 +1,39 @@
+{
+  "original": {
+    "checkpoint": "experiment_2_edit/original/resnet18_original_state_dict.pt",
+    "val_accuracy": 0.9801851851851852,
+    "test_accuracy": 0.9818518518518519
+  },
+  "corrupted": {
+    "A": {
+      "name": "gaussian_noise",
+      "strategy_params": {
+        "noise_scale": 6.0
+      },
+      "modified_elements": 36864,
+      "val_accuracy": 0.5840740740740741,
+      "test_accuracy": 0.5766666666666667,
+      "checkpoint": "experiment_2_edit/corrupted/resnet18_corrupted_a_gaussian_noise.pt"
+    },
+    "B": {
+      "name": "pruning",
+      "strategy_params": {
+        "prune_fraction": 0.9
+      },
+      "modified_elements": 99552,
+      "val_accuracy": 0.644074074074074,
+      "test_accuracy": 0.6453703703703704,
+      "checkpoint": "experiment_2_edit/corrupted/resnet18_corrupted_b_pruning.pt"
+    },
+    "C": {
+      "name": "filter_removal",
+      "strategy_params": {},
+      "modified_elements": 110592,
+      "val_accuracy": 0.47962962962962963,
+      "test_accuracy": 0.4866666666666667,
+      "checkpoint": "experiment_2_edit/corrupted/resnet18_corrupted_c_filter_removal.pt"
+    }
+  },
+  "seed": 12345,
+  "created_at": "2026-11-05T16:08:53"
+}

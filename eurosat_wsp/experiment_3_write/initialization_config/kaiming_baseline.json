@@ -1,0 +1,125 @@
+{
+  "name": "kaiming_baseline",
+  "description": "standard Kaiming-initialized SmallCNN, one per Experiment 1 seed",
+  "rules": {
+    "conv1.weight": "kaiming_normal_(mode='fan_out', nonlinearity='relu')",
+    "conv1.bias": "zeros",
+    "conv weights (features.*.0.weight)": "kaiming_normal_(mode='fan_out', nonlinearity='relu')",
+    "conv biases": "none (features convs use bias=False)",
+    "batchnorm weight": "ones",
+    "batchnorm bias": "zeros",
+    "classifier weight": "kaiming_uniform_(a=sqrt(5))  [PyTorch Linear default]",
+    "classifier bias": "uniform(-1/sqrt(fan_in), 1/sqrt(fan_in))  [PyTorch Linear default]"
+  },
+  "rng": "torch.manual_seed(seed) before construction; reset_parameters() is called explicitly so the init is identical across processes",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "per_seed": {
+    "0": {
+      "seed": 0,
+      "first_conv": {
+        "shape": [
+          16,
+          3,
+          3,
+          3
+        ],
+        "numel": 432,
+        "mean": 0.002828570082783699,
+        "std": 0.11873148381710052,
+        "min": -0.3829039931297302,
+        "max": 0.332489013671875,
+        "abs_mean": 0.09351050108671188,
+        "frac_zero": 0.0
+      },
+      "first_conv_bias": {
+        "shape": [
+          16
+        ],
+        "numel": 16,
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "abs_mean": 0.0,
+        "frac_zero": 1.0
+      },
+      "full_state_dict": "experiment_3_write/baseline/smallcnn_kaiming_seed0.pt",
+      "first_conv_tensor": "experiment_3_write/baseline/first_conv_kaiming_seed0.pt",
+      "state_dict_sha256": "71aef0c4acb8545b53081f015c1eac85de5818058d21c89be82949523f956bad",
+      "first_conv_sha256": "f5293a4100e2a0d8daa329b6563490b17d08f3577026f92c7c9ff9d7bd105005"
+    },
+    "1": {
+      "seed": 1,
+      "first_conv": {
+        "shape": [
+          16,
+          3,
+          3,
+          3
+        ],
+        "numel": 432,
+        "mean": 0.002601908054202795,
+        "std": 0.11791783571243286,
+        "min": -0.37744611501693726,
+        "max": 0.3044074475765228,
+        "abs_mean": 0.09510517120361328,
+        "frac_zero": 0.0
+      },
+      "first_conv_bias": {
+        "shape": [
+          16
+        ],
+        "numel": 16,
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "abs_mean": 0.0,
+        "frac_zero": 1.0
+      },
+      "full_state_dict": "experiment_3_write/baseline/smallcnn_kaiming_seed1.pt",
+      "first_conv_tensor": "experiment_3_write/baseline/first_conv_kaiming_seed1.pt",
+      "state_dict_sha256": "583136917745b0f56df6a22f086dce4d2f3947e2f0a66b0162a3f9496b04dda7",
+      "first_conv_sha256": "95b8c64f44ec56cad065c4bedca0c8c9cb38c067ffda4584f6dd2f41b1bb0e21"
+    },
+    "2": {
+      "seed": 2,
+      "first_conv": {
+        "shape": [
+          16,
+          3,
+          3,
+          3
+        ],
+        "numel": 432,
+        "mean": 0.004450508859008551,
+        "std": 0.11622606962919235,
+        "min": -0.2861965596675873,
+        "max": 0.43383708596229553,
+        "abs_mean": 0.09461674839258194,
+        "frac_zero": 0.0
+      },
+      "first_conv_bias": {
+        "shape": [
+          16
+        ],
+        "numel": 16,
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "abs_mean": 0.0,
+        "frac_zero": 1.0
+      },
+      "full_state_dict": "experiment_3_write/baseline/smallcnn_kaiming_seed2.pt",
+      "first_conv_tensor": "experiment_3_write/baseline/first_conv_kaiming_seed2.pt",
+      "state_dict_sha256": "a17907c265b69c9ab9df2df7e8862c5ff4f3644865f0b8757e9576f24e0948f7",
+      "first_conv_sha256": "0d7c9d6282cc15b48220bb35347c42f6003c5648d5e88200282631d88378dc01"
+    }
+  },
+  "created_at": "2026-11-05T16:23:16"
+}

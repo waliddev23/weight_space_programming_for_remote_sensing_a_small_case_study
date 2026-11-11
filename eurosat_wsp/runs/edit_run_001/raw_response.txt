@@ -1,0 +1,91 @@
+# EDIT EXPERIMENT (ResNet-18 layer3.0.conv1 surgical repair, variant A) -- Claude Fable 5.1
+# Run: edit_run_001  |  Date: 2026-11-10
+# Written BEFORE running eval-edit.
+
+## Isolation statement
+Only the corrupted checkpoint (experiment_2_edit/corrupted/resnet18_corrupted_a_gaussian_noise.pt)
+and the public corruption summary were inspected. experiment_2_edit/original/ and
+corruption_configs/*_modified_indices.npy were never opened. Disclosure: the public file
+corruption_configs/variant_a_gaussian_noise.json (which is not on the forbidden list) states that
+output filters 0-31 were noised with scale 6.0. The repair function does NOT use this information:
+it detects the damaged filters from the tensor's own per-row statistics (rule: row std > 3x median).
+That rule independently flags exactly filters 0-31, confirming the detection is data-driven.
+No accuracy was measured on any split before the single official evaluation below.
+
+## Diagnostics performed on the corrupted tensor (weight-only)
+- Tensor reshaped to [256, 1152]. Per-row std: healthy rows 0.025-0.040 (median 0.029),
+  damaged rows 0.169-0.182. A 4x gap; a 3x-median threshold flags 32 rows = filters 0..31.
+- Noise estimate: sigma_n^2 = var(bad) - var(clean) = 0.0301 vs signal var 0.00085,
+  i.e. noise power is 35.5x signal power (noise sigma = 5.9x weight sigma, consistent with the
+  stated "scale 6.0"). Each damaged filter is ~97% noise by energy.
+- Low-rank structure test: SVD of the 224 centred healthy rows. Top-32 directions capture only
+  44.5% of their energy, top-64 68%. The per-direction variances form a flat bulk: with p/n =
+  1152/224 the Marchenko-Pastur edge is 0.0261 and the largest eigenvalue is 0.0191, so NO
+  direction is statistically distinguishable from an isotropic bulk. The projection of the damaged
+  rows onto the top-32 healthy directions carries 3.1% of their energy, chance level is 2.8%.
+  => There is no low-rank subspace in which the signal rises above the noise.
+- Sparsity / outlier test: healthy |w| max 0.39, 99.9th percentile 0.174; noise sigma 0.173.
+  Fraction of healthy weights above 2 sigma_n: 1e-5. Element-wise thresholding cannot separate
+  signal from noise either.
+- Channel-norm matching was rejected: rescaling a damaged row to the healthy norm would inject a
+  unit-energy random filter into the network (SNR 1/35), strictly worse than muting the channel.
+
+## Chosen repair: debiased PCA-Wiener (MMSE) estimate = prior mean
+Under the empirical Gaussian prior w ~ N(mu, sum_i lambda_i v_i v_i^T) fitted on healthy rows and
+white noise N(0, sigma_n^2 I), the MMSE estimate of a damaged row is
+    w_hat = mu + sum_i g_i <w - mu, v_i> v_i ,  g_i = lambda_i' / (lambda_i' + sigma_n^2),
+with lambda_i' = max(lambda_i - MP_edge, 0). Because every debiased eigenvalue is 0, all gains
+vanish and w_hat = mu, the mean healthy filter (norm 0.158; a typical healthy row has norm ~0.98).
+The naive (undebiased) Wiener filter would keep 92 directions with gains up to 0.39, "recovering"
+5.4% of the signal energy while retaining 3x as much residual noise; because those directions are
+sampling artefacts of a flat spectrum, that would be noise injection dressed up as denoising, so
+the debiased version is used. The function is written in the general form so it would exploit
+genuine low-rank structure if present.
+
+Mathematical rationale for preferring mu over exact zeros: MSE(mu) = sum lambda_i = 0.952 while
+MSE(0) = 0.952 + ||mu||^2; and the mean filter reproduces the average pre-BatchNorm output level
+of the layer, which keeps the BN affine stage of the 32 muted channels closer to the regime the
+downstream conv2 was trained on than an all-zero map would.
+
+## Expected outcome (committed before evaluation)
+The original content of filters 0-31 is information-theoretically unrecoverable from the tensor
+alone, so this repair is best understood as an optimal "neutralisation" of 32 of 256 channels
+(12.5%) in the first conv of layer3. Reference points from the public summary: zeroing 96 filters
+of the same layer (variant C) gives 48.7%, the noised network gives 57.7%, the intact network
+98.2%. Prediction: repaired test accuracy around 88-94%, i.e. recovery of roughly 75-90%.
+Residual loss comes from (a) the 32 missing feature channels and (b) the BatchNorm offset
+mismatch on those channels, which a tensor-only edit cannot correct.
+
+## Repair function
+See parsed_output/repair_script.py (also reproduced below).
+
+```python
+import torch
+
+
+def repair_layer3_conv1(corrupted_tensor: torch.Tensor) -> torch.Tensor:
+    W = corrupted_tensor.detach().clone()
+    orig_dtype = W.dtype
+    out_ch = W.shape[0]
+    M = W.reshape(out_ch, -1).to(torch.float64)          # [256, 1152]
+    n_rows, p = M.shape
+    row_std = M.std(dim=1)
+    bad = row_std > 3.0 * row_std.median()                 # damaged output filters
+    if bad.sum() == 0 or bad.sum() == n_rows:
+        return W
+    clean = ~bad
+    Mc, Mb = M[clean], M[bad]
+    sigma_w2 = Mc.var().item()
+    sigma_n2 = max(Mb.var().item() - sigma_w2, 1e-12)     # noise power from the tensor
+    mu = Mc.mean(dim=0)                                    # prior mean (mean healthy filter)
+    Xc = Mc - mu
+    n_clean = Xc.shape[0]
+    _, S, Vt = torch.linalg.svd(Xc, full_matrices=False)
+    lam = S ** 2 / n_clean
+    lam_edge = lam.median() * (1.0 + (p / n_clean) ** 0.5) ** 2   # Marchenko-Pastur edge
+    lam_db = (lam - lam_edge).clamp(min=0.0)
+    gains = lam_db / (lam_db + sigma_n2)                   # Wiener gains (all 0 here)
+    coef = (Mb - mu) @ Vt.T
+    M[bad] = mu + (coef * gains) @ Vt
+    return M.to(orig_dtype).reshape_as(W).contiguous()
+```

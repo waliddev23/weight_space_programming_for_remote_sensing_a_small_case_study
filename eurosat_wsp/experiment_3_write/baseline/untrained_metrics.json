@@ -1,0 +1,30 @@
+{
+  "untrained_baseline": {
+    "0": {
+      "seed": 0,
+      "test_loss": 2.3090863715277776,
+      "test_accuracy": 0.08555555555555555,
+      "macro_f1": 0.016737961884302995,
+      "note": "untrained network: accuracy is ~chance (1/10)"
+    },
+    "1": {
+      "seed": 1,
+      "test_loss": 2.3016185615680835,
+      "test_accuracy": 0.11259259259259259,
+      "macro_f1": 0.020243049775262194,
+      "note": "untrained network: accuracy is ~chance (1/10)"
+    },
+    "2": {
+      "seed": 2,
+      "test_loss": 2.301738642586602,
+      "test_accuracy": 0.04314814814814815,
+      "macro_f1": 0.010716729051739995,
+      "note": "untrained network: accuracy is ~chance (1/10)"
+    }
+  },
+  "trained_reference": {
+    "source": "experiment_1_read/metrics/cnn_standard_seed0.json",
+    "note": "the Kaiming seed-0 baseline trained with the standard augmentation condition is exactly Experiment 1's cnn_standard_seed0 model"
+  },
+  "created_at": "2026-11-05T16:23:16"
+}

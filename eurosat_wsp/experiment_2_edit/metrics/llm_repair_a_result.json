@@ -1,0 +1,8 @@
+{
+  "variant": "A",
+  "repaired_accuracy": 0.9546296296296296,
+  "original_accuracy": 0.9818518518518519,
+  "corrupted_accuracy": 0.5766666666666667,
+  "recovery_percentage": 93.2815356489945,
+  "evaluated_at": "2026-11-10T19:32:23"
+}

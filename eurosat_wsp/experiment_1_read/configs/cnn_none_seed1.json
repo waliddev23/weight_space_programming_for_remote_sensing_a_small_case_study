@@ -1,0 +1,100 @@
+{
+  "model_name": "cnn_none_seed1",
+  "experiment": "experiment_1_read",
+  "condition": "none",
+  "seed": 1,
+  "architecture": {
+    "class": "SmallCNN",
+    "definition": "eurosat_wsp/common.py::SmallCNN",
+    "channels": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "first_conv": {
+      "in_channels": 3,
+      "out_channels": 16,
+      "kernel_size": 3,
+      "padding": 1,
+      "bias": true,
+      "weight_shape": [
+        16,
+        3,
+        3,
+        3
+      ],
+      "num_weights": 432,
+      "num_biases": 16
+    },
+    "dropout": 0.2,
+    "parameters": 98954,
+    "init": "Kaiming normal (fan_out, relu) convs, BN weight=1/bias=0, PyTorch-default linear head"
+  },
+  "training": {
+    "epochs": 20,
+    "batch_size": 64,
+    "lr": 0.001,
+    "weight_decay": 0.0005,
+    "label_smoothing": 0.1,
+    "optimizer": "AdamW",
+    "scheduler": "CosineAnnealingLR",
+    "train_samples": 16200,
+    "device": "cuda",
+    "amp": true,
+    "epoch_seconds": [
+      10.515228033065796,
+      10.264080286026001,
+      9.560428619384766,
+      11.188239097595215,
+      9.917551279067993,
+      12.511015892028809,
+      11.098186492919922,
+      11.629067420959473,
+      11.831667184829712,
+      11.758766174316406,
+      10.999370336532593,
+      12.78678584098816,
+      9.836737155914307,
+      9.599424600601196,
+      9.681451559066772,
+      9.711390495300293,
+      9.72023606300354,
+      9.810813665390015,
+      10.06262731552124,
+      10.254908323287964
+    ]
+  },
+  "augmentation": {
+    "policy": "none",
+    "transforms": [],
+    "eval_transforms": [
+      "ToTensor",
+      "Normalize"
+    ]
+  },
+  "data": {
+    "dataset": "blanchon/EuroSAT_RGB",
+    "split_files": [
+      "data/splits/train.json",
+      "data/splits/validation.json",
+      "data/splits/test.json"
+    ],
+    "img_size": 64,
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "checkpoint": "experiment_1_read/checkpoints/cnn_none_seed1.pt",
+  "checkpoint_format": "bare state_dict, CPU, no metadata",
+  "best_val_acc": 0.9416666666666667,
+  "best_epoch": 19,
+  "created_at": "2026-11-05T15:52:35"
+}

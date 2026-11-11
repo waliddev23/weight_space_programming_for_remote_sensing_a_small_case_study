@@ -1,0 +1,9 @@
+
+============================================================
+=== WRITE EXPERIMENT: ZERO-SHOT EVALUATION ===
+============================================================
+Claude Synthesized Weights: Test Loss = 2.3191 | Test Acc = 9.96%
+Kaiming Baseline (Seed 0): Test Acc = 8.60%
+Zero-Shot Delta vs Kaiming: +1.36%
+Saved zero-shot metrics to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\baseline\llm_zero_shot_metrics.json
+

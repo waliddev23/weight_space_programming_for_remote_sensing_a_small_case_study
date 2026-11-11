@@ -1,0 +1,1617 @@
+You are an expert in neural network mechanistic interpretability and weight-space analysis.
+
+# Context: EuroSAT Satellite Land Cover Classification Benchmark
+Nine identical convolutional neural networks (SmallCNN) were trained from scratch on the EuroSAT_RGB dataset (10 classes: Annual Crop, Forest, Herbaceous Vegetation, Highway, Industrial Buildings, Pasture, Permanent Crop, Residential Buildings, River, SeaLake) at native 64x64 resolution.
+
+All 9 models share the EXACT SAME:
+- Architecture (SmallCNN, 98,954 parameters: 4 conv stages + global average pooling + linear head)
+- Dataset train/val/test splits (16,200 train / 5,400 val / 5,400 test)
+- Optimizer (AdamW, lr=1e-3, weight_decay=5e-4, 20 epochs, cosine schedule)
+
+# The Three Regularization Conditions (3 models per condition):
+The 9 models represent exactly three experimental conditions, each trained across 3 random seeds:
+1. "no_augmentation" (3 models): Trained strictly on raw unaugmented patches. Memorizes native spatial coordinates and exact pixel RGB values. Test accuracy: ~94.6%.
+2. "standard_augmentation" (3 models): Moderate regularization (RandomResizedCrop scale 0.7-1.0, horizontal & vertical flips, moderate color jitter). Test accuracy: ~90.4%.
+3. "strong_augmentation" (3 models): Heavy regularization (RandomResizedCrop scale 0.45-1.0, horizontal/vertical flips, 90-degree rotations, heavy color jitter, random grayscale p=0.15, Gaussian blur p=0.30). Test accuracy: ~77.0%.
+
+# Your Task
+Below are the serialized weights (conv1: 16x3x3x3 + classifier: 10x128) for nine models labeled anonymously as:
+**Model_01** through **Model_09** (shuffled in random order).
+
+For each of the 9 models, classify its training condition into one of:
+- `no_augmentation`
+- `standard_augmentation`
+- `strong_augmentation`
+
+Exactly 3 models belong to each condition.
+
+# Analytical Guidelines:
+1. **Spatial Isotropy & Rotational Symmetry:**
+   - In `conv1.weight`, examine whether the 3x3 spatial filters show 90-degree rotational symmetry or diagonal/isotropic spreading (indicative of `strong_augmentation`), or sharp axis-aligned vertical/horizontal edge detectors (`no_augmentation`).
+2. **Spectral / Channel Divergence:**
+   - Examine the variance between R, G, and B channel kernels. Heavy color jitter and grayscale suppress color divergence between channels.
+3. **Weight Norms & Classifier Head:**
+   - Regularization alters the spectral norm and Frobenius norm of feature and classifier weights.
+
+# Output Format Required
+Please structure your response with:
+1. **Per-Model Predictions:**
+   - Model_01: [no_augmentation | standard_augmentation | strong_augmentation] (Confidence: X%)
+   - Model_02: [no_augmentation | standard_augmentation | strong_augmentation] (Confidence: X%)
+   ...
+   - Model_09: [no_augmentation | standard_augmentation | strong_augmentation] (Confidence: X%)
+
+2. **Group Summary:**
+   - Models in no_augmentation: [Model_XX, Model_YY, Model_ZZ]
+   - Models in standard_augmentation: [Model_XX, Model_YY, Model_ZZ]
+   - Models in strong_augmentation: [Model_XX, Model_YY, Model_ZZ]
+
+3. **Mechanistic Reasoning:**
+   Detailed breakdown citing specific filter numbers, channel values, and geometric features that separate the three regimes.
+
+---
+# SERIALIZED WEIGHTS OF THE 9 MODELS
+
+================================================================================
+# BLIND 9-MODEL BENCHMARK: IDENTIFY REGULARIZATION REGIME ACROSS 9 NETWORKS
+# Total Models: 9 (3 conditions x 3 seeds)
+# Mode: focused (conv1 + classifier weights per model)
+================================================================================
+
+================================================================================
+=== Model_01 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:53
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  -0.105 -0.141 -0.033
+conv1.weight filter 00 chan R row 1  -0.167 -0.164 0.120
+conv1.weight filter 00 chan R row 2  -0.035 0.082 0.193
+conv1.weight filter 00 chan G row 0  0.191 0.081 0.021
+conv1.weight filter 00 chan G row 1  0.042 -0.033 0.186
+conv1.weight filter 00 chan G row 2  0.111 -0.141 -0.124
+conv1.weight filter 00 chan B row 0  0.044 0.161 0.037
+conv1.weight filter 00 chan B row 1  0.063 -0.031 -0.189
+conv1.weight filter 00 chan B row 2  -0.087 -0.056 0.013
+conv1.weight filter 01 chan R row 0  0.100 0.085 0.138
+conv1.weight filter 01 chan R row 1  -0.087 -0.142 -0.192
+conv1.weight filter 01 chan R row 2  0.092 -0.012 0.090
+conv1.weight filter 01 chan G row 0  -0.002 0.016 -0.080
+conv1.weight filter 01 chan G row 1  0.037 0.052 0.001
+conv1.weight filter 01 chan G row 2  -0.188 -0.092 -0.135
+conv1.weight filter 01 chan B row 0  0.167 0.009 -0.070
+conv1.weight filter 01 chan B row 1  0.036 0.034 -0.063
+conv1.weight filter 01 chan B row 2  0.023 0.191 0.009
+conv1.weight filter 02 chan R row 0  -0.114 -0.207 -0.114
+conv1.weight filter 02 chan R row 1  -0.255 -0.017 0.036
+conv1.weight filter 02 chan R row 2  0.145 0.105 0.279
+conv1.weight filter 02 chan G row 0  -0.019 0.040 0.029
+conv1.weight filter 02 chan G row 1  -0.126 0.234 -0.080
+conv1.weight filter 02 chan G row 2  0.291 0.063 -0.003
+conv1.weight filter 02 chan B row 0  0.062 -0.151 0.050
+conv1.weight filter 02 chan B row 1  -0.191 -0.267 0.009
+conv1.weight filter 02 chan B row 2  0.036 0.117 -0.023
+conv1.weight filter 03 chan R row 0  0.176 -0.004 -0.022
+conv1.weight filter 03 chan R row 1  0.050 -0.038 -0.057
+conv1.weight filter 03 chan R row 2  -0.104 0.006 0.069
+conv1.weight filter 03 chan G row 0  0.001 0.019 0.186
+conv1.weight filter 03 chan G row 1  -0.003 0.069 0.300
+conv1.weight filter 03 chan G row 2  0.154 -0.010 0.021
+conv1.weight filter 03 chan B row 0  -0.083 -0.095 -0.083
+conv1.weight filter 03 chan B row 1  -0.094 -0.078 0.056
+conv1.weight filter 03 chan B row 2  -0.005 -0.207 -0.094
+conv1.weight filter 04 chan R row 0  0.068 -0.060 0.012
+conv1.weight filter 04 chan R row 1  0.210 -0.050 -0.014
+conv1.weight filter 04 chan R row 2  0.070 0.046 -0.150
+conv1.weight filter 04 chan G row 0  -0.046 -0.260 -0.069
+conv1.weight filter 04 chan G row 1  -0.059 -0.319 0.098
+conv1.weight filter 04 chan G row 2  0.041 0.175 -0.023
+conv1.weight filter 04 chan B row 0  0.048 0.217 -0.006
+conv1.weight filter 04 chan B row 1  0.024 0.113 -0.095
+conv1.weight filter 04 chan B row 2  0.140 -0.036 -0.047
+conv1.weight filter 05 chan R row 0  -0.094 0.011 -0.180
+conv1.weight filter 05 chan R row 1  -0.093 0.035 0.096
+conv1.weight filter 05 chan R row 2  0.048 -0.020 -0.173
+conv1.weight filter 05 chan G row 0  0.051 -0.106 0.084
+conv1.weight filter 05 chan G row 1  0.219 0.026 -0.019
+conv1.weight filter 05 chan G row 2  0.096 0.171 0.022
+conv1.weight filter 05 chan B row 0  -0.197 -0.105 0.112
+conv1.weight filter 05 chan B row 1  -0.045 0.040 -0.010
+conv1.weight filter 05 chan B row 2  -0.030 0.035 0.131
+conv1.weight filter 06 chan R row 0  0.074 0.028 -0.058
+conv1.weight filter 06 chan R row 1  0.196 0.104 -0.140
+conv1.weight filter 06 chan R row 2  0.126 -0.130 -0.134
+conv1.weight filter 06 chan G row 0  -0.084 0.026 -0.163
+conv1.weight filter 06 chan G row 1  0.022 -0.132 -0.110
+conv1.weight filter 06 chan G row 2  0.011 0.051 -0.081
+conv1.weight filter 06 chan B row 0  -0.180 0.085 0.037
+conv1.weight filter 06 chan B row 1  -0.109 0.044 0.134
+conv1.weight filter 06 chan B row 2  0.034 0.074 0.109
+conv1.weight filter 07 chan R row 0  0.093 0.175 0.028
+conv1.weight filter 07 chan R row 1  0.149 -0.092 -0.218
+conv1.weight filter 07 chan R row 2  0.044 -0.183 -0.122
+conv1.weight filter 07 chan G row 0  0.058 -0.077 0.030
+conv1.weight filter 07 chan G row 1  0.155 0.245 0.043
+conv1.weight filter 07 chan G row 2  0.088 0.117 -0.114
+conv1.weight filter 07 chan B row 0  -0.020 0.037 0.011
+conv1.weight filter 07 chan B row 1  -0.197 0.006 0.014
+conv1.weight filter 07 chan B row 2  -0.278 -0.097 0.076
+conv1.weight filter 08 chan R row 0  0.041 -0.004 -0.122
+conv1.weight filter 08 chan R row 1  0.072 0.006 -0.185
+conv1.weight filter 08 chan R row 2  0.018 0.079 0.081
+conv1.weight filter 08 chan G row 0  0.003 0.039 -0.022
+conv1.weight filter 08 chan G row 1  -0.042 -0.060 0.034
+conv1.weight filter 08 chan G row 2  -0.050 -0.025 -0.068
+conv1.weight filter 08 chan B row 0  -0.071 -0.209 -0.004
+conv1.weight filter 08 chan B row 1  0.211 -0.029 0.131
+conv1.weight filter 08 chan B row 2  0.110 -0.036 0.134
+conv1.weight filter 09 chan R row 0  0.057 -0.067 0.084
+conv1.weight filter 09 chan R row 1  -0.027 0.003 -0.095
+conv1.weight filter 09 chan R row 2  0.115 -0.076 -0.014
+conv1.weight filter 09 chan G row 0  -0.102 -0.069 -0.021
+conv1.weight filter 09 chan G row 1  0.047 0.094 -0.232
+conv1.weight filter 09 chan G row 2  0.083 0.185 -0.006
+conv1.weight filter 09 chan B row 0  -0.159 -0.265 -0.139
+conv1.weight filter 09 chan B row 1  -0.087 0.183 0.104
+conv1.weight filter 09 chan B row 2  0.221 0.091 0.077
+conv1.weight filter 10 chan R row 0  0.079 -0.104 0.190
+conv1.weight filter 10 chan R row 1  -0.273 0.046 0.213
+conv1.weight filter 10 chan R row 2  0.009 -0.151 0.049
+conv1.weight filter 10 chan G row 0  -0.100 0.047 -0.103
+conv1.weight filter 10 chan G row 1  0.011 -0.101 0.025
+conv1.weight filter 10 chan G row 2  0.222 -0.222 0.194
+conv1.weight filter 10 chan B row 0  0.083 -0.188 0.010
+conv1.weight filter 10 chan B row 1  -0.148 0.002 0.287
+conv1.weight filter 10 chan B row 2  -0.117 0.104 0.115
+conv1.weight filter 11 chan R row 0  -0.157 0.130 0.064
+conv1.weight filter 11 chan R row 1  0.023 -0.026 -0.006
+conv1.weight filter 11 chan R row 2  -0.025 -0.092 -0.003
+conv1.weight filter 11 chan G row 0  -0.015 -0.039 -0.091
+conv1.weight filter 11 chan G row 1  0.108 0.026 -0.044
+conv1.weight filter 11 chan G row 2  0.385 -0.115 -0.222
+conv1.weight filter 11 chan B row 0  -0.277 0.125 0.127
+conv1.weight filter 11 chan B row 1  -0.276 0.118 0.012
+conv1.weight filter 11 chan B row 2  0.104 0.059 0.129
+conv1.weight filter 12 chan R row 0  -0.036 0.059 0.079
+conv1.weight filter 12 chan R row 1  -0.097 0.122 -0.157
+conv1.weight filter 12 chan R row 2  0.130 -0.005 -0.017
+conv1.weight filter 12 chan G row 0  -0.121 -0.042 -0.054
+conv1.weight filter 12 chan G row 1  0.144 0.001 -0.177
+conv1.weight filter 12 chan G row 2  0.162 0.231 -0.080
+conv1.weight filter 12 chan B row 0  0.097 -0.023 -0.115
+conv1.weight filter 12 chan B row 1  0.036 -0.139 -0.281
+conv1.weight filter 12 chan B row 2  0.146 0.182 -0.130
+conv1.weight filter 13 chan R row 0  -0.053 0.105 -0.131
+conv1.weight filter 13 chan R row 1  -0.068 -0.230 0.126
+conv1.weight filter 13 chan R row 2  -0.014 -0.168 0.062
+conv1.weight filter 13 chan G row 0  0.253 0.184 0.013
+conv1.weight filter 13 chan G row 1  -0.047 0.182 0.156
+conv1.weight filter 13 chan G row 2  -0.105 0.117 -0.028
+conv1.weight filter 13 chan B row 0  0.025 0.208 -0.153
+conv1.weight filter 13 chan B row 1  0.262 -0.140 -0.101
+conv1.weight filter 13 chan B row 2  -0.050 -0.157 -0.236
+conv1.weight filter 14 chan R row 0  0.179 0.180 0.106
+conv1.weight filter 14 chan R row 1  0.182 -0.184 0.118
+conv1.weight filter 14 chan R row 2  -0.048 -0.062 -0.111
+conv1.weight filter 14 chan G row 0  -0.025 0.082 0.008
+conv1.weight filter 14 chan G row 1  -0.080 -0.105 -0.227
+conv1.weight filter 14 chan G row 2  -0.115 0.026 -0.268
+conv1.weight filter 14 chan B row 0  0.026 0.166 -0.023
+conv1.weight filter 14 chan B row 1  0.069 0.057 -0.080
+conv1.weight filter 14 chan B row 2  -0.102 0.156 -0.003
+conv1.weight filter 15 chan R row 0  -0.042 0.265 0.010
+conv1.weight filter 15 chan R row 1  -0.001 0.055 -0.089
+conv1.weight filter 15 chan R row 2  -0.141 -0.021 0.018
+conv1.weight filter 15 chan G row 0  0.222 0.097 -0.243
+conv1.weight filter 15 chan G row 1  0.323 0.317 -0.195
+conv1.weight filter 15 chan G row 2  0.198 -0.447 -0.201
+conv1.weight filter 15 chan B row 0  0.057 0.086 0.106
+conv1.weight filter 15 chan B row 1  0.033 0.063 -0.210
+conv1.weight filter 15 chan B row 2  0.159 -0.263 -0.116
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  0.002 -0.055 0.086 0.038 -0.078 -0.039 -0.047 0.166 -0.251 -0.025 -0.056 0.054 -0.044 0.077 -0.047 0.023
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  0.041 -0.072 -0.086 0.144 0.057 0.067 -0.090 -0.167 -0.031 0.019 -0.102 -0.086 0.132 -0.052 0.111 -0.086 -0.131 0.119 -0.083 -0.217 -0.097 -0.072 0.091 -0.020 0.101 -0.085 0.050 0.018 0.022 -0.073 0.047 0.045 0.057 -0.177 0.092 -0.006 0.038 0.039 -0.056 0.075 0.084 0.077 0.128 -0.223 0.107 -0.161 0.081 -0.081 0.047 0.046 -0.072 0.005 0.242 -0.135 0.105 -0.121 0.085 -0.060 -0.066 0.126 -0.004 0.117 0.116 -0.028 -0.121 -0.158 0.127 0.127 -0.215 -0.043 0.121 0.087 -0.126 -0.005 0.402 0.034 -0.076 -0.185 0.002 -0.105 -0.303 -0.157 -0.167 0.036 -0.104 -0.206 0.056 0.060 0.044 0.074 -0.119 -0.064 -0.117 0.051 -0.083 0.047 -0.044 -0.112 0.029 -0.004 -0.064 0.092 -0.030 0.084 -0.184 0.088 0.084 0.079 0.079 0.106 0.026 0.118 -0.105 0.002 -0.078 0.123 -0.103 -0.116 -0.050 0.072 -0.047 0.047 -0.135 -0.041 -0.097 0.083 -0.009 0.093
+classifier.2.weight row 01 (Forest)  -0.029 0.101 -0.010 0.113 -0.009 -0.138 0.002 0.099 -0.107 -0.126 0.071 -0.310 -0.241 -0.177 0.142 -0.047 0.087 -0.218 -0.204 -0.155 0.048 0.048 0.279 0.182 -0.290 0.094 -0.033 -0.095 0.077 -0.310 0.177 -0.096 -0.128 -0.093 0.071 -0.009 0.109 -0.112 -0.006 -0.135 0.151 0.064 0.018 -0.191 -0.059 0.123 0.078 -0.058 -0.160 0.088 -0.035 0.139 0.009 0.131 0.104 -0.123 0.076 0.148 -0.206 0.002 0.133 0.130 -0.281 -0.116 -0.192 0.124 -0.172 -0.260 0.027 0.041 -0.113 0.075 0.016 0.004 0.007 0.095 0.134 -0.075 0.037 -0.008 -0.189 -0.195 -0.027 0.017 -0.047 -0.199 -0.027 0.073 -0.123 -0.178 -0.133 0.133 0.139 -0.194 0.055 -0.086 0.104 0.032 0.106 -0.002 0.114 0.112 0.039 -0.100 0.083 -0.042 -0.067 0.029 -0.210 0.130 -0.072 -0.144 0.140 -0.089 -0.022 0.123 -0.127 -0.079 -0.262 -0.126 -0.005 0.096 -0.086 -0.017 -0.052 -0.237 0.169 0.106
+classifier.2.weight row 02 (Herbaceous Vegetation)  -0.236 -0.154 -0.158 -0.034 -0.069 0.047 0.095 0.024 0.092 -0.010 -0.036 -0.025 -0.055 0.098 0.131 -0.113 -0.037 0.055 -0.123 -0.088 0.113 0.113 -0.157 -0.042 -0.032 -0.062 -0.111 0.119 -0.070 0.068 -0.162 -0.115 0.117 -0.074 0.005 -0.055 0.151 0.104 0.124 0.171 0.100 -0.119 -0.146 -0.225 -0.033 -0.027 0.143 -0.225 0.091 0.013 0.135 0.014 -0.018 0.051 -0.064 0.076 -0.084 0.103 0.019 -0.105 0.009 0.031 -0.258 0.033 -0.202 -0.037 -0.161 -0.167 0.083 0.126 -0.219 -0.117 -0.175 0.124 -0.197 0.080 0.025 0.089 -0.158 -0.159 -0.085 0.081 0.035 -0.222 -0.065 -0.075 0.110 -0.126 0.059 0.026 0.118 0.112 0.090 -0.235 0.002 -0.152 0.100 0.063 0.151 0.168 0.041 0.033 0.056 0.088 0.045 -0.060 -0.156 -0.155 0.010 -0.151 0.127 -0.204 -0.039 0.122 -0.019 -0.069 -0.014 -0.058 0.132 0.076 0.025 -0.069 -0.077 0.097 0.183 -0.155 0.097 -0.140
+classifier.2.weight row 03 (Highway)  -0.068 -0.062 -0.105 0.045 -0.028 -0.046 0.078 -0.088 -0.143 -0.142 -0.077 0.101 0.165 0.076 0.020 -0.136 0.108 0.157 -0.130 0.158 -0.071 -0.069 0.085 0.047 -0.022 -0.093 -0.145 -0.123 -0.053 0.064 -0.057 -0.128 -0.157 0.199 0.025 0.095 0.012 -0.137 -0.135 -0.030 0.025 0.166 -0.058 0.094 0.053 -0.122 -0.031 0.001 -0.055 -0.079 -0.064 0.106 -0.088 -0.022 0.008 0.161 -0.060 -0.047 0.041 0.147 0.055 0.059 0.092 -0.068 -0.007 -0.061 0.022 -0.040 0.134 -0.074 -0.014 0.099 0.097 -0.060 -0.116 0.022 0.138 0.065 -0.059 0.174 0.204 0.125 0.080 0.079 0.069 0.043 -0.143 -0.075 -0.043 0.091 -0.075 -0.015 -0.082 -0.064 0.080 -0.021 0.051 -0.057 -0.040 0.161 -0.130 -0.108 -0.136 0.023 -0.024 0.058 -0.028 0.038 -0.048 0.086 -0.095 0.009 -0.110 -0.019 -0.106 -0.002 -0.138 0.017 0.110 -0.030 0.120 -0.077 0.044 -0.049 -0.136 0.045 -0.079 -0.024
+classifier.2.weight row 04 (Industrial Buildings)  -0.006 0.134 -0.075 -0.118 -0.009 -0.128 -0.123 0.079 0.007 0.025 0.098 0.001 0.025 -0.054 -0.155 0.093 0.000 0.002 0.091 0.028 0.078 0.094 0.122 0.073 -0.139 0.052 -0.094 -0.056 -0.069 0.079 0.049 0.003 0.039 0.087 -0.134 -0.095 -0.088 -0.070 -0.103 -0.078 -0.064 0.085 -0.098 -0.087 -0.010 0.103 -0.053 0.091 -0.030 0.112 0.096 -0.028 -0.062 -0.044 -0.086 0.097 0.030 -0.103 -0.141 0.015 0.009 -0.198 -0.033 0.127 0.067 -0.007 0.075 -0.069 -0.004 -0.132 -0.108 0.063 0.065 -0.070 0.075 -0.132 0.099 0.036 -0.039 0.037 0.091 0.009 -0.115 0.056 0.005 0.012 0.060 0.070 -0.134 -0.173 -0.024 -0.018 -0.056 0.036 -0.153 -0.113 -0.123 0.062 -0.127 -0.143 -0.180 -0.026 -0.167 -0.124 -0.060 -0.053 0.037 -0.034 0.071 0.099 -0.046 0.001 -0.113 -0.094 -0.121 0.060 0.082 -0.121 0.028 -0.152 0.055 0.081 -0.003 0.091 0.059 -0.057 -0.011 0.080
+classifier.2.weight row 05 (Pasture)  0.110 -0.049 0.105 -0.105 -0.102 -0.159 -0.067 -0.165 -0.018 0.130 0.096 -0.107 0.004 0.059 -0.005 -0.078 -0.035 -0.196 -0.031 -0.144 -0.225 0.046 -0.098 -0.189 0.075 0.115 -0.272 -0.092 0.055 -0.034 0.069 0.031 0.035 -0.250 -0.182 -0.143 0.022 -0.008 0.085 0.098 0.080 -0.198 -0.211 0.109 -0.104 -0.016 -0.040 0.134 -0.026 -0.012 -0.164 0.109 -0.306 0.056 0.048 -0.155 -0.198 -0.032 0.139 -0.262 0.130 -0.014 0.101 0.034 0.222 0.139 -0.134 0.056 -0.175 0.079 0.119 -0.183 0.126 -0.121 0.008 0.119 -0.003 -0.070 0.071 -0.111 -0.014 -0.079 0.070 -0.136 -0.105 -0.089 -0.052 0.034 0.093 -0.078 0.022 0.091 -0.015 0.137 0.105 -0.103 -0.225 0.122 -0.005 -0.058 -0.134 -0.214 -0.191 0.101 0.040 0.074 0.104 -0.009 -0.000 0.093 0.059 -0.078 -0.020 -0.059 -0.023 0.064 -0.166 -0.030 0.164 -0.043 -0.101 0.062 -0.113 -0.085 -0.086 0.150 0.073 0.056
+classifier.2.weight row 06 (Permanent Crop)  0.054 0.088 0.057 0.109 -0.118 0.086 0.065 0.066 -0.073 -0.149 -0.162 0.058 -0.100 -0.092 0.005 -0.055 -0.060 -0.038 0.098 -0.202 -0.136 -0.070 0.055 0.090 0.100 0.025 -0.125 -0.003 -0.053 0.015 -0.063 -0.196 -0.137 -0.068 0.076 -0.079 -0.014 0.098 -0.017 -0.037 -0.070 -0.062 -0.040 -0.052 0.011 0.062 0.083 0.001 0.029 0.006 0.080 -0.151 -0.128 0.058 -0.205 0.035 -0.139 0.124 0.088 -0.089 -0.035 0.068 0.030 0.023 -0.030 0.001 0.109 0.130 -0.195 -0.153 0.019 -0.024 -0.150 -0.069 -0.212 0.142 -0.216 0.056 -0.244 0.043 -0.191 0.053 -0.063 -0.238 0.092 0.057 -0.072 -0.140 0.097 0.052 0.097 -0.006 0.067 0.087 0.068 -0.139 -0.002 -0.082 0.088 -0.082 0.057 -0.065 0.075 -0.176 -0.140 0.133 -0.144 -0.064 -0.006 0.020 0.138 0.131 0.036 0.057 0.100 0.139 0.145 -0.074 -0.028 -0.042 -0.234 -0.233 0.102 0.139 -0.137 0.009 -0.107 -0.137
+classifier.2.weight row 07 (Residential Buildings)  -0.129 -0.079 -0.226 -0.158 0.112 -0.207 0.036 0.045 0.136 0.069 -0.142 0.019 -0.048 -0.093 -0.121 -0.088 0.129 -0.071 0.050 -0.053 -0.100 0.075 -0.080 -0.104 -0.102 -0.166 0.134 -0.164 -0.182 -0.042 0.125 0.217 0.073 0.074 0.009 -0.122 0.027 -0.163 0.111 -0.079 -0.105 -0.025 0.104 0.044 -0.244 -0.045 -0.193 0.051 -0.035 -0.097 -0.141 -0.195 0.150 0.072 0.002 -0.114 0.112 0.105 0.057 -0.054 -0.064 -0.207 -0.057 0.008 0.078 0.024 0.061 -0.035 -0.097 0.097 0.034 0.025 -0.157 -0.192 0.109 -0.132 -0.106 0.114 0.082 0.140 0.028 0.051 0.041 0.142 -0.164 0.078 -0.153 0.048 -0.125 -0.161 0.095 -0.077 0.072 -0.101 -0.117 0.237 -0.034 -0.054 0.083 -0.120 0.070 0.169 -0.122 -0.080 0.087 -0.162 0.014 0.150 -0.191 -0.039 -0.011 0.045 0.017 -0.186 0.031 -0.119 -0.031 0.133 -0.067 0.031 0.137 -0.009 0.116 -0.071 -0.105 -0.063 0.132 0.018
+classifier.2.weight row 08 (River)  0.121 -0.063 0.034 0.012 -0.082 0.150 -0.209 0.078 0.104 0.093 0.112 0.081 0.153 0.115 -0.141 0.228 -0.050 -0.076 0.085 0.026 0.161 -0.088 -0.186 -0.118 0.048 -0.071 0.178 0.067 0.007 0.138 -0.020 0.059 -0.128 -0.087 0.045 0.173 -0.044 0.088 -0.095 -0.046 -0.136 -0.161 0.196 -0.080 0.145 -0.149 -0.121 0.027 -0.145 -0.175 0.042 -0.004 0.024 0.017 0.102 0.010 -0.120 -0.088 0.057 -0.133 0.065 0.005 0.109 -0.166 0.108 -0.031 0.037 0.077 -0.013 -0.088 0.061 -0.055 0.073 0.072 0.029 0.061 -0.111 -0.014 0.047 -0.010 -0.043 0.007 0.086 -0.019 0.160 0.033 -0.166 -0.027 -0.144 -0.128 -0.120 0.022 -0.054 0.029 0.059 0.155 0.060 0.006 -0.178 -0.023 0.060 -0.106 -0.063 -0.023 -0.065 -0.138 0.012 -0.065 0.002 -0.168 -0.195 0.087 0.031 0.094 0.100 -0.077 0.046 -0.028 -0.053 0.102 -0.121 -0.022 -0.186 -0.155 0.041 0.062 0.013 -0.078
+classifier.2.weight row 09 (SeaLake)  -0.069 0.103 0.072 -0.120 0.157 0.030 -0.145 -0.057 -0.110 0.126 -0.045 -0.038 -0.186 -0.217 -0.044 -0.057 -0.171 -0.128 0.013 -0.031 0.123 -0.106 -0.030 -0.135 -0.242 0.058 0.065 -0.154 0.142 -0.017 0.027 0.149 0.020 0.248 -0.222 0.131 0.188 -0.007 -0.022 0.075 0.033 -0.137 0.056 0.004 -0.047 -0.015 -0.041 -0.104 -0.249 0.074 0.060 -0.092 0.066 -0.271 0.131 0.027 0.003 -0.087 -0.109 -0.198 -0.210 -0.088 -0.167 0.106 -0.038 -0.190 -0.191 -0.170 0.040 0.120 -0.167 0.138 -0.033 0.106 -0.015 -0.227 0.021 0.001 0.115 -0.049 0.067 -0.170 -0.207 0.066 0.096 0.251 0.067 0.129 -0.169 0.016 0.011 -0.200 -0.189 -0.070 -0.249 0.149 0.128 -0.235 -0.011 -0.081 -0.017 0.112 0.075 0.127 -0.133 0.012 0.095 0.163 -0.258 -0.008 0.020 -0.210 -0.100 -0.182 -0.243 -0.044 0.081 0.130 0.036 0.187 0.074 0.145 0.426 -0.061 0.091 0.099 -0.039 0.052
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  -0.075 0.014 0.033 -0.159 -0.062 -0.050 0.033 0.104 -0.107 0.147
+
+
+
+================================================================================
+=== Model_02 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:53
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  -0.124 -0.196 -0.026
+conv1.weight filter 00 chan R row 1  -0.175 -0.237 0.088
+conv1.weight filter 00 chan R row 2  0.042 0.057 0.203
+conv1.weight filter 00 chan G row 0  0.169 0.037 0.024
+conv1.weight filter 00 chan G row 1  0.027 -0.096 0.156
+conv1.weight filter 00 chan G row 2  0.139 -0.177 -0.110
+conv1.weight filter 00 chan B row 0  0.087 0.179 0.071
+conv1.weight filter 00 chan B row 1  0.095 -0.032 -0.170
+conv1.weight filter 00 chan B row 2  -0.060 -0.056 0.059
+conv1.weight filter 01 chan R row 0  0.149 0.114 0.146
+conv1.weight filter 01 chan R row 1  -0.069 -0.136 -0.217
+conv1.weight filter 01 chan R row 2  0.057 -0.079 0.018
+conv1.weight filter 01 chan G row 0  0.024 0.040 -0.048
+conv1.weight filter 01 chan G row 1  0.067 0.085 0.024
+conv1.weight filter 01 chan G row 2  -0.181 -0.111 -0.146
+conv1.weight filter 01 chan B row 0  0.176 0.006 -0.082
+conv1.weight filter 01 chan B row 1  0.047 0.042 -0.078
+conv1.weight filter 01 chan B row 2  0.020 0.158 -0.013
+conv1.weight filter 02 chan R row 0  -0.161 -0.235 -0.101
+conv1.weight filter 02 chan R row 1  -0.279 -0.036 0.049
+conv1.weight filter 02 chan R row 2  0.159 0.131 0.329
+conv1.weight filter 02 chan G row 0  -0.044 0.023 0.039
+conv1.weight filter 02 chan G row 1  -0.142 0.211 -0.075
+conv1.weight filter 02 chan G row 2  0.273 0.052 0.023
+conv1.weight filter 02 chan B row 0  0.048 -0.145 0.069
+conv1.weight filter 02 chan B row 1  -0.203 -0.266 0.025
+conv1.weight filter 02 chan B row 2  0.002 0.111 -0.002
+conv1.weight filter 03 chan R row 0  0.172 0.043 0.025
+conv1.weight filter 03 chan R row 1  0.041 0.023 0.017
+conv1.weight filter 03 chan R row 2  -0.160 0.049 0.121
+conv1.weight filter 03 chan G row 0  -0.042 0.006 0.150
+conv1.weight filter 03 chan G row 1  -0.029 0.091 0.294
+conv1.weight filter 03 chan G row 2  0.101 0.022 0.024
+conv1.weight filter 03 chan B row 0  -0.109 -0.112 -0.125
+conv1.weight filter 03 chan B row 1  -0.102 -0.070 0.035
+conv1.weight filter 03 chan B row 2  -0.023 -0.178 -0.103
+conv1.weight filter 04 chan R row 0  0.071 -0.089 -0.060
+conv1.weight filter 04 chan R row 1  0.262 -0.038 -0.069
+conv1.weight filter 04 chan R row 2  0.124 0.058 -0.183
+conv1.weight filter 04 chan G row 0  -0.004 -0.225 -0.043
+conv1.weight filter 04 chan G row 1  0.005 -0.270 0.114
+conv1.weight filter 04 chan G row 2  0.074 0.176 -0.031
+conv1.weight filter 04 chan B row 0  0.020 0.178 -0.023
+conv1.weight filter 04 chan B row 1  0.002 0.086 -0.113
+conv1.weight filter 04 chan B row 2  0.116 -0.068 -0.057
+conv1.weight filter 05 chan R row 0  -0.138 -0.002 -0.234
+conv1.weight filter 05 chan R row 1  -0.099 0.044 0.072
+conv1.weight filter 05 chan R row 2  0.067 -0.009 -0.163
+conv1.weight filter 05 chan G row 0  0.033 -0.091 0.067
+conv1.weight filter 05 chan G row 1  0.191 0.013 -0.044
+conv1.weight filter 05 chan G row 2  0.074 0.134 0.006
+conv1.weight filter 05 chan B row 0  -0.143 -0.029 0.129
+conv1.weight filter 05 chan B row 1  -0.003 0.092 0.009
+conv1.weight filter 05 chan B row 2  -0.010 0.040 0.139
+conv1.weight filter 06 chan R row 0  0.127 0.028 -0.064
+conv1.weight filter 06 chan R row 1  0.209 0.071 -0.180
+conv1.weight filter 06 chan R row 2  0.097 -0.180 -0.160
+conv1.weight filter 06 chan G row 0  -0.031 0.036 -0.159
+conv1.weight filter 06 chan G row 1  0.079 -0.114 -0.107
+conv1.weight filter 06 chan G row 2  0.053 0.069 -0.047
+conv1.weight filter 06 chan B row 0  -0.168 0.070 0.023
+conv1.weight filter 06 chan B row 1  -0.081 0.042 0.110
+conv1.weight filter 06 chan B row 2  0.051 0.072 0.112
+conv1.weight filter 07 chan R row 0  0.044 0.161 0.041
+conv1.weight filter 07 chan R row 1  0.129 -0.084 -0.193
+conv1.weight filter 07 chan R row 2  0.083 -0.151 -0.105
+conv1.weight filter 07 chan G row 0  0.018 -0.081 0.026
+conv1.weight filter 07 chan G row 1  0.131 0.246 0.039
+conv1.weight filter 07 chan G row 2  0.123 0.133 -0.136
+conv1.weight filter 07 chan B row 0  0.001 0.071 0.015
+conv1.weight filter 07 chan B row 1  -0.178 0.032 0.015
+conv1.weight filter 07 chan B row 2  -0.249 -0.091 0.033
+conv1.weight filter 08 chan R row 0  -0.016 -0.039 -0.122
+conv1.weight filter 08 chan R row 1  0.054 0.020 -0.183
+conv1.weight filter 08 chan R row 2  0.033 0.099 0.075
+conv1.weight filter 08 chan G row 0  -0.025 0.044 0.008
+conv1.weight filter 08 chan G row 1  -0.047 -0.025 0.043
+conv1.weight filter 08 chan G row 2  -0.047 -0.022 -0.097
+conv1.weight filter 08 chan B row 0  -0.050 -0.189 0.025
+conv1.weight filter 08 chan B row 1  0.227 -0.012 0.135
+conv1.weight filter 08 chan B row 2  0.105 -0.048 0.123
+conv1.weight filter 09 chan R row 0  0.029 -0.102 -0.007
+conv1.weight filter 09 chan R row 1  0.003 0.012 -0.110
+conv1.weight filter 09 chan R row 2  0.172 -0.030 0.021
+conv1.weight filter 09 chan G row 0  -0.060 -0.032 -0.065
+conv1.weight filter 09 chan G row 1  0.057 0.093 -0.246
+conv1.weight filter 09 chan G row 2  0.070 0.167 -0.012
+conv1.weight filter 09 chan B row 0  -0.109 -0.199 -0.133
+conv1.weight filter 09 chan B row 1  -0.082 0.184 0.106
+conv1.weight filter 09 chan B row 2  0.193 0.054 0.055
+conv1.weight filter 10 chan R row 0  0.053 -0.058 0.248
+conv1.weight filter 10 chan R row 1  -0.268 0.115 0.261
+conv1.weight filter 10 chan R row 2  -0.020 -0.113 0.085
+conv1.weight filter 10 chan G row 0  -0.127 0.075 -0.073
+conv1.weight filter 10 chan G row 1  0.013 -0.058 0.033
+conv1.weight filter 10 chan G row 2  0.198 -0.197 0.202
+conv1.weight filter 10 chan B row 0  0.038 -0.223 -0.011
+conv1.weight filter 10 chan B row 1  -0.180 -0.037 0.231
+conv1.weight filter 10 chan B row 2  -0.151 0.075 0.069
+conv1.weight filter 11 chan R row 0  -0.233 0.039 0.027
+conv1.weight filter 11 chan R row 1  0.000 -0.021 0.026
+conv1.weight filter 11 chan R row 2  0.024 0.010 0.104
+conv1.weight filter 11 chan G row 0  -0.054 -0.100 -0.114
+conv1.weight filter 11 chan G row 1  0.075 0.010 -0.042
+conv1.weight filter 11 chan G row 2  0.391 -0.075 -0.191
+conv1.weight filter 11 chan B row 0  -0.242 0.120 0.103
+conv1.weight filter 11 chan B row 1  -0.249 0.120 -0.020
+conv1.weight filter 11 chan B row 2  0.121 0.061 0.106
+conv1.weight filter 12 chan R row 0  -0.016 0.024 -0.010
+conv1.weight filter 12 chan R row 1  -0.018 0.143 -0.211
+conv1.weight filter 12 chan R row 2  0.221 0.039 -0.053
+conv1.weight filter 12 chan G row 0  -0.086 -0.019 -0.060
+conv1.weight filter 12 chan G row 1  0.165 0.025 -0.178
+conv1.weight filter 12 chan G row 2  0.142 0.209 -0.122
+conv1.weight filter 12 chan B row 0  0.086 0.005 -0.073
+conv1.weight filter 12 chan B row 1  0.002 -0.121 -0.230
+conv1.weight filter 12 chan B row 2  0.077 0.165 -0.111
+conv1.weight filter 13 chan R row 0  -0.026 0.102 -0.113
+conv1.weight filter 13 chan R row 1  -0.048 -0.225 0.115
+conv1.weight filter 13 chan R row 2  -0.018 -0.173 0.043
+conv1.weight filter 13 chan G row 0  0.220 0.124 0.007
+conv1.weight filter 13 chan G row 1  -0.075 0.157 0.138
+conv1.weight filter 13 chan G row 2  -0.129 0.124 -0.015
+conv1.weight filter 13 chan B row 0  0.028 0.214 -0.129
+conv1.weight filter 13 chan B row 1  0.259 -0.113 -0.082
+conv1.weight filter 13 chan B row 2  -0.068 -0.131 -0.198
+conv1.weight filter 14 chan R row 0  0.211 0.219 0.145
+conv1.weight filter 14 chan R row 1  0.160 -0.185 0.098
+conv1.weight filter 14 chan R row 2  -0.120 -0.115 -0.162
+conv1.weight filter 14 chan G row 0  0.009 0.126 0.071
+conv1.weight filter 14 chan G row 1  -0.074 -0.067 -0.186
+conv1.weight filter 14 chan G row 2  -0.143 0.025 -0.254
+conv1.weight filter 14 chan B row 0  0.022 0.193 0.016
+conv1.weight filter 14 chan B row 1  0.046 0.069 -0.079
+conv1.weight filter 14 chan B row 2  -0.146 0.135 -0.019
+conv1.weight filter 15 chan R row 0  0.053 0.296 -0.014
+conv1.weight filter 15 chan R row 1  0.066 0.061 -0.128
+conv1.weight filter 15 chan R row 2  -0.058 0.025 -0.003
+conv1.weight filter 15 chan G row 0  0.208 0.075 -0.262
+conv1.weight filter 15 chan G row 1  0.278 0.288 -0.195
+conv1.weight filter 15 chan G row 2  0.220 -0.393 -0.160
+conv1.weight filter 15 chan B row 0  0.029 0.053 0.089
+conv1.weight filter 15 chan B row 1  -0.030 0.027 -0.210
+conv1.weight filter 15 chan B row 2  0.128 -0.260 -0.106
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  -0.392 -0.032 -0.314 0.259 0.027 0.012 0.213 -0.100 -0.197 -0.001 0.219 -0.155 0.072 0.004 -0.096 0.254
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  0.063 -0.073 -0.041 0.136 0.020 0.092 -0.126 -0.215 -0.138 -0.009 -0.038 -0.030 0.098 -0.079 0.104 -0.023 -0.102 0.122 -0.068 -0.299 -0.003 -0.190 0.072 -0.021 0.084 -0.016 0.049 0.016 0.096 -0.046 0.062 0.060 -0.035 -0.198 0.054 0.048 0.052 0.054 -0.105 0.064 0.093 0.062 0.103 -0.282 0.094 -0.051 0.095 -0.074 0.072 0.046 0.057 -0.023 0.114 -0.071 0.081 -0.082 -0.102 -0.046 -0.112 0.125 -0.077 0.115 0.120 -0.073 -0.202 -0.097 0.083 0.082 -0.082 -0.048 0.124 0.100 -0.054 0.009 -0.086 0.075 0.011 -0.163 -0.004 -0.151 -0.313 -0.107 0.001 -0.204 0.002 -0.210 0.024 0.079 0.061 0.082 -0.132 -0.046 -0.120 0.059 -0.003 0.075 -0.010 -0.071 -0.011 -0.036 -0.058 0.016 -0.047 0.090 -0.126 0.082 0.073 0.084 0.083 0.074 0.013 0.019 -0.059 -0.034 -0.118 0.113 -0.090 -0.123 0.005 0.085 -0.069 0.030 -0.219 -0.017 -0.008 0.104 -0.022 0.051
+classifier.2.weight row 01 (Forest)  -0.063 0.078 0.010 -0.052 0.014 -0.254 0.052 0.123 -0.009 -0.131 0.028 -0.303 -0.317 -0.213 0.112 -0.081 0.137 -0.372 -0.179 -0.059 0.021 0.058 0.177 0.107 -0.293 0.077 -0.135 -0.189 0.053 -0.244 0.136 -0.051 -0.157 -0.081 -0.131 -0.047 0.107 -0.063 0.114 -0.166 0.121 -0.018 -0.086 -0.197 -0.209 0.135 0.017 0.029 0.028 -0.126 -0.058 0.106 0.040 0.157 0.072 -0.235 0.132 0.173 0.024 -0.365 0.142 0.064 -0.299 0.130 -0.124 0.147 -0.349 -0.251 0.017 0.071 -0.040 0.046 -0.019 -0.039 0.076 0.088 0.128 0.113 0.067 0.081 -0.100 0.011 -0.132 0.002 -0.094 -0.212 -0.026 0.053 -0.147 -0.292 0.037 0.161 0.134 -0.216 0.039 -0.071 0.124 0.073 0.115 0.008 0.075 0.132 0.055 -0.035 0.133 -0.016 -0.032 -0.004 -0.332 -0.006 -0.119 0.040 0.132 -0.028 0.061 0.119 0.037 -0.009 -0.093 -0.070 0.068 0.079 -0.122 -0.010 -0.072 -0.201 0.192 0.070
+classifier.2.weight row 02 (Herbaceous Vegetation)  -0.219 -0.142 -0.048 0.027 -0.048 0.009 0.102 -0.048 0.058 0.103 -0.133 0.003 -0.033 0.040 0.072 -0.297 0.055 0.004 -0.089 -0.124 -0.055 0.025 -0.028 0.040 0.035 -0.020 -0.193 0.104 -0.010 0.023 -0.132 -0.196 0.112 -0.025 0.030 -0.147 0.129 0.133 0.104 0.152 0.107 -0.030 -0.105 -0.084 -0.080 -0.083 0.104 -0.006 0.075 -0.027 0.101 -0.074 -0.035 0.018 -0.030 0.081 0.007 0.052 0.060 -0.068 -0.004 0.013 -0.143 -0.047 -0.146 0.056 0.007 -0.022 0.008 0.093 -0.079 -0.138 -0.284 0.024 -0.151 0.079 0.082 0.104 -0.164 -0.057 -0.076 0.096 0.023 -0.116 -0.196 -0.039 0.107 -0.159 0.069 0.044 0.128 0.117 0.077 -0.140 -0.042 -0.169 0.103 0.045 0.098 0.145 0.006 0.074 0.087 0.067 0.006 -0.094 -0.225 -0.230 -0.046 -0.078 0.117 -0.007 -0.070 0.126 0.022 0.033 -0.003 0.011 0.145 0.021 0.054 -0.131 -0.015 0.089 0.075 -0.003 0.073 -0.117
+classifier.2.weight row 03 (Highway)  0.023 -0.000 -0.073 0.117 -0.079 0.038 -0.010 -0.096 -0.114 -0.105 -0.014 0.051 0.146 0.152 0.003 -0.031 -0.004 0.120 -0.116 0.101 -0.001 -0.045 0.035 -0.033 0.033 -0.058 -0.088 -0.042 -0.066 0.102 0.028 -0.086 -0.075 0.034 0.052 0.072 -0.008 -0.076 -0.109 -0.032 -0.007 0.098 0.032 0.086 0.065 -0.116 0.041 -0.023 -0.088 -0.058 -0.011 0.101 -0.057 -0.037 0.064 0.085 -0.073 -0.026 0.029 0.153 0.027 0.058 0.082 -0.048 0.016 -0.069 0.042 0.017 0.009 -0.061 0.025 0.042 0.080 -0.010 -0.081 0.017 -0.016 0.011 -0.031 0.099 0.127 0.027 0.133 0.040 0.062 0.023 -0.129 -0.054 -0.020 0.071 -0.089 -0.019 -0.055 -0.003 0.056 -0.036 -0.018 -0.074 -0.052 0.031 -0.100 -0.080 -0.122 -0.036 -0.058 0.050 0.017 -0.002 -0.021 0.071 -0.037 -0.002 -0.157 0.070 -0.107 0.056 -0.108 0.064 0.012 -0.023 0.015 -0.050 0.007 -0.053 -0.070 0.039 -0.030 -0.012
+classifier.2.weight row 04 (Industrial Buildings)  -0.007 0.087 -0.179 -0.104 -0.020 -0.091 -0.067 0.061 0.049 -0.040 0.132 0.023 0.077 -0.035 -0.187 0.140 0.023 0.013 0.104 0.059 0.103 0.119 0.130 0.062 -0.129 -0.102 -0.104 -0.088 -0.171 0.058 0.120 0.051 0.005 0.095 -0.098 -0.004 -0.142 -0.085 -0.041 -0.089 -0.105 0.093 -0.156 -0.050 -0.027 0.045 -0.023 0.095 -0.156 0.149 0.098 -0.045 0.016 -0.089 -0.086 0.092 0.004 -0.109 -0.119 -0.032 0.048 -0.203 -0.031 0.160 0.113 -0.038 0.057 -0.122 -0.040 -0.120 -0.192 -0.046 0.096 -0.040 0.134 -0.203 0.008 0.038 -0.001 0.027 0.115 -0.027 -0.099 0.086 0.048 0.050 -0.067 0.044 -0.129 -0.146 -0.057 -0.109 -0.048 0.014 -0.178 -0.050 -0.151 0.082 -0.135 -0.209 -0.154 -0.030 -0.126 -0.188 -0.008 -0.053 0.091 0.012 0.073 0.122 -0.017 -0.019 -0.134 -0.160 -0.071 0.064 0.127 -0.117 0.042 -0.087 0.081 0.061 0.034 0.103 0.026 -0.109 -0.027 0.041
+classifier.2.weight row 05 (Pasture)  0.089 -0.028 0.056 -0.145 -0.075 -0.101 -0.024 -0.046 0.072 0.135 0.082 -0.079 -0.018 -0.047 0.010 0.074 0.041 -0.124 -0.025 -0.085 -0.143 0.006 -0.136 -0.163 -0.013 0.081 -0.069 -0.122 0.049 -0.054 0.081 0.038 0.011 -0.208 -0.193 -0.111 0.051 -0.059 0.030 0.085 0.080 -0.081 -0.054 -0.012 0.090 -0.110 -0.086 0.127 0.050 0.093 -0.169 0.140 -0.202 0.051 0.050 -0.138 -0.079 -0.057 0.002 -0.197 0.153 0.009 0.078 -0.001 0.121 0.113 -0.156 -0.068 -0.138 0.046 0.107 -0.117 0.120 -0.145 0.053 0.118 0.008 -0.043 0.036 -0.038 -0.068 0.032 -0.155 -0.155 0.018 -0.120 -0.021 0.027 0.058 -0.067 -0.028 0.094 0.038 0.077 0.072 -0.086 -0.033 0.099 -0.025 -0.026 -0.014 -0.139 -0.089 0.091 0.003 0.045 0.112 -0.048 0.051 0.153 -0.041 0.026 -0.015 -0.015 0.020 -0.087 -0.056 -0.058 0.167 0.011 -0.064 0.068 -0.220 -0.150 -0.188 0.124 0.047 0.060
+classifier.2.weight row 06 (Permanent Crop)  0.094 -0.111 -0.058 0.080 -0.133 0.108 0.039 0.005 -0.002 -0.006 -0.098 0.086 0.005 -0.045 0.025 -0.015 -0.083 -0.004 0.097 -0.171 -0.118 -0.068 0.065 0.057 0.103 -0.022 -0.154 0.011 -0.028 0.086 -0.126 -0.189 -0.077 0.011 0.075 -0.061 0.009 0.084 -0.065 0.008 0.011 -0.052 0.018 -0.080 0.096 -0.116 0.080 -0.015 -0.006 -0.026 0.070 -0.104 -0.197 0.040 -0.113 0.069 -0.120 0.073 0.065 -0.055 -0.063 0.056 0.075 0.014 -0.104 0.001 0.137 0.136 -0.121 -0.187 0.018 0.002 -0.064 -0.047 -0.199 0.130 -0.153 0.044 -0.227 0.021 -0.161 0.057 -0.008 -0.201 0.063 0.054 -0.016 -0.159 0.063 0.045 0.106 -0.005 0.008 0.093 0.130 -0.168 0.025 -0.084 0.061 0.002 -0.014 -0.038 -0.014 -0.091 -0.159 0.067 -0.112 -0.121 0.004 0.042 0.124 0.091 0.002 -0.014 0.095 0.114 0.053 -0.162 0.036 -0.078 -0.155 -0.243 0.072 0.097 -0.063 0.041 -0.120 -0.206
+classifier.2.weight row 07 (Residential Buildings)  -0.241 -0.125 -0.251 -0.155 -0.054 -0.275 0.083 0.085 0.120 0.012 -0.165 0.011 -0.092 -0.038 -0.131 -0.163 0.140 -0.122 0.057 0.012 -0.105 0.124 -0.102 -0.012 -0.119 -0.246 0.161 -0.175 -0.268 0.009 -0.048 0.147 0.064 0.112 0.065 -0.068 -0.074 -0.156 0.158 0.029 -0.107 -0.055 -0.158 0.062 -0.289 0.068 -0.150 0.001 -0.104 -0.136 -0.147 -0.180 0.175 0.121 -0.236 -0.034 0.139 0.172 0.128 -0.109 0.031 -0.261 -0.138 0.009 0.108 0.016 0.004 0.020 -0.083 0.127 -0.079 -0.003 -0.136 -0.199 0.079 -0.072 -0.024 0.120 -0.041 0.137 0.063 0.061 0.156 0.143 -0.197 0.101 -0.000 0.015 -0.191 -0.097 0.111 0.008 0.116 -0.235 -0.130 0.308 -0.064 0.012 0.212 0.019 -0.093 0.204 -0.016 -0.159 0.133 -0.314 -0.090 0.347 -0.215 -0.185 0.039 -0.002 0.069 -0.107 0.034 -0.173 -0.015 0.087 -0.025 -0.186 0.172 -0.011 0.127 -0.025 -0.077 -0.077 0.165 -0.031
+classifier.2.weight row 08 (River)  0.113 0.012 -0.002 -0.015 0.012 0.116 -0.133 0.056 0.023 0.002 0.102 0.086 0.157 0.086 -0.065 0.125 -0.057 0.089 0.034 0.003 0.138 -0.040 -0.156 -0.148 -0.014 -0.025 0.148 0.062 0.036 0.092 -0.028 0.072 -0.111 -0.016 -0.090 0.157 0.040 0.017 -0.133 -0.051 -0.134 -0.094 0.156 -0.091 0.115 -0.067 -0.116 0.003 -0.097 -0.054 -0.041 0.035 0.000 0.039 0.119 -0.003 -0.180 -0.110 0.001 0.013 0.024 0.069 0.135 -0.131 0.062 -0.094 0.015 -0.021 0.040 -0.074 0.049 0.047 0.110 0.109 -0.042 0.030 -0.148 -0.020 0.046 0.065 0.013 0.010 -0.107 0.016 0.150 0.064 -0.146 0.040 -0.098 -0.084 -0.130 -0.066 -0.102 0.087 0.056 0.138 -0.031 -0.055 -0.126 -0.047 0.007 -0.152 -0.115 0.017 -0.110 0.023 0.016 0.051 0.064 -0.044 -0.158 0.045 -0.016 0.058 0.019 -0.078 -0.125 -0.067 -0.041 0.126 -0.111 0.058 -0.120 -0.150 0.060 -0.000 -0.061 0.001
+classifier.2.weight row 09 (SeaLake)  -0.030 0.121 0.111 -0.124 0.155 -0.023 -0.282 0.004 -0.239 0.091 -0.028 -0.217 -0.233 -0.230 0.041 -0.076 -0.245 -0.155 -0.108 -0.052 0.160 0.026 -0.154 -0.181 -0.125 0.092 0.110 -0.123 0.150 -0.224 0.107 0.139 0.022 0.410 -0.114 0.155 0.166 0.060 -0.054 0.047 0.034 -0.290 0.099 -0.017 -0.067 0.006 -0.059 -0.334 -0.041 0.019 -0.063 -0.053 0.070 -0.210 0.143 -0.030 -0.053 -0.004 -0.211 -0.189 -0.155 0.043 -0.298 0.065 0.109 -0.216 -0.168 -0.080 0.090 0.107 -0.188 0.158 -0.103 0.137 0.097 -0.193 0.056 -0.158 0.121 -0.205 0.025 -0.451 -0.099 0.190 0.119 0.125 -0.015 0.143 -0.026 -0.018 -0.078 -0.133 -0.205 -0.173 -0.232 0.131 0.148 -0.292 0.059 -0.012 0.093 0.082 0.070 0.124 -0.119 0.106 0.096 0.174 -0.199 0.008 0.036 -0.421 -0.004 -0.036 -0.378 -0.093 0.075 0.082 -0.271 0.193 0.105 0.146 0.473 -0.056 0.151 0.073 0.016 0.092
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  -0.094 0.026 0.040 -0.109 -0.051 -0.077 0.017 0.072 -0.086 0.113
+
+
+
+================================================================================
+=== Model_03 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:53
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  0.141 -0.273 -0.289
+conv1.weight filter 00 chan R row 1  0.257 0.318 -0.052
+conv1.weight filter 00 chan R row 2  -0.040 0.053 0.010
+conv1.weight filter 00 chan G row 0  -0.118 0.099 -0.155
+conv1.weight filter 00 chan G row 1  0.032 0.067 -0.017
+conv1.weight filter 00 chan G row 2  -0.020 0.095 -0.052
+conv1.weight filter 00 chan B row 0  0.028 -0.036 -0.128
+conv1.weight filter 00 chan B row 1  0.085 0.161 -0.026
+conv1.weight filter 00 chan B row 2  0.021 0.143 -0.209
+conv1.weight filter 01 chan R row 0  0.139 0.104 0.075
+conv1.weight filter 01 chan R row 1  -0.014 0.074 0.038
+conv1.weight filter 01 chan R row 2  -0.170 -0.141 -0.071
+conv1.weight filter 01 chan G row 0  0.171 0.337 0.049
+conv1.weight filter 01 chan G row 1  0.052 0.036 -0.182
+conv1.weight filter 01 chan G row 2  -0.308 -0.179 -0.043
+conv1.weight filter 01 chan B row 0  -0.045 -0.023 0.034
+conv1.weight filter 01 chan B row 1  0.090 -0.131 -0.014
+conv1.weight filter 01 chan B row 2  0.044 -0.006 0.105
+conv1.weight filter 02 chan R row 0  0.105 0.142 -0.097
+conv1.weight filter 02 chan R row 1  0.132 0.081 -0.016
+conv1.weight filter 02 chan R row 2  -0.071 0.095 0.080
+conv1.weight filter 02 chan G row 0  0.077 0.043 -0.011
+conv1.weight filter 02 chan G row 1  0.122 -0.068 -0.039
+conv1.weight filter 02 chan G row 2  0.021 0.020 0.193
+conv1.weight filter 02 chan B row 0  0.016 -0.188 -0.023
+conv1.weight filter 02 chan B row 1  -0.068 -0.050 -0.157
+conv1.weight filter 02 chan B row 2  -0.054 0.012 -0.248
+conv1.weight filter 03 chan R row 0  0.097 0.125 -0.251
+conv1.weight filter 03 chan R row 1  -0.069 -0.020 -0.342
+conv1.weight filter 03 chan R row 2  0.184 0.291 0.053
+conv1.weight filter 03 chan G row 0  -0.047 -0.047 0.026
+conv1.weight filter 03 chan G row 1  -0.094 -0.019 -0.164
+conv1.weight filter 03 chan G row 2  0.268 -0.040 -0.112
+conv1.weight filter 03 chan B row 0  0.160 -0.214 -0.116
+conv1.weight filter 03 chan B row 1  0.227 -0.147 0.010
+conv1.weight filter 03 chan B row 2  0.161 0.041 -0.016
+conv1.weight filter 04 chan R row 0  -0.054 -0.071 0.155
+conv1.weight filter 04 chan R row 1  0.034 0.068 -0.051
+conv1.weight filter 04 chan R row 2  -0.230 -0.006 0.168
+conv1.weight filter 04 chan G row 0  0.069 -0.114 0.316
+conv1.weight filter 04 chan G row 1  -0.058 0.153 -0.226
+conv1.weight filter 04 chan G row 2  -0.204 -0.045 0.111
+conv1.weight filter 04 chan B row 0  0.012 0.078 -0.169
+conv1.weight filter 04 chan B row 1  -0.062 0.026 -0.132
+conv1.weight filter 04 chan B row 2  -0.009 0.004 0.252
+conv1.weight filter 05 chan R row 0  -0.038 -0.075 0.226
+conv1.weight filter 05 chan R row 1  -0.117 -0.108 0.124
+conv1.weight filter 05 chan R row 2  -0.099 0.074 0.077
+conv1.weight filter 05 chan G row 0  0.082 -0.077 -0.245
+conv1.weight filter 05 chan G row 1  0.052 -0.154 -0.029
+conv1.weight filter 05 chan G row 2  0.002 0.121 -0.027
+conv1.weight filter 05 chan B row 0  0.203 -0.040 0.172
+conv1.weight filter 05 chan B row 1  -0.019 -0.134 0.092
+conv1.weight filter 05 chan B row 2  0.072 -0.145 0.021
+conv1.weight filter 06 chan R row 0  -0.048 0.003 -0.095
+conv1.weight filter 06 chan R row 1  0.072 0.074 -0.138
+conv1.weight filter 06 chan R row 2  0.229 0.048 -0.180
+conv1.weight filter 06 chan G row 0  0.112 0.022 -0.055
+conv1.weight filter 06 chan G row 1  -0.020 0.120 -0.100
+conv1.weight filter 06 chan G row 2  0.129 -0.076 -0.191
+conv1.weight filter 06 chan B row 0  0.047 0.011 -0.139
+conv1.weight filter 06 chan B row 1  0.084 0.186 0.051
+conv1.weight filter 06 chan B row 2  -0.034 -0.089 0.022
+conv1.weight filter 07 chan R row 0  0.112 -0.006 0.002
+conv1.weight filter 07 chan R row 1  0.152 0.005 -0.173
+conv1.weight filter 07 chan R row 2  0.061 0.077 0.108
+conv1.weight filter 07 chan G row 0  0.095 0.063 -0.160
+conv1.weight filter 07 chan G row 1  -0.189 0.221 -0.015
+conv1.weight filter 07 chan G row 2  0.073 -0.039 -0.034
+conv1.weight filter 07 chan B row 0  0.152 0.037 -0.008
+conv1.weight filter 07 chan B row 1  -0.122 -0.018 -0.048
+conv1.weight filter 07 chan B row 2  0.135 -0.085 -0.175
+conv1.weight filter 08 chan R row 0  -0.146 -0.257 0.157
+conv1.weight filter 08 chan R row 1  -0.170 -0.076 0.059
+conv1.weight filter 08 chan R row 2  -0.104 -0.024 0.211
+conv1.weight filter 08 chan G row 0  0.063 -0.139 0.041
+conv1.weight filter 08 chan G row 1  0.228 -0.078 -0.085
+conv1.weight filter 08 chan G row 2  0.115 0.020 0.110
+conv1.weight filter 08 chan B row 0  0.197 -0.177 0.144
+conv1.weight filter 08 chan B row 1  -0.111 -0.117 0.053
+conv1.weight filter 08 chan B row 2  0.192 0.019 -0.047
+conv1.weight filter 09 chan R row 0  0.220 0.146 -0.086
+conv1.weight filter 09 chan R row 1  -0.322 0.033 -0.036
+conv1.weight filter 09 chan R row 2  0.075 0.009 -0.082
+conv1.weight filter 09 chan G row 0  0.152 -0.072 0.027
+conv1.weight filter 09 chan G row 1  0.131 0.011 -0.011
+conv1.weight filter 09 chan G row 2  0.057 -0.092 -0.140
+conv1.weight filter 09 chan B row 0  0.245 -0.057 -0.007
+conv1.weight filter 09 chan B row 1  0.202 0.060 -0.038
+conv1.weight filter 09 chan B row 2  -0.066 -0.166 -0.194
+conv1.weight filter 10 chan R row 0  -0.020 -0.318 0.160
+conv1.weight filter 10 chan R row 1  0.122 -0.050 0.079
+conv1.weight filter 10 chan R row 2  0.099 0.025 -0.103
+conv1.weight filter 10 chan G row 0  0.183 0.057 0.233
+conv1.weight filter 10 chan G row 1  -0.008 -0.220 0.137
+conv1.weight filter 10 chan G row 2  -0.117 -0.085 -0.183
+conv1.weight filter 10 chan B row 0  -0.089 0.016 0.060
+conv1.weight filter 10 chan B row 1  -0.188 0.182 0.323
+conv1.weight filter 10 chan B row 2  -0.167 0.035 -0.154
+conv1.weight filter 11 chan R row 0  0.178 0.099 0.217
+conv1.weight filter 11 chan R row 1  -0.157 -0.094 0.113
+conv1.weight filter 11 chan R row 2  -0.027 0.030 -0.111
+conv1.weight filter 11 chan G row 0  -0.081 0.063 0.301
+conv1.weight filter 11 chan G row 1  -0.105 -0.221 0.078
+conv1.weight filter 11 chan G row 2  -0.000 -0.098 -0.097
+conv1.weight filter 11 chan B row 0  0.089 -0.112 0.059
+conv1.weight filter 11 chan B row 1  -0.027 0.040 -0.125
+conv1.weight filter 11 chan B row 2  -0.095 0.053 0.014
+conv1.weight filter 12 chan R row 0  -0.136 0.081 -0.145
+conv1.weight filter 12 chan R row 1  0.054 0.171 0.223
+conv1.weight filter 12 chan R row 2  -0.232 0.034 -0.003
+conv1.weight filter 12 chan G row 0  -0.138 -0.071 -0.182
+conv1.weight filter 12 chan G row 1  0.158 0.031 0.028
+conv1.weight filter 12 chan G row 2  -0.056 0.194 0.020
+conv1.weight filter 12 chan B row 0  -0.343 0.046 -0.023
+conv1.weight filter 12 chan B row 1  -0.047 0.094 0.082
+conv1.weight filter 12 chan B row 2  -0.119 0.148 0.145
+conv1.weight filter 13 chan R row 0  0.134 -0.025 -0.150
+conv1.weight filter 13 chan R row 1  0.036 -0.049 -0.168
+conv1.weight filter 13 chan R row 2  -0.128 0.194 0.117
+conv1.weight filter 13 chan G row 0  0.172 -0.188 0.076
+conv1.weight filter 13 chan G row 1  0.200 -0.053 -0.176
+conv1.weight filter 13 chan G row 2  0.113 -0.067 -0.008
+conv1.weight filter 13 chan B row 0  0.005 -0.049 -0.023
+conv1.weight filter 13 chan B row 1  -0.064 0.005 -0.107
+conv1.weight filter 13 chan B row 2  0.056 -0.130 0.254
+conv1.weight filter 14 chan R row 0  0.122 -0.063 0.032
+conv1.weight filter 14 chan R row 1  0.004 -0.082 0.044
+conv1.weight filter 14 chan R row 2  -0.060 -0.097 0.038
+conv1.weight filter 14 chan G row 0  0.054 -0.081 -0.053
+conv1.weight filter 14 chan G row 1  -0.027 0.098 -0.182
+conv1.weight filter 14 chan G row 2  0.113 0.049 0.073
+conv1.weight filter 14 chan B row 0  -0.084 -0.085 -0.003
+conv1.weight filter 14 chan B row 1  0.152 -0.028 -0.192
+conv1.weight filter 14 chan B row 2  0.228 0.098 -0.105
+conv1.weight filter 15 chan R row 0  0.180 0.056 0.106
+conv1.weight filter 15 chan R row 1  0.017 0.090 -0.103
+conv1.weight filter 15 chan R row 2  -0.204 0.014 -0.059
+conv1.weight filter 15 chan G row 0  -0.065 -0.048 0.103
+conv1.weight filter 15 chan G row 1  -0.008 0.050 -0.032
+conv1.weight filter 15 chan G row 2  -0.164 0.050 -0.040
+conv1.weight filter 15 chan B row 0  0.172 0.111 0.200
+conv1.weight filter 15 chan B row 1  -0.256 -0.037 0.026
+conv1.weight filter 15 chan B row 2  -0.122 -0.009 0.047
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  0.216 0.035 0.103 -0.087 -0.030 -0.310 -0.080 0.077 -0.146 0.046 -0.026 0.068 0.146 -0.187 -0.119 0.186
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  0.028 -0.064 0.132 -0.037 -0.082 0.015 0.075 0.065 0.057 0.032 -0.035 0.029 0.077 -0.009 -0.057 -0.070 -0.044 -0.183 -0.175 -0.257 -0.042 0.070 0.031 -0.055 0.059 0.059 -0.070 -0.098 0.127 -0.214 -0.031 -0.136 -0.051 0.132 -0.155 -0.023 0.115 0.090 -0.098 0.102 0.118 -0.097 -0.006 0.031 0.099 -0.022 0.009 0.070 0.100 -0.132 0.023 -0.012 0.099 -0.059 0.007 0.140 0.051 0.086 -0.123 -0.077 0.062 -0.009 -0.034 -0.143 0.052 -0.039 -0.023 0.019 -0.008 -0.006 0.053 0.055 0.066 0.131 0.104 0.102 0.065 0.020 0.065 -0.065 -0.068 -0.114 0.111 -0.253 0.133 -0.022 0.052 -0.084 -0.102 0.108 -0.210 0.017 -0.050 0.103 -0.064 -0.022 -0.088 0.079 -0.024 -0.258 0.068 -0.056 -0.022 -0.169 -0.097 -0.060 0.008 -0.034 0.037 0.041 0.076 -0.019 -0.133 -0.113 -0.035 0.003 0.045 0.002 -0.025 -0.117 -0.097 0.091 0.105 -0.109 -0.212 -0.001 0.026 0.058
+classifier.2.weight row 01 (Forest)  -0.305 -0.135 -0.287 0.001 0.056 0.083 0.003 -0.027 0.078 0.118 -0.081 0.119 -0.135 -0.121 -0.216 0.099 0.073 -0.002 -0.162 -0.148 -0.270 -0.010 -0.185 -0.002 0.040 -0.020 0.112 -0.198 0.227 -0.151 0.126 0.039 -0.009 -0.208 0.046 0.031 -0.343 -0.006 0.129 0.006 -0.341 0.110 0.061 -0.135 -0.134 0.061 0.089 -0.069 -0.006 0.000 -0.125 0.125 -0.162 0.116 -0.127 -0.111 0.001 -0.121 0.016 0.098 0.023 0.075 -0.020 0.126 -0.030 0.001 -0.123 0.092 0.095 -0.029 -0.205 -0.232 -0.108 -0.209 -0.380 0.143 -0.012 -0.167 -0.079 0.126 0.080 0.074 -0.276 -0.218 0.050 -0.073 -0.116 0.151 0.134 -0.161 0.087 0.051 0.143 -0.095 0.024 0.158 0.092 0.054 0.184 0.007 -0.032 0.118 0.094 0.086 0.074 0.112 -0.031 -0.001 -0.167 0.183 -0.001 -0.217 -0.009 0.053 0.035 0.001 0.002 0.077 0.110 0.082 -0.117 0.127 -0.062 0.040 0.057 -0.090 0.060 0.057
+classifier.2.weight row 02 (Herbaceous Vegetation)  -0.093 0.099 -0.008 0.043 -0.017 -0.021 -0.154 -0.033 -0.159 -0.083 -0.220 -0.090 0.030 -0.250 0.029 -0.031 0.039 0.059 0.046 -0.038 0.006 -0.180 -0.103 -0.010 -0.012 -0.221 0.098 -0.031 0.018 0.069 0.004 0.072 0.095 -0.107 -0.031 -0.218 -0.077 -0.163 0.092 0.019 -0.133 0.066 0.013 0.025 -0.008 0.068 0.002 0.078 -0.169 0.039 0.030 0.072 0.027 0.054 0.001 -0.010 -0.066 -0.199 -0.094 0.116 0.065 0.101 -0.031 0.073 0.078 -0.151 -0.111 0.124 0.032 -0.053 0.121 0.059 0.052 -0.101 0.042 0.048 -0.171 0.033 -0.019 0.045 -0.081 0.019 0.051 -0.065 0.022 -0.228 0.130 -0.065 0.057 -0.058 -0.055 0.100 0.082 0.108 -0.073 -0.043 0.068 -0.051 0.084 -0.079 0.075 0.144 -0.017 -0.103 -0.031 0.085 0.061 0.064 0.091 0.114 -0.162 0.047 0.078 -0.198 0.057 0.134 -0.184 0.042 -0.141 -0.027 0.049 0.110 0.050 0.032 0.061 0.116 -0.077 -0.063
+classifier.2.weight row 03 (Highway)  0.064 0.031 0.088 -0.073 -0.095 -0.050 -0.076 0.005 0.068 -0.059 -0.052 -0.012 -0.021 0.068 -0.036 -0.079 0.041 -0.049 0.039 -0.033 0.041 0.059 0.089 -0.100 -0.070 0.035 -0.110 0.214 0.112 0.040 -0.052 -0.070 -0.034 0.085 0.039 -0.069 0.102 -0.074 -0.023 0.044 0.139 -0.064 -0.066 0.001 0.000 -0.018 -0.100 0.094 -0.007 0.078 0.164 -0.091 0.025 -0.121 -0.070 0.140 0.033 0.018 0.010 -0.087 -0.068 -0.067 -0.075 0.003 -0.060 0.034 -0.136 -0.097 -0.002 -0.099 0.072 0.028 0.039 0.123 0.111 -0.028 -0.059 -0.074 -0.035 0.016 -0.005 -0.007 0.082 0.034 0.095 0.076 -0.103 0.065 0.056 0.026 -0.080 -0.037 -0.061 -0.035 -0.056 -0.041 0.088 -0.059 -0.050 0.032 0.039 -0.063 0.025 0.076 0.023 -0.121 0.052 0.014 -0.006 -0.088 -0.019 -0.036 -0.088 0.025 -0.096 -0.041 0.067 -0.020 0.044 -0.133 0.171 0.050 0.027 -0.034 0.096 -0.021 -0.038 -0.048
+classifier.2.weight row 04 (Industrial Buildings)  -0.115 -0.061 -0.089 0.140 -0.073 -0.218 -0.061 -0.017 -0.122 -0.079 0.151 -0.058 -0.083 0.125 -0.049 -0.058 -0.096 -0.065 0.030 0.005 0.123 -0.006 0.068 0.120 0.033 -0.095 -0.150 0.090 0.115 0.043 0.005 -0.049 0.055 -0.148 0.098 0.012 0.025 -0.063 -0.074 0.153 -0.061 0.039 -0.079 -0.147 0.036 -0.056 0.062 -0.151 0.028 0.034 0.069 -0.112 -0.074 -0.144 -0.103 -0.099 -0.113 0.074 0.014 -0.022 -0.121 -0.063 -0.013 -0.039 -0.178 0.027 -0.055 -0.086 -0.112 0.131 -0.114 0.006 -0.066 -0.056 0.009 0.131 0.098 0.039 -0.052 -0.081 0.191 -0.113 -0.117 0.066 -0.167 0.164 -0.108 -0.062 0.076 0.162 0.086 -0.134 -0.099 -0.142 -0.055 -0.114 -0.066 0.009 0.036 0.114 0.018 -0.117 0.079 0.128 0.120 -0.059 -0.083 -0.054 -0.225 -0.043 0.009 0.104 0.110 0.150 -0.187 -0.109 0.008 -0.146 0.087 0.152 0.014 0.089 -0.031 0.128 0.077 -0.092 -0.056 -0.005
+classifier.2.weight row 05 (Pasture)  -0.047 -0.118 0.028 -0.012 0.047 -0.018 0.020 -0.107 -0.071 0.049 0.219 0.027 0.100 0.218 0.132 0.120 0.048 -0.179 -0.152 -0.111 0.072 0.027 0.081 0.018 -0.083 0.052 -0.087 -0.147 -0.250 -0.106 0.120 -0.023 -0.116 0.082 -0.026 0.059 0.054 0.094 0.035 -0.035 0.005 0.030 0.058 -0.074 -0.126 -0.086 -0.106 -0.131 -0.114 -0.087 -0.053 0.083 0.111 0.117 -0.098 0.137 -0.051 0.086 -0.104 -0.000 0.046 -0.076 -0.116 -0.098 0.042 -0.038 0.027 0.015 0.026 -0.148 -0.074 -0.083 0.020 -0.115 -0.090 -0.076 -0.022 0.103 0.062 0.009 -0.019 0.050 -0.012 -0.060 0.144 0.147 -0.021 0.087 0.081 0.095 0.114 -0.088 -0.032 0.029 0.028 0.046 -0.064 -0.040 0.002 -0.134 -0.181 -0.036 -0.067 -0.069 0.078 -0.041 -0.077 0.131 0.023 -0.020 -0.074 0.061 -0.096 0.087 -0.013 -0.065 0.104 0.068 0.110 0.057 -0.154 -0.137 -0.106 -0.040 -0.176 -0.150 0.149 -0.048
+classifier.2.weight row 06 (Permanent Crop)  0.107 -0.035 0.148 0.111 -0.155 0.084 -0.150 0.102 -0.070 0.112 -0.066 -0.026 0.075 0.051 -0.010 -0.136 0.020 0.071 -0.019 -0.064 -0.036 0.073 -0.030 -0.108 -0.157 -0.081 0.049 -0.013 0.017 0.046 -0.133 -0.019 0.036 0.163 0.044 0.077 0.115 -0.156 0.043 0.111 0.099 0.004 -0.112 0.101 0.063 0.026 -0.092 0.098 -0.157 -0.032 0.031 -0.068 -0.007 -0.075 -0.125 -0.044 -0.019 0.023 -0.191 -0.023 -0.062 -0.075 -0.088 -0.044 0.038 0.127 -0.164 -0.004 0.049 -0.084 0.126 0.103 -0.053 0.023 0.077 0.104 -0.184 -0.085 0.059 -0.001 -0.049 -0.037 -0.037 0.017 0.003 0.039 0.084 0.007 -0.099 0.064 -0.046 -0.023 -0.048 0.056 -0.173 -0.117 -0.025 -0.184 0.102 -0.167 0.036 0.005 -0.149 -0.169 -0.013 0.021 0.082 0.029 -0.007 -0.014 -0.171 0.046 0.077 -0.160 0.037 0.106 -0.066 -0.152 -0.045 -0.057 -0.178 0.087 0.075 0.098 -0.100 0.095 -0.156 -0.175
+classifier.2.weight row 07 (Residential Buildings)  0.074 0.100 0.045 -0.013 -0.125 -0.155 0.018 0.098 -0.148 0.098 0.051 -0.180 -0.051 -0.093 0.106 -0.112 0.129 0.127 0.138 0.091 -0.001 -0.333 -0.169 0.131 0.017 -0.104 0.178 0.052 -0.116 0.145 0.135 0.146 0.076 -0.111 0.060 -0.234 -0.113 0.198 0.169 -0.190 -0.140 0.122 -0.250 -0.258 -0.251 -0.088 0.182 -0.083 0.067 0.030 0.053 -0.077 -0.187 0.072 0.043 -0.123 -0.201 -0.307 0.145 0.136 -0.276 -0.084 0.182 0.091 -0.042 -0.169 0.064 0.019 0.011 0.325 -0.073 -0.178 -0.218 -0.226 -0.163 0.015 0.317 -0.108 -0.058 0.052 -0.043 -0.019 -0.183 0.106 -0.033 -0.096 0.019 -0.015 0.068 -0.117 0.099 0.016 0.181 -0.192 -0.093 0.152 -0.121 0.011 0.133 0.126 -0.190 0.099 0.026 0.052 -0.039 -0.004 0.128 0.059 -0.102 -0.002 0.221 0.014 0.066 0.112 -0.126 -0.084 -0.169 -0.216 -0.215 0.020 0.011 -0.096 -0.227 0.120 0.164 0.004 -0.145 -0.167
+classifier.2.weight row 08 (River)  0.127 -0.101 0.108 -0.051 -0.024 -0.024 0.073 -0.195 0.014 0.080 0.023 -0.089 -0.150 0.178 -0.123 -0.055 -0.025 0.020 0.072 -0.121 0.077 0.065 0.149 -0.058 0.065 0.143 -0.005 0.115 -0.008 0.015 -0.033 -0.106 -0.180 0.088 0.102 0.084 0.160 0.066 -0.072 0.067 0.211 -0.073 0.017 0.120 0.044 0.021 -0.075 -0.013 0.097 0.037 0.123 -0.069 0.029 -0.028 0.113 0.110 0.129 0.078 0.014 -0.134 -0.038 -0.084 0.136 -0.035 -0.087 0.157 0.051 -0.166 -0.174 0.020 0.003 0.098 0.053 0.168 0.043 -0.087 0.010 0.027 -0.032 -0.053 -0.161 -0.050 -0.057 0.097 0.027 0.150 -0.023 -0.021 -0.074 0.097 0.038 -0.096 -0.090 -0.060 -0.018 -0.019 0.007 -0.026 0.010 -0.042 -0.133 -0.099 -0.101 -0.023 0.016 -0.016 -0.205 0.088 0.022 -0.113 0.042 -0.024 -0.033 0.054 0.008 -0.105 0.149 0.013 -0.013 -0.105 -0.093 -0.159 -0.111 -0.164 0.041 -0.107 -0.038 -0.082
+classifier.2.weight row 09 (SeaLake)  -0.063 -0.029 -0.114 0.020 0.052 -0.110 0.117 -0.043 0.096 -0.163 -0.008 -0.008 -0.041 -0.160 0.072 -0.021 -0.270 0.052 -0.049 0.315 -0.043 -0.010 -0.055 0.050 0.169 0.122 0.081 -0.061 -0.110 0.168 -0.158 -0.101 -0.120 -0.103 -0.314 0.011 -0.238 0.122 -0.105 -0.025 -0.249 -0.197 0.116 0.041 -0.157 0.166 0.141 -0.048 0.154 -0.298 -0.357 0.101 -0.020 -0.114 0.128 0.040 0.143 0.066 0.051 0.028 0.103 0.134 0.159 -0.036 0.085 -0.116 0.097 -0.087 -0.182 0.145 -0.125 -0.261 0.016 -0.024 -0.189 -0.167 0.141 0.064 -0.403 -0.290 -0.002 -0.264 0.034 0.328 -0.252 -0.103 0.068 -0.013 -0.156 -0.036 -0.112 0.109 0.002 0.114 0.095 -0.040 0.034 0.127 -0.160 0.209 -0.171 -0.005 0.149 0.136 -0.216 0.088 -0.076 -0.343 0.050 -0.143 0.148 -0.237 0.020 0.145 0.152 -0.005 0.139 0.084 -0.056 0.006 -0.124 -0.084 -0.009 0.201 0.064 -0.122 0.041 0.139
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  -0.017 0.113 0.098 0.046 0.014 -0.099 0.018 -0.030 -0.099 0.097
+
+
+
+================================================================================
+=== Model_04 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:53
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  0.153 -0.271 -0.225
+conv1.weight filter 00 chan R row 1  0.195 0.289 -0.026
+conv1.weight filter 00 chan R row 2  -0.106 -0.007 0.022
+conv1.weight filter 00 chan G row 0  -0.124 0.082 -0.156
+conv1.weight filter 00 chan G row 1  0.042 0.127 0.024
+conv1.weight filter 00 chan G row 2  -0.002 0.123 -0.005
+conv1.weight filter 00 chan B row 0  0.035 -0.050 -0.170
+conv1.weight filter 00 chan B row 1  0.089 0.199 -0.036
+conv1.weight filter 00 chan B row 2  0.015 0.149 -0.203
+conv1.weight filter 01 chan R row 0  0.134 0.056 -0.020
+conv1.weight filter 01 chan R row 1  0.042 0.093 0.010
+conv1.weight filter 01 chan R row 2  -0.081 -0.065 -0.036
+conv1.weight filter 01 chan G row 0  0.155 0.277 -0.050
+conv1.weight filter 01 chan G row 1  0.056 -0.004 -0.266
+conv1.weight filter 01 chan G row 2  -0.296 -0.194 -0.084
+conv1.weight filter 01 chan B row 0  -0.026 -0.006 0.033
+conv1.weight filter 01 chan B row 1  0.113 -0.100 -0.001
+conv1.weight filter 01 chan B row 2  0.072 0.029 0.131
+conv1.weight filter 02 chan R row 0  0.064 0.109 -0.109
+conv1.weight filter 02 chan R row 1  0.096 0.067 -0.036
+conv1.weight filter 02 chan R row 2  -0.115 0.079 0.059
+conv1.weight filter 02 chan G row 0  0.077 0.039 -0.015
+conv1.weight filter 02 chan G row 1  0.137 -0.032 -0.041
+conv1.weight filter 02 chan G row 2  0.005 0.042 0.197
+conv1.weight filter 02 chan B row 0  0.020 -0.203 -0.035
+conv1.weight filter 02 chan B row 1  -0.063 -0.041 -0.167
+conv1.weight filter 02 chan B row 2  -0.068 0.017 -0.246
+conv1.weight filter 03 chan R row 0  0.092 0.190 -0.147
+conv1.weight filter 03 chan R row 1  -0.097 -0.007 -0.291
+conv1.weight filter 03 chan R row 2  0.108 0.269 0.062
+conv1.weight filter 03 chan G row 0  -0.051 -0.038 0.057
+conv1.weight filter 03 chan G row 1  -0.116 -0.082 -0.217
+conv1.weight filter 03 chan G row 2  0.229 -0.074 -0.143
+conv1.weight filter 03 chan B row 0  0.167 -0.204 -0.106
+conv1.weight filter 03 chan B row 1  0.250 -0.139 0.003
+conv1.weight filter 03 chan B row 2  0.171 0.073 0.011
+conv1.weight filter 04 chan R row 0  -0.029 -0.064 0.138
+conv1.weight filter 04 chan R row 1  0.071 0.063 -0.106
+conv1.weight filter 04 chan R row 2  -0.189 -0.004 0.127
+conv1.weight filter 04 chan G row 0  0.086 -0.120 0.268
+conv1.weight filter 04 chan G row 1  -0.033 0.151 -0.269
+conv1.weight filter 04 chan G row 2  -0.197 -0.046 0.099
+conv1.weight filter 04 chan B row 0  0.002 0.065 -0.181
+conv1.weight filter 04 chan B row 1  -0.067 0.032 -0.127
+conv1.weight filter 04 chan B row 2  -0.004 0.038 0.295
+conv1.weight filter 05 chan R row 0  0.004 -0.043 0.202
+conv1.weight filter 05 chan R row 1  -0.058 -0.084 0.104
+conv1.weight filter 05 chan R row 2  -0.037 0.086 0.047
+conv1.weight filter 05 chan G row 0  0.037 -0.114 -0.311
+conv1.weight filter 05 chan G row 1  -0.001 -0.210 -0.086
+conv1.weight filter 05 chan G row 2  -0.023 0.071 -0.087
+conv1.weight filter 05 chan B row 0  0.213 -0.011 0.184
+conv1.weight filter 05 chan B row 1  -0.004 -0.110 0.119
+conv1.weight filter 05 chan B row 2  0.119 -0.122 0.039
+conv1.weight filter 06 chan R row 0  -0.076 -0.001 -0.055
+conv1.weight filter 06 chan R row 1  0.035 0.059 -0.120
+conv1.weight filter 06 chan R row 2  0.187 0.029 -0.163
+conv1.weight filter 06 chan G row 0  0.148 0.073 -0.000
+conv1.weight filter 06 chan G row 1  0.010 0.151 -0.083
+conv1.weight filter 06 chan G row 2  0.114 -0.094 -0.214
+conv1.weight filter 06 chan B row 0  0.045 0.007 -0.135
+conv1.weight filter 06 chan B row 1  0.098 0.174 0.018
+conv1.weight filter 06 chan B row 2  -0.020 -0.094 -0.008
+conv1.weight filter 07 chan R row 0  0.122 -0.019 0.005
+conv1.weight filter 07 chan R row 1  0.110 -0.013 -0.161
+conv1.weight filter 07 chan R row 2  -0.003 0.043 0.131
+conv1.weight filter 07 chan G row 0  0.133 0.067 -0.167
+conv1.weight filter 07 chan G row 1  -0.213 0.216 -0.016
+conv1.weight filter 07 chan G row 2  0.038 -0.061 -0.015
+conv1.weight filter 07 chan B row 0  0.195 0.050 -0.021
+conv1.weight filter 07 chan B row 1  -0.111 0.006 -0.050
+conv1.weight filter 07 chan B row 2  0.125 -0.092 -0.173
+conv1.weight filter 08 chan R row 0  -0.152 -0.257 0.157
+conv1.weight filter 08 chan R row 1  -0.167 -0.069 0.048
+conv1.weight filter 08 chan R row 2  -0.101 -0.030 0.178
+conv1.weight filter 08 chan G row 0  0.076 -0.129 0.066
+conv1.weight filter 08 chan G row 1  0.265 -0.043 -0.058
+conv1.weight filter 08 chan G row 2  0.141 0.038 0.108
+conv1.weight filter 08 chan B row 0  0.211 -0.186 0.125
+conv1.weight filter 08 chan B row 1  -0.108 -0.130 0.018
+conv1.weight filter 08 chan B row 2  0.186 0.001 -0.088
+conv1.weight filter 09 chan R row 0  0.125 0.123 -0.056
+conv1.weight filter 09 chan R row 1  -0.363 0.062 0.035
+conv1.weight filter 09 chan R row 2  0.046 0.032 -0.046
+conv1.weight filter 09 chan G row 0  0.074 -0.099 0.045
+conv1.weight filter 09 chan G row 1  0.114 0.026 0.021
+conv1.weight filter 09 chan G row 2  0.069 -0.057 -0.134
+conv1.weight filter 09 chan B row 0  0.229 -0.046 0.009
+conv1.weight filter 09 chan B row 1  0.200 0.054 -0.030
+conv1.weight filter 09 chan B row 2  -0.074 -0.173 -0.213
+conv1.weight filter 10 chan R row 0  -0.012 -0.333 0.091
+conv1.weight filter 10 chan R row 1  0.148 -0.052 0.035
+conv1.weight filter 10 chan R row 2  0.129 0.058 -0.084
+conv1.weight filter 10 chan G row 0  0.204 0.073 0.217
+conv1.weight filter 10 chan G row 1  0.041 -0.215 0.090
+conv1.weight filter 10 chan G row 2  -0.082 -0.088 -0.234
+conv1.weight filter 10 chan B row 0  -0.111 0.011 0.056
+conv1.weight filter 10 chan B row 1  -0.188 0.178 0.317
+conv1.weight filter 10 chan B row 2  -0.157 0.057 -0.149
+conv1.weight filter 11 chan R row 0  0.205 0.086 0.170
+conv1.weight filter 11 chan R row 1  -0.092 -0.065 0.106
+conv1.weight filter 11 chan R row 2  0.052 0.087 -0.101
+conv1.weight filter 11 chan G row 0  -0.111 0.021 0.247
+conv1.weight filter 11 chan G row 1  -0.125 -0.262 0.035
+conv1.weight filter 11 chan G row 2  0.005 -0.111 -0.121
+conv1.weight filter 11 chan B row 0  0.095 -0.118 0.041
+conv1.weight filter 11 chan B row 1  -0.018 0.039 -0.133
+conv1.weight filter 11 chan B row 2  -0.063 0.072 0.015
+conv1.weight filter 12 chan R row 0  -0.049 0.131 -0.125
+conv1.weight filter 12 chan R row 1  0.067 0.150 0.198
+conv1.weight filter 12 chan R row 2  -0.265 -0.025 -0.057
+conv1.weight filter 12 chan G row 0  -0.101 -0.087 -0.235
+conv1.weight filter 12 chan G row 1  0.165 0.032 0.022
+conv1.weight filter 12 chan G row 2  -0.048 0.223 0.045
+conv1.weight filter 12 chan B row 0  -0.352 0.025 -0.054
+conv1.weight filter 12 chan B row 1  -0.072 0.095 0.114
+conv1.weight filter 12 chan B row 2  -0.138 0.163 0.191
+conv1.weight filter 13 chan R row 0  0.111 0.029 -0.044
+conv1.weight filter 13 chan R row 1  0.031 -0.026 -0.179
+conv1.weight filter 13 chan R row 2  -0.188 0.145 0.024
+conv1.weight filter 13 chan G row 0  0.205 -0.134 0.161
+conv1.weight filter 13 chan G row 1  0.299 0.018 -0.220
+conv1.weight filter 13 chan G row 2  0.110 -0.046 -0.074
+conv1.weight filter 13 chan B row 0  -0.028 -0.078 -0.006
+conv1.weight filter 13 chan B row 1  -0.061 -0.009 -0.163
+conv1.weight filter 13 chan B row 2  0.017 -0.139 0.219
+conv1.weight filter 14 chan R row 0  0.104 -0.033 0.087
+conv1.weight filter 14 chan R row 1  -0.018 -0.069 0.075
+conv1.weight filter 14 chan R row 2  -0.099 -0.118 0.016
+conv1.weight filter 14 chan G row 0  0.022 -0.088 -0.044
+conv1.weight filter 14 chan G row 1  -0.036 0.107 -0.168
+conv1.weight filter 14 chan G row 2  0.096 0.057 0.078
+conv1.weight filter 14 chan B row 0  -0.097 -0.083 -0.003
+conv1.weight filter 14 chan B row 1  0.162 -0.015 -0.188
+conv1.weight filter 14 chan B row 2  0.230 0.104 -0.112
+conv1.weight filter 15 chan R row 0  0.182 0.031 0.067
+conv1.weight filter 15 chan R row 1  0.047 0.092 -0.120
+conv1.weight filter 15 chan R row 2  -0.140 0.045 -0.044
+conv1.weight filter 15 chan G row 0  -0.078 -0.080 0.053
+conv1.weight filter 15 chan G row 1  -0.020 0.029 -0.062
+conv1.weight filter 15 chan G row 2  -0.151 0.051 -0.033
+conv1.weight filter 15 chan B row 0  0.175 0.121 0.218
+conv1.weight filter 15 chan B row 1  -0.259 -0.027 0.044
+conv1.weight filter 15 chan B row 2  -0.118 -0.008 0.065
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  0.020 -0.045 0.113 -0.062 -0.086 -0.082 -0.105 -0.006 -0.131 0.001 -0.023 0.021 0.105 0.074 -0.003 -0.029
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  0.082 -0.149 0.138 -0.082 -0.142 0.046 0.067 0.123 0.048 0.135 0.160 0.015 0.050 -0.122 -0.012 -0.167 0.002 -0.129 -0.223 -0.035 -0.094 0.100 -0.004 0.111 0.044 0.089 -0.027 -0.162 0.125 -0.265 -0.133 -0.050 -0.012 0.141 -0.253 -0.090 0.120 0.095 -0.131 0.041 0.140 -0.122 -0.066 -0.036 0.076 0.005 0.363 0.048 0.081 -0.135 -0.050 -0.055 0.107 -0.105 -0.033 0.137 0.018 0.098 0.124 -0.017 0.053 -0.056 -0.169 -0.188 0.030 -0.128 -0.042 0.005 -0.008 0.242 0.036 -0.036 0.062 0.146 0.077 0.116 0.083 0.049 0.082 -0.065 0.019 -0.150 0.090 -0.278 0.166 -0.130 0.038 -0.079 -0.075 0.036 -0.211 0.114 -0.088 0.091 -0.045 -0.018 -0.104 0.097 0.093 -0.197 0.075 -0.030 -0.021 -0.178 -0.093 -0.028 -0.030 -0.040 0.017 0.073 0.094 -0.118 -0.153 -0.039 -0.057 -0.022 0.073 0.022 -0.020 -0.046 0.064 0.080 0.107 -0.049 -0.198 -0.041 0.011 0.063
+classifier.2.weight row 01 (Forest)  -0.284 -0.095 -0.171 -0.159 0.067 0.109 0.006 -0.100 0.091 0.023 0.033 0.104 -0.106 -0.120 -0.149 0.063 0.030 0.065 -0.126 -0.101 -0.229 0.219 -0.218 -0.080 0.018 -0.065 0.115 -0.184 0.035 -0.173 0.093 -0.130 0.077 -0.138 -0.020 -0.063 -0.305 -0.040 0.088 0.110 -0.294 -0.070 0.010 -0.225 -0.027 0.058 0.045 0.069 0.016 -0.123 -0.101 0.147 -0.085 0.101 -0.173 -0.168 -0.012 -0.052 0.047 0.106 0.032 0.027 0.057 0.077 0.024 0.113 -0.189 0.089 -0.067 0.075 -0.220 -0.174 -0.153 -0.185 -0.181 0.211 0.038 -0.165 -0.182 0.137 0.150 0.055 -0.059 -0.262 0.057 -0.179 -0.116 0.135 0.024 -0.024 0.009 0.081 0.125 -0.044 0.016 0.149 0.080 0.076 0.163 -0.023 -0.031 0.064 0.104 0.040 0.079 0.071 -0.053 -0.200 -0.230 0.160 0.023 -0.164 -0.096 0.082 -0.037 0.144 -0.052 0.122 0.119 0.161 -0.037 -0.008 -0.076 -0.029 0.096 0.008 0.089 0.071
+classifier.2.weight row 02 (Herbaceous Vegetation)  -0.170 0.092 -0.112 0.080 -0.035 0.018 -0.158 -0.144 -0.147 -0.157 -0.266 -0.147 0.021 -0.071 0.046 -0.182 0.022 0.050 0.051 -0.083 0.100 -0.240 0.033 0.096 0.014 -0.262 0.102 -0.110 0.013 0.049 -0.004 0.107 0.110 -0.206 -0.069 -0.242 -0.032 -0.155 0.074 0.075 -0.116 0.089 -0.000 0.046 0.021 0.114 -0.035 0.007 -0.176 0.087 0.024 0.083 0.037 0.085 0.063 -0.005 0.022 -0.249 -0.086 0.101 0.130 0.107 -0.022 0.099 -0.213 -0.099 -0.213 0.155 0.004 -0.149 0.121 0.093 0.106 -0.128 0.085 -0.039 -0.124 -0.081 -0.166 0.053 -0.139 -0.012 0.129 -0.087 0.003 -0.097 0.128 -0.115 0.012 0.055 -0.141 0.085 0.114 0.108 -0.134 -0.001 0.094 0.003 -0.028 -0.106 0.086 0.177 -0.077 -0.040 -0.001 0.137 0.021 0.034 0.094 0.115 -0.152 0.054 0.106 -0.187 0.064 0.119 -0.231 0.106 -0.106 0.097 -0.110 0.126 0.071 -0.025 0.080 0.117 -0.098 -0.130
+classifier.2.weight row 03 (Highway)  0.041 0.175 0.077 -0.111 -0.101 -0.052 -0.116 -0.101 0.005 0.004 0.087 0.015 -0.055 0.112 -0.105 -0.056 0.047 -0.072 0.039 -0.035 -0.022 0.085 0.116 -0.156 -0.116 -0.035 -0.117 0.239 -0.015 0.118 -0.086 -0.110 -0.067 0.045 0.072 -0.094 0.099 -0.104 0.027 -0.026 0.105 -0.090 -0.165 -0.086 -0.040 -0.050 -0.130 0.018 0.019 0.135 0.206 -0.047 0.068 -0.098 -0.101 0.210 -0.023 -0.001 -0.014 -0.132 -0.083 -0.109 -0.035 0.026 -0.036 -0.036 -0.122 -0.123 0.017 -0.134 0.075 -0.040 0.088 0.144 0.133 -0.051 -0.055 -0.062 -0.064 0.101 0.194 0.032 0.052 0.071 0.086 0.158 -0.094 0.064 0.179 -0.065 -0.088 -0.085 -0.099 0.017 -0.028 -0.113 0.043 -0.035 -0.052 0.178 -0.043 -0.012 0.097 0.208 0.092 -0.088 0.050 -0.023 -0.042 -0.066 -0.018 -0.114 -0.092 0.109 -0.151 -0.060 0.018 -0.016 0.023 -0.132 0.185 -0.049 -0.013 -0.033 0.143 -0.072 -0.047 -0.012
+classifier.2.weight row 04 (Industrial Buildings)  -0.116 -0.102 -0.084 0.127 0.078 -0.155 -0.048 0.011 -0.080 -0.060 0.085 0.026 -0.032 0.054 -0.157 0.012 -0.159 -0.138 0.036 -0.037 0.100 0.030 0.060 0.098 -0.012 -0.061 -0.155 0.065 0.021 0.034 -0.005 -0.064 0.038 -0.064 0.069 0.089 -0.033 -0.056 -0.110 0.149 -0.089 0.043 0.068 -0.078 0.020 -0.178 0.064 -0.171 0.068 0.082 0.071 -0.009 -0.107 -0.162 -0.080 -0.073 -0.172 0.071 -0.032 -0.125 -0.125 -0.014 -0.081 0.001 -0.006 -0.008 -0.014 -0.073 -0.061 0.101 -0.098 0.038 -0.037 -0.014 -0.039 0.135 0.091 -0.063 0.018 -0.108 0.101 -0.103 -0.165 0.043 -0.207 0.104 -0.056 0.044 0.080 0.124 0.088 -0.076 -0.108 -0.054 -0.029 -0.168 0.014 -0.108 0.019 0.080 0.040 -0.165 0.092 0.096 0.084 -0.056 -0.079 -0.067 -0.170 0.007 -0.048 0.103 0.105 0.140 -0.173 -0.118 -0.010 -0.135 0.046 0.120 -0.028 0.085 -0.080 0.117 0.093 -0.114 0.040 0.068
+classifier.2.weight row 05 (Pasture)  -0.009 -0.004 0.028 -0.110 0.099 -0.029 0.054 -0.096 -0.229 -0.113 0.044 0.050 0.123 0.179 0.143 0.176 0.047 -0.150 -0.174 0.003 0.138 -0.093 0.085 0.021 -0.168 0.092 -0.173 -0.098 -0.320 -0.025 0.174 -0.011 -0.155 0.150 0.041 0.133 0.016 0.093 -0.008 -0.028 -0.013 0.066 0.116 -0.000 -0.120 -0.145 -0.102 -0.245 -0.109 -0.166 -0.184 0.101 0.029 0.126 -0.131 0.126 -0.012 0.072 -0.127 0.061 0.032 -0.197 -0.164 -0.247 0.071 -0.044 0.073 0.049 -0.015 -0.046 0.025 0.063 -0.017 -0.201 -0.082 -0.076 0.019 0.109 0.077 -0.032 -0.179 0.073 -0.036 0.055 0.106 0.007 -0.044 0.069 0.026 -0.017 0.156 -0.262 -0.088 -0.033 0.043 0.083 -0.239 -0.027 -0.085 -0.136 -0.153 -0.020 -0.033 -0.124 0.066 -0.096 -0.030 0.208 0.014 -0.003 -0.257 0.144 -0.089 0.043 -0.074 -0.027 0.170 0.060 0.145 0.050 -0.160 -0.021 -0.054 -0.010 -0.193 -0.161 0.101 -0.061
+classifier.2.weight row 06 (Permanent Crop)  0.123 -0.124 0.163 0.138 -0.132 0.087 -0.189 0.140 0.064 0.116 -0.116 0.042 0.063 -0.019 -0.029 -0.029 0.091 0.104 0.017 -0.111 0.005 0.054 -0.141 -0.127 -0.183 -0.041 0.022 -0.020 -0.050 0.036 -0.038 -0.029 0.035 0.128 0.066 0.094 0.102 -0.152 0.085 0.126 0.096 0.069 -0.070 0.094 0.078 0.106 -0.152 0.113 -0.169 -0.123 -0.062 -0.044 -0.036 -0.003 -0.091 -0.089 -0.102 0.032 -0.207 -0.069 -0.122 -0.123 0.030 -0.027 0.127 0.117 -0.151 -0.020 0.073 -0.132 0.116 0.053 -0.085 -0.038 0.058 0.125 -0.181 -0.198 0.065 -0.020 -0.128 -0.039 -0.066 0.064 0.006 -0.022 0.111 0.107 -0.192 0.072 -0.033 -0.147 0.006 0.052 -0.173 -0.098 0.024 -0.178 0.076 -0.205 0.037 0.020 -0.171 -0.189 -0.054 -0.087 0.113 0.024 -0.040 -0.107 -0.130 0.017 0.066 -0.139 0.076 0.132 0.011 -0.177 -0.012 -0.135 -0.153 0.103 0.082 0.143 -0.140 0.125 -0.137 -0.217
+classifier.2.weight row 07 (Residential Buildings)  0.068 0.022 0.073 -0.012 -0.112 -0.220 0.144 0.080 -0.153 0.065 0.083 -0.221 -0.008 -0.033 0.069 -0.057 0.106 0.110 0.105 0.108 -0.038 -0.131 -0.160 0.111 0.117 0.045 0.151 0.064 0.118 0.106 0.113 0.129 0.070 0.034 0.059 -0.096 -0.076 0.282 0.140 -0.165 -0.083 0.108 -0.212 -0.183 -0.238 -0.189 0.168 -0.083 0.028 -0.036 0.057 -0.034 -0.196 -0.055 0.011 -0.082 -0.132 -0.157 0.111 0.078 -0.177 -0.092 0.101 0.021 -0.078 -0.098 0.020 -0.042 0.023 0.108 -0.125 -0.119 -0.199 -0.166 -0.145 0.043 0.132 0.113 -0.058 0.010 -0.044 -0.066 -0.170 0.082 -0.028 -0.046 -0.069 -0.056 0.079 -0.050 0.088 0.116 0.156 -0.196 0.021 0.118 -0.187 0.095 0.152 0.092 -0.180 -0.004 -0.044 0.023 -0.129 -0.141 0.103 0.079 -0.136 -0.103 0.117 0.043 0.011 0.073 -0.140 -0.160 -0.067 -0.193 -0.177 -0.004 0.058 -0.072 -0.176 0.113 0.114 -0.014 -0.123 -0.029
+classifier.2.weight row 08 (River)  0.147 -0.029 0.059 0.043 0.031 -0.047 0.015 -0.018 0.064 0.068 -0.135 -0.036 -0.194 0.120 -0.069 -0.001 -0.015 0.049 0.047 -0.127 0.072 -0.130 0.079 -0.119 0.150 0.130 0.071 0.082 0.147 0.002 -0.026 -0.064 -0.181 0.040 0.115 0.122 0.138 0.035 -0.057 0.047 0.157 -0.132 0.030 0.134 0.013 0.042 -0.013 0.159 0.043 -0.021 0.111 -0.129 0.047 0.033 0.148 0.117 0.162 0.045 0.060 -0.116 -0.116 0.100 0.129 0.027 -0.055 0.137 0.052 -0.134 -0.254 0.020 -0.015 0.113 0.035 0.128 -0.086 -0.064 -0.136 0.077 0.015 -0.057 -0.269 -0.016 -0.175 0.065 0.036 0.159 -0.059 -0.065 -0.162 0.111 0.090 -0.041 -0.040 -0.140 -0.098 0.043 0.064 -0.109 0.112 -0.145 -0.142 -0.122 -0.158 -0.135 0.017 0.097 -0.136 0.127 0.067 -0.045 0.102 -0.033 0.107 -0.014 0.146 -0.123 0.140 -0.043 -0.049 -0.126 -0.195 -0.210 -0.150 -0.214 -0.054 -0.049 -0.068 -0.119
+classifier.2.weight row 09 (SeaLake)  -0.136 -0.074 -0.080 0.087 -0.064 -0.267 0.116 -0.121 0.063 -0.136 0.062 -0.099 -0.065 -0.183 0.091 -0.088 -0.260 -0.037 -0.055 0.063 -0.014 0.008 0.028 0.082 0.168 0.116 0.081 0.013 0.121 0.197 -0.134 -0.089 -0.145 -0.094 -0.225 -0.054 -0.318 0.150 -0.019 0.091 -0.285 -0.019 0.119 0.081 -0.170 0.141 -0.004 -0.004 0.136 -0.009 -0.103 0.039 -0.259 -0.222 0.124 -0.091 0.130 -0.061 -0.081 0.084 0.101 0.119 0.082 -0.022 0.095 -0.152 0.103 -0.118 -0.156 0.048 -0.181 -0.219 -0.126 0.001 -0.136 -0.084 0.127 0.104 -0.276 -0.238 0.126 -0.303 0.034 0.235 -0.324 -0.062 0.066 0.044 0.046 -0.094 -0.077 0.082 -0.048 0.073 0.098 -0.048 0.028 0.122 -0.112 0.202 -0.215 0.017 0.142 0.142 -0.181 0.077 -0.015 -0.130 0.073 -0.160 0.135 -0.092 -0.064 0.108 0.130 -0.076 0.099 0.042 -0.109 0.006 -0.127 0.020 -0.055 0.337 0.098 -0.229 0.077 0.139
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  0.020 0.099 0.075 -0.005 0.008 -0.049 0.026 -0.008 -0.123 0.137
+
+
+
+================================================================================
+=== Model_05 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:53
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  -0.012 0.178 0.308
+conv1.weight filter 00 chan R row 1  -0.046 -0.103 -0.074
+conv1.weight filter 00 chan R row 2  0.066 -0.227 -0.102
+conv1.weight filter 00 chan G row 0  -0.080 -0.054 0.082
+conv1.weight filter 00 chan G row 1  0.201 -0.021 -0.031
+conv1.weight filter 00 chan G row 2  0.050 -0.140 -0.047
+conv1.weight filter 00 chan B row 0  -0.050 0.157 0.071
+conv1.weight filter 00 chan B row 1  -0.277 0.204 0.095
+conv1.weight filter 00 chan B row 2  -0.010 -0.159 0.001
+conv1.weight filter 01 chan R row 0  -0.084 0.081 0.015
+conv1.weight filter 01 chan R row 1  -0.087 0.221 0.227
+conv1.weight filter 01 chan R row 2  -0.052 -0.023 -0.181
+conv1.weight filter 01 chan G row 0  -0.145 0.049 -0.051
+conv1.weight filter 01 chan G row 1  -0.018 -0.102 -0.222
+conv1.weight filter 01 chan G row 2  -0.055 0.018 -0.119
+conv1.weight filter 01 chan B row 0  0.011 0.034 0.094
+conv1.weight filter 01 chan B row 1  0.176 0.148 0.023
+conv1.weight filter 01 chan B row 2  -0.061 0.096 0.002
+conv1.weight filter 02 chan R row 0  -0.225 -0.015 0.239
+conv1.weight filter 02 chan R row 1  -0.184 -0.078 0.194
+conv1.weight filter 02 chan R row 2  -0.102 -0.027 0.221
+conv1.weight filter 02 chan G row 0  -0.149 0.025 -0.014
+conv1.weight filter 02 chan G row 1  0.089 0.142 0.090
+conv1.weight filter 02 chan G row 2  -0.142 -0.253 0.179
+conv1.weight filter 02 chan B row 0  0.115 0.153 0.035
+conv1.weight filter 02 chan B row 1  -0.176 0.097 -0.050
+conv1.weight filter 02 chan B row 2  0.062 -0.034 -0.201
+conv1.weight filter 03 chan R row 0  0.187 -0.026 0.296
+conv1.weight filter 03 chan R row 1  0.063 -0.004 0.016
+conv1.weight filter 03 chan R row 2  -0.138 -0.154 -0.209
+conv1.weight filter 03 chan G row 0  0.040 0.172 0.125
+conv1.weight filter 03 chan G row 1  -0.017 -0.122 0.168
+conv1.weight filter 03 chan G row 2  0.018 -0.037 -0.258
+conv1.weight filter 03 chan B row 0  0.031 -0.019 0.116
+conv1.weight filter 03 chan B row 1  0.061 -0.077 -0.053
+conv1.weight filter 03 chan B row 2  -0.278 0.117 -0.009
+conv1.weight filter 04 chan R row 0  -0.023 0.054 0.112
+conv1.weight filter 04 chan R row 1  0.146 0.030 -0.028
+conv1.weight filter 04 chan R row 2  -0.055 -0.002 0.018
+conv1.weight filter 04 chan G row 0  0.129 -0.177 0.039
+conv1.weight filter 04 chan G row 1  0.083 -0.054 0.098
+conv1.weight filter 04 chan G row 2  -0.226 -0.063 0.052
+conv1.weight filter 04 chan B row 0  -0.004 -0.139 -0.098
+conv1.weight filter 04 chan B row 1  0.136 0.018 0.020
+conv1.weight filter 04 chan B row 2  0.285 -0.120 -0.225
+conv1.weight filter 05 chan R row 0  -0.017 0.012 0.163
+conv1.weight filter 05 chan R row 1  -0.046 0.258 0.103
+conv1.weight filter 05 chan R row 2  -0.230 0.028 -0.116
+conv1.weight filter 05 chan G row 0  0.133 0.207 -0.131
+conv1.weight filter 05 chan G row 1  -0.319 0.164 -0.147
+conv1.weight filter 05 chan G row 2  -0.075 0.141 0.086
+conv1.weight filter 05 chan B row 0  -0.063 0.015 -0.022
+conv1.weight filter 05 chan B row 1  -0.029 -0.104 -0.041
+conv1.weight filter 05 chan B row 2  -0.115 0.043 0.170
+conv1.weight filter 06 chan R row 0  -0.036 0.124 -0.077
+conv1.weight filter 06 chan R row 1  -0.040 -0.004 -0.045
+conv1.weight filter 06 chan R row 2  0.201 0.050 0.037
+conv1.weight filter 06 chan G row 0  0.169 0.120 0.071
+conv1.weight filter 06 chan G row 1  0.106 0.072 -0.256
+conv1.weight filter 06 chan G row 2  0.049 -0.062 -0.201
+conv1.weight filter 06 chan B row 0  -0.051 0.036 0.125
+conv1.weight filter 06 chan B row 1  0.130 0.012 -0.016
+conv1.weight filter 06 chan B row 2  -0.084 -0.078 -0.050
+conv1.weight filter 07 chan R row 0  -0.066 -0.026 -0.199
+conv1.weight filter 07 chan R row 1  -0.014 0.004 -0.044
+conv1.weight filter 07 chan R row 2  0.273 0.019 -0.043
+conv1.weight filter 07 chan G row 0  0.010 0.041 -0.154
+conv1.weight filter 07 chan G row 1  0.043 0.203 -0.010
+conv1.weight filter 07 chan G row 2  0.090 -0.126 -0.039
+conv1.weight filter 07 chan B row 0  0.074 -0.087 -0.139
+conv1.weight filter 07 chan B row 1  0.085 -0.154 0.071
+conv1.weight filter 07 chan B row 2  0.099 -0.018 0.097
+conv1.weight filter 08 chan R row 0  -0.087 0.114 0.064
+conv1.weight filter 08 chan R row 1  0.068 -0.079 -0.016
+conv1.weight filter 08 chan R row 2  -0.113 -0.151 -0.183
+conv1.weight filter 08 chan G row 0  0.078 -0.063 0.020
+conv1.weight filter 08 chan G row 1  -0.019 0.212 0.230
+conv1.weight filter 08 chan G row 2  -0.144 -0.164 -0.181
+conv1.weight filter 08 chan B row 0  0.149 -0.013 -0.053
+conv1.weight filter 08 chan B row 1  0.450 -0.110 0.036
+conv1.weight filter 08 chan B row 2  0.095 -0.210 0.095
+conv1.weight filter 09 chan R row 0  -0.053 0.002 0.122
+conv1.weight filter 09 chan R row 1  -0.116 0.091 0.072
+conv1.weight filter 09 chan R row 2  -0.021 -0.169 0.026
+conv1.weight filter 09 chan G row 0  -0.073 0.035 0.012
+conv1.weight filter 09 chan G row 1  0.028 0.022 0.023
+conv1.weight filter 09 chan G row 2  0.006 0.007 -0.018
+conv1.weight filter 09 chan B row 0  0.087 0.082 -0.116
+conv1.weight filter 09 chan B row 1  0.363 -0.007 -0.048
+conv1.weight filter 09 chan B row 2  -0.144 0.009 -0.207
+conv1.weight filter 10 chan R row 0  -0.120 0.180 0.169
+conv1.weight filter 10 chan R row 1  0.030 -0.119 -0.207
+conv1.weight filter 10 chan R row 2  -0.037 0.107 0.004
+conv1.weight filter 10 chan G row 0  -0.037 -0.103 -0.126
+conv1.weight filter 10 chan G row 1  0.051 0.064 0.231
+conv1.weight filter 10 chan G row 2  0.000 0.029 -0.199
+conv1.weight filter 10 chan B row 0  -0.097 0.200 0.022
+conv1.weight filter 10 chan B row 1  -0.023 -0.180 0.003
+conv1.weight filter 10 chan B row 2  0.099 0.132 -0.044
+conv1.weight filter 11 chan R row 0  0.182 -0.008 0.137
+conv1.weight filter 11 chan R row 1  0.144 0.060 -0.071
+conv1.weight filter 11 chan R row 2  -0.132 0.057 -0.165
+conv1.weight filter 11 chan G row 0  0.145 0.053 -0.170
+conv1.weight filter 11 chan G row 1  0.132 -0.040 -0.164
+conv1.weight filter 11 chan G row 2  -0.040 0.122 -0.135
+conv1.weight filter 11 chan B row 0  0.231 -0.036 -0.151
+conv1.weight filter 11 chan B row 1  0.217 -0.067 -0.117
+conv1.weight filter 11 chan B row 2  0.045 -0.249 -0.060
+conv1.weight filter 12 chan R row 0  0.112 0.076 0.149
+conv1.weight filter 12 chan R row 1  0.069 -0.171 -0.122
+conv1.weight filter 12 chan R row 2  0.100 -0.105 -0.067
+conv1.weight filter 12 chan G row 0  0.003 0.073 -0.177
+conv1.weight filter 12 chan G row 1  -0.003 -0.117 -0.116
+conv1.weight filter 12 chan G row 2  0.127 0.007 -0.071
+conv1.weight filter 12 chan B row 0  0.140 -0.075 0.012
+conv1.weight filter 12 chan B row 1  -0.013 -0.012 -0.132
+conv1.weight filter 12 chan B row 2  0.052 0.012 0.273
+conv1.weight filter 13 chan R row 0  0.132 -0.146 -0.094
+conv1.weight filter 13 chan R row 1  0.079 0.071 0.094
+conv1.weight filter 13 chan R row 2  -0.019 -0.206 0.064
+conv1.weight filter 13 chan G row 0  0.075 0.164 -0.005
+conv1.weight filter 13 chan G row 1  0.246 -0.076 -0.075
+conv1.weight filter 13 chan G row 2  0.042 -0.026 -0.004
+conv1.weight filter 13 chan B row 0  0.124 -0.037 -0.009
+conv1.weight filter 13 chan B row 1  0.055 -0.152 0.012
+conv1.weight filter 13 chan B row 2  -0.173 0.046 -0.119
+conv1.weight filter 14 chan R row 0  -0.052 -0.038 0.045
+conv1.weight filter 14 chan R row 1  -0.062 0.106 0.115
+conv1.weight filter 14 chan R row 2  -0.099 -0.111 0.190
+conv1.weight filter 14 chan G row 0  0.035 -0.194 -0.041
+conv1.weight filter 14 chan G row 1  -0.043 -0.173 0.175
+conv1.weight filter 14 chan G row 2  -0.106 0.173 0.110
+conv1.weight filter 14 chan B row 0  0.118 -0.147 -0.035
+conv1.weight filter 14 chan B row 1  0.130 -0.025 -0.076
+conv1.weight filter 14 chan B row 2  -0.093 -0.017 0.125
+conv1.weight filter 15 chan R row 0  0.207 -0.134 -0.035
+conv1.weight filter 15 chan R row 1  -0.010 0.022 0.017
+conv1.weight filter 15 chan R row 2  -0.201 0.045 -0.028
+conv1.weight filter 15 chan G row 0  0.130 0.012 -0.031
+conv1.weight filter 15 chan G row 1  -0.034 0.191 -0.135
+conv1.weight filter 15 chan G row 2  0.068 -0.133 0.234
+conv1.weight filter 15 chan B row 0  -0.136 -0.095 0.026
+conv1.weight filter 15 chan B row 1  -0.106 -0.075 0.066
+conv1.weight filter 15 chan B row 2  0.097 0.163 -0.124
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  -0.129 0.048 0.031 0.021 0.257 0.208 -0.054 0.144 0.148 -0.210 0.214 0.240 0.110 0.085 0.011 -0.153
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  -0.061 -0.038 -0.033 -0.080 0.070 -0.158 0.083 -0.054 -0.113 -0.143 0.084 0.069 -0.043 0.034 -0.038 -0.025 0.013 -0.147 0.096 0.153 -0.106 -0.103 -0.062 0.104 0.025 -0.040 -0.210 -0.133 -0.214 -0.122 -0.123 0.017 -0.138 -0.045 0.092 -0.059 -0.266 0.108 0.020 0.082 0.031 0.082 -0.101 -0.113 -0.031 -0.009 0.010 -0.023 0.041 -0.023 -0.196 0.043 0.054 0.082 -0.129 -0.025 0.082 0.084 -0.060 0.055 -0.042 -0.048 -0.048 0.016 -0.035 0.056 0.030 0.001 0.068 -0.058 -0.011 0.076 -0.077 -0.104 -0.192 -0.008 0.082 -0.050 0.087 -0.094 0.032 0.064 0.100 0.085 -0.097 -0.018 -0.061 -0.047 0.112 -0.060 0.019 -0.060 -0.212 -0.061 0.041 0.096 -0.105 0.107 -0.002 0.109 0.065 -0.101 -0.116 -0.004 0.029 0.058 -0.107 0.081 -0.223 0.143 0.100 0.107 0.099 0.105 0.129 -0.098 0.095 0.050 0.097 -0.031 0.096 -0.104 0.056 0.095 -0.150 0.060 0.006 -0.080
+classifier.2.weight row 01 (Forest)  0.095 0.142 0.202 0.033 -0.138 0.115 -0.321 -0.079 -0.149 0.052 -0.048 0.014 0.096 -0.148 0.083 0.080 -0.004 0.119 -0.299 -0.148 -0.012 0.019 0.128 0.142 0.153 0.127 0.059 -0.148 -0.122 -0.186 0.073 0.025 0.088 -0.002 -0.038 -0.011 0.030 -0.204 0.050 -0.132 -0.064 -0.066 0.142 -0.040 0.005 0.079 -0.179 -0.034 0.048 0.062 -0.211 0.143 0.053 0.027 -0.001 0.162 0.131 -0.191 -0.185 -0.028 0.098 -0.021 -0.001 -0.064 0.109 -0.039 0.048 -0.027 -0.028 -0.210 0.031 -0.077 0.130 0.132 -0.157 0.078 -0.117 0.064 0.074 0.154 0.051 -0.093 0.088 -0.255 -0.041 0.133 0.062 0.147 0.045 0.080 -0.174 0.009 -0.071 0.148 0.113 -0.075 -0.170 -0.073 -0.005 -0.106 -0.063 0.137 0.085 0.190 -0.077 -0.236 -0.217 -0.133 -0.112 -0.350 0.082 0.054 -0.116 0.043 -0.365 0.015 -0.114 -0.228 -0.294 -0.109 0.202 0.179 0.069 -0.329 -0.038 -0.108 -0.055 -0.138
+classifier.2.weight row 02 (Herbaceous Vegetation)  0.114 -0.062 0.073 -0.003 -0.131 0.060 -0.131 0.080 -0.069 -0.042 0.068 -0.133 0.110 -0.215 0.045 -0.041 -0.045 0.101 -0.003 0.061 -0.094 -0.061 0.055 0.109 0.054 0.060 -0.046 -0.152 0.026 0.004 0.050 -0.170 0.086 0.090 -0.209 -0.205 0.054 -0.115 -0.197 0.036 0.149 0.129 0.056 -0.078 -0.059 0.012 0.072 -0.111 -0.044 0.123 -0.154 -0.099 -0.137 -0.055 -0.071 -0.000 -0.030 -0.037 0.054 0.023 -0.014 -0.007 -0.097 0.035 -0.060 -0.205 -0.006 0.144 0.080 0.082 0.121 0.096 0.072 0.105 -0.009 0.041 0.012 -0.062 0.035 0.058 -0.063 -0.190 0.071 0.041 0.013 -0.114 0.062 0.104 0.107 0.001 -0.130 0.049 0.064 0.120 -0.024 0.027 0.057 0.011 0.091 0.020 -0.114 -0.020 0.105 -0.009 -0.226 -0.177 0.012 0.147 -0.079 0.027 0.029 -0.108 0.056 -0.152 -0.048 0.070 0.114 -0.079 -0.027 0.096 0.043 -0.014 -0.126 0.115 0.008 -0.142 -0.176 -0.049
+classifier.2.weight row 03 (Highway)  -0.124 -0.064 -0.040 0.005 -0.118 -0.089 0.071 -0.058 0.118 -0.067 -0.087 -0.013 -0.056 0.031 -0.037 -0.048 -0.047 -0.050 0.036 0.123 -0.042 0.108 -0.062 0.064 -0.085 0.056 -0.053 -0.076 0.069 -0.030 -0.114 -0.097 0.012 -0.107 -0.064 -0.081 0.006 0.117 -0.032 0.009 -0.073 0.053 -0.054 0.068 -0.036 0.105 -0.100 0.145 0.011 -0.067 0.161 -0.017 0.024 0.028 0.029 -0.118 -0.036 0.127 -0.036 0.077 0.023 0.054 0.011 0.016 -0.021 -0.004 -0.033 -0.019 -0.003 0.085 -0.014 -0.020 -0.114 -0.082 -0.052 0.027 -0.006 -0.056 -0.043 -0.045 -0.018 0.081 -0.063 0.045 -0.106 0.059 -0.060 -0.012 -0.021 0.004 -0.035 0.214 0.115 -0.070 -0.091 -0.023 0.167 -0.013 -0.070 -0.055 0.021 -0.062 0.019 -0.005 -0.038 0.020 0.081 0.013 0.090 0.127 0.108 0.001 0.110 0.053 0.146 -0.103 0.004 0.097 0.059 -0.071 0.042 -0.080 0.032 0.123 0.091 0.019 -0.072 -0.038
+classifier.2.weight row 04 (Industrial Buildings)  -0.164 0.029 0.009 -0.059 -0.048 -0.057 0.054 -0.049 0.013 0.126 -0.094 -0.024 -0.053 -0.021 -0.128 0.020 0.097 -0.038 -0.182 -0.171 0.067 -0.114 -0.131 -0.189 -0.073 0.051 0.033 0.109 0.081 0.069 0.029 0.047 -0.017 -0.081 -0.075 0.027 0.113 0.062 0.136 0.054 -0.042 -0.123 -0.097 -0.037 -0.087 -0.232 -0.148 -0.090 -0.023 -0.172 0.082 0.183 0.141 -0.055 0.089 -0.110 -0.074 0.081 0.110 -0.055 0.067 -0.017 0.063 0.131 0.047 -0.075 0.009 -0.101 -0.068 -0.098 -0.094 -0.095 -0.062 0.087 0.063 -0.135 -0.039 0.040 -0.053 -0.135 -0.054 0.105 -0.121 0.016 0.148 0.060 -0.110 -0.078 -0.176 0.053 0.104 0.089 -0.049 -0.143 0.107 -0.141 -0.030 -0.118 0.034 -0.184 0.008 0.010 -0.025 -0.048 0.002 0.124 0.002 -0.162 0.085 -0.040 0.107 -0.094 -0.056 -0.121 0.034 0.148 -0.180 0.089 -0.088 0.041 0.130 0.156 -0.152 -0.031 -0.012 -0.085 0.065 0.151
+classifier.2.weight row 05 (Pasture)  -0.002 0.092 0.052 -0.001 0.004 -0.150 -0.026 0.018 -0.230 0.032 0.029 0.037 0.084 0.122 0.050 0.013 -0.182 -0.063 0.066 0.007 -0.045 -0.035 0.071 -0.026 -0.026 0.177 -0.044 -0.052 -0.139 0.040 0.063 -0.055 -0.108 0.057 0.055 0.003 -0.097 0.129 -0.089 -0.085 -0.056 -0.127 0.058 0.091 0.099 0.079 -0.022 -0.107 -0.066 -0.063 -0.083 -0.004 0.020 0.022 -0.094 0.037 0.022 -0.034 0.094 -0.212 0.077 0.012 -0.128 0.192 0.036 -0.026 0.023 0.092 0.115 -0.189 -0.034 -0.148 0.036 0.064 -0.197 0.108 -0.232 0.053 0.024 -0.037 0.035 0.161 0.022 -0.074 -0.006 -0.037 -0.109 0.083 0.101 -0.078 0.161 -0.262 -0.065 -0.031 0.056 -0.028 -0.213 0.048 -0.125 0.042 0.140 0.039 -0.088 -0.056 -0.117 0.022 0.101 -0.044 0.032 -0.028 -0.228 -0.040 -0.008 0.054 -0.042 -0.038 0.046 0.024 -0.146 0.001 -0.215 0.010 0.062 -0.142 0.037 0.191 -0.102 -0.050
+classifier.2.weight row 06 (Permanent Crop)  -0.126 -0.026 -0.091 0.128 -0.140 0.064 0.018 -0.091 -0.049 -0.090 -0.016 -0.192 -0.021 0.062 -0.012 -0.145 -0.002 0.028 0.122 0.046 -0.016 0.112 -0.039 -0.044 -0.100 -0.128 -0.100 0.035 -0.076 0.065 0.061 -0.201 0.088 -0.095 -0.144 -0.184 0.025 0.083 -0.162 0.066 0.013 0.144 -0.097 -0.010 -0.085 -0.007 0.121 0.048 -0.154 -0.068 -0.042 -0.008 -0.103 -0.047 -0.020 -0.005 -0.088 -0.107 0.064 0.076 -0.032 0.062 -0.040 0.081 -0.188 -0.081 0.086 0.084 -0.075 0.023 0.119 -0.054 0.052 0.042 0.044 -0.132 0.085 -0.178 -0.081 -0.074 -0.174 0.025 0.042 0.092 -0.023 -0.129 0.039 -0.061 0.110 0.017 0.030 -0.129 -0.059 0.058 -0.193 0.093 -0.071 -0.066 0.099 0.081 -0.060 -0.020 0.057 -0.130 -0.138 0.016 0.013 0.099 -0.164 0.128 0.080 -0.089 0.113 0.085 0.047 0.020 0.012 0.094 0.101 -0.097 -0.015 0.055 0.027 0.153 -0.116 0.055 -0.141 -0.124
+classifier.2.weight row 07 (Residential Buildings)  0.099 0.068 0.139 0.048 0.220 0.081 -0.175 0.172 0.130 0.138 -0.256 -0.162 0.060 -0.083 -0.113 -0.224 0.010 0.123 -0.162 -0.070 -0.155 0.025 -0.058 -0.041 0.038 0.020 0.072 0.043 0.158 0.111 0.111 0.253 0.144 -0.114 0.178 0.091 0.091 -0.187 0.159 -0.244 -0.002 0.016 0.106 -0.005 -0.194 -0.127 -0.016 0.139 -0.022 -0.030 0.042 -0.067 0.154 -0.180 0.137 0.128 -0.055 -0.167 0.031 -0.047 -0.011 -0.013 -0.123 -0.146 0.067 -0.249 -0.035 0.044 -0.150 0.140 -0.019 0.105 0.106 0.092 0.104 -0.191 -0.209 -0.220 -0.184 0.020 -0.236 -0.202 -0.220 -0.191 0.019 0.131 -0.068 0.139 -0.111 -0.101 -0.188 0.034 0.117 0.117 0.107 -0.046 0.078 -0.186 -0.097 -0.245 -0.230 0.130 0.075 0.184 0.387 -0.140 0.111 -0.100 -0.027 -0.151 -0.146 0.067 -0.143 -0.268 -0.149 0.074 -0.111 -0.228 -0.162 0.115 -0.086 -0.096 -0.226 0.011 0.081 -0.221 0.197 0.045
+classifier.2.weight row 08 (River)  -0.165 0.062 -0.046 0.056 0.077 0.003 0.135 -0.089 0.063 -0.028 -0.016 0.100 -0.165 0.186 0.046 0.075 -0.186 -0.160 0.055 0.095 0.111 0.093 -0.135 -0.160 -0.159 0.024 0.018 0.089 0.011 -0.099 -0.035 0.126 -0.008 -0.005 0.087 0.072 -0.026 -0.008 0.048 0.151 -0.172 -0.060 -0.077 0.062 0.063 0.078 -0.061 0.044 0.109 -0.127 0.113 -0.043 -0.001 0.079 0.027 -0.088 -0.123 0.103 0.038 -0.169 -0.125 0.079 0.075 -0.055 -0.119 0.080 0.061 -0.064 0.036 0.020 0.009 0.036 -0.091 -0.037 -0.052 0.082 0.076 0.052 -0.035 -0.027 0.027 0.011 -0.056 0.125 -0.104 -0.058 -0.003 -0.076 -0.035 0.006 0.024 -0.055 -0.012 -0.113 -0.157 -0.097 -0.055 0.090 -0.163 -0.039 0.105 0.010 -0.187 -0.094 0.070 0.066 0.080 -0.048 -0.006 0.103 -0.031 0.109 -0.059 0.065 0.142 -0.126 0.018 0.094 -0.028 -0.040 -0.101 -0.120 -0.046 0.071 -0.007 0.102 0.124 -0.066
+classifier.2.weight row 09 (SeaLake)  0.021 -0.181 -0.134 -0.363 0.137 -0.119 -0.132 0.072 0.296 0.138 0.146 0.153 -0.165 -0.269 0.136 0.111 0.031 -0.101 -0.184 -0.181 0.060 0.079 -0.040 -0.107 0.022 -0.044 -0.272 0.058 0.190 -0.010 -0.270 0.138 -0.093 0.133 0.125 0.070 0.132 -0.205 0.128 0.007 -0.069 -0.067 -0.158 -0.309 0.104 -0.038 0.026 0.043 0.114 0.078 0.060 0.004 0.104 0.160 0.264 -0.021 0.075 -0.132 -0.134 -0.184 -0.085 -0.402 0.107 -0.126 0.079 0.095 -0.400 -0.295 0.142 -0.026 -0.290 0.139 -0.191 -0.199 0.359 0.120 0.120 0.149 0.143 -0.132 0.115 -0.115 0.151 -0.256 -0.033 0.088 0.148 -0.194 0.048 0.130 -0.082 0.124 -0.057 -0.019 -0.004 -0.005 0.043 0.150 -0.025 0.038 0.105 -0.189 -0.072 0.007 0.124 -0.147 0.088 0.022 -0.136 -0.261 -0.146 0.117 -0.093 -0.038 -0.265 0.172 0.109 -0.214 -0.224 -0.140 -0.194 -0.075 0.078 0.014 -0.326 -0.037 0.132 0.155
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  -0.089 0.096 0.034 -0.111 -0.057 -0.065 -0.002 0.015 -0.048 0.126
+
+
+
+================================================================================
+=== Model_06 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:53
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  -0.046 0.179 0.195
+conv1.weight filter 00 chan R row 1  -0.019 -0.072 -0.129
+conv1.weight filter 00 chan R row 2  0.109 -0.184 -0.063
+conv1.weight filter 00 chan G row 0  -0.152 0.019 0.028
+conv1.weight filter 00 chan G row 1  0.253 0.040 -0.096
+conv1.weight filter 00 chan G row 2  0.096 -0.154 -0.038
+conv1.weight filter 00 chan B row 0  -0.107 0.186 0.080
+conv1.weight filter 00 chan B row 1  -0.313 0.215 0.123
+conv1.weight filter 00 chan B row 2  -0.053 -0.150 0.073
+conv1.weight filter 01 chan R row 0  -0.098 0.049 -0.023
+conv1.weight filter 01 chan R row 1  -0.071 0.237 0.234
+conv1.weight filter 01 chan R row 2  -0.004 -0.018 -0.185
+conv1.weight filter 01 chan G row 0  -0.165 0.010 -0.105
+conv1.weight filter 01 chan G row 1  -0.025 -0.091 -0.224
+conv1.weight filter 01 chan G row 2  -0.044 0.009 -0.130
+conv1.weight filter 01 chan B row 0  0.038 0.049 0.087
+conv1.weight filter 01 chan B row 1  0.192 0.184 0.069
+conv1.weight filter 01 chan B row 2  -0.048 0.112 0.044
+conv1.weight filter 02 chan R row 0  -0.219 -0.045 0.175
+conv1.weight filter 02 chan R row 1  -0.124 -0.064 0.149
+conv1.weight filter 02 chan R row 2  -0.049 -0.036 0.209
+conv1.weight filter 02 chan G row 0  -0.135 0.043 -0.028
+conv1.weight filter 02 chan G row 1  0.181 0.194 0.048
+conv1.weight filter 02 chan G row 2  -0.107 -0.322 0.126
+conv1.weight filter 02 chan B row 0  0.150 0.179 0.045
+conv1.weight filter 02 chan B row 1  -0.142 0.111 -0.071
+conv1.weight filter 02 chan B row 2  0.060 -0.090 -0.249
+conv1.weight filter 03 chan R row 0  0.154 -0.064 0.245
+conv1.weight filter 03 chan R row 1  0.086 0.006 -0.011
+conv1.weight filter 03 chan R row 2  -0.078 -0.113 -0.201
+conv1.weight filter 03 chan G row 0  0.014 0.139 0.103
+conv1.weight filter 03 chan G row 1  0.002 -0.102 0.166
+conv1.weight filter 03 chan G row 2  0.064 -0.011 -0.248
+conv1.weight filter 03 chan B row 0  0.007 -0.049 0.105
+conv1.weight filter 03 chan B row 1  0.031 -0.094 -0.041
+conv1.weight filter 03 chan B row 2  -0.285 0.113 0.034
+conv1.weight filter 04 chan R row 0  -0.036 0.031 0.128
+conv1.weight filter 04 chan R row 1  0.116 0.012 -0.026
+conv1.weight filter 04 chan R row 2  -0.039 0.017 0.032
+conv1.weight filter 04 chan G row 0  0.113 -0.232 0.045
+conv1.weight filter 04 chan G row 1  0.041 -0.069 0.118
+conv1.weight filter 04 chan G row 2  -0.226 -0.037 0.060
+conv1.weight filter 04 chan B row 0  0.011 -0.163 -0.123
+conv1.weight filter 04 chan B row 1  0.147 0.019 -0.009
+conv1.weight filter 04 chan B row 2  0.337 -0.091 -0.237
+conv1.weight filter 05 chan R row 0  -0.034 -0.065 0.113
+conv1.weight filter 05 chan R row 1  -0.007 0.230 0.051
+conv1.weight filter 05 chan R row 2  -0.165 0.058 -0.115
+conv1.weight filter 05 chan G row 0  0.099 0.109 -0.171
+conv1.weight filter 05 chan G row 1  -0.316 0.132 -0.157
+conv1.weight filter 05 chan G row 2  -0.048 0.185 0.115
+conv1.weight filter 05 chan B row 0  -0.063 -0.008 -0.041
+conv1.weight filter 05 chan B row 1  -0.001 -0.087 -0.031
+conv1.weight filter 05 chan B row 2  -0.112 0.075 0.224
+conv1.weight filter 06 chan R row 0  -0.092 0.088 -0.072
+conv1.weight filter 06 chan R row 1  -0.133 -0.039 -0.055
+conv1.weight filter 06 chan R row 2  0.164 0.044 0.079
+conv1.weight filter 06 chan G row 0  0.186 0.191 0.162
+conv1.weight filter 06 chan G row 1  0.090 0.082 -0.271
+conv1.weight filter 06 chan G row 2  0.039 -0.104 -0.200
+conv1.weight filter 06 chan B row 0  -0.066 0.044 0.156
+conv1.weight filter 06 chan B row 1  0.110 0.021 -0.017
+conv1.weight filter 06 chan B row 2  -0.074 -0.080 -0.038
+conv1.weight filter 07 chan R row 0  -0.084 -0.016 -0.133
+conv1.weight filter 07 chan R row 1  -0.090 -0.015 0.009
+conv1.weight filter 07 chan R row 2  0.208 -0.011 -0.030
+conv1.weight filter 07 chan G row 0  0.032 0.093 -0.066
+conv1.weight filter 07 chan G row 1  0.032 0.254 0.075
+conv1.weight filter 07 chan G row 2  0.079 -0.129 -0.049
+conv1.weight filter 07 chan B row 0  0.054 -0.112 -0.123
+conv1.weight filter 07 chan B row 1  0.039 -0.183 0.072
+conv1.weight filter 07 chan B row 2  0.090 -0.027 0.077
+conv1.weight filter 08 chan R row 0  -0.117 0.103 0.078
+conv1.weight filter 08 chan R row 1  0.067 -0.094 -0.010
+conv1.weight filter 08 chan R row 2  -0.087 -0.122 -0.141
+conv1.weight filter 08 chan G row 0  0.046 -0.059 0.058
+conv1.weight filter 08 chan G row 1  0.015 0.226 0.246
+conv1.weight filter 08 chan G row 2  -0.114 -0.153 -0.171
+conv1.weight filter 08 chan B row 0  0.123 -0.024 -0.046
+conv1.weight filter 08 chan B row 1  0.456 -0.112 0.030
+conv1.weight filter 08 chan B row 2  0.109 -0.191 0.109
+conv1.weight filter 09 chan R row 0  -0.114 -0.032 0.104
+conv1.weight filter 09 chan R row 1  -0.111 0.115 0.049
+conv1.weight filter 09 chan R row 2  -0.014 -0.155 0.014
+conv1.weight filter 09 chan G row 0  -0.115 0.010 -0.011
+conv1.weight filter 09 chan G row 1  0.087 0.083 -0.005
+conv1.weight filter 09 chan G row 2  0.077 0.039 -0.039
+conv1.weight filter 09 chan B row 0  0.063 0.059 -0.121
+conv1.weight filter 09 chan B row 1  0.382 -0.001 -0.082
+conv1.weight filter 09 chan B row 2  -0.108 0.018 -0.219
+conv1.weight filter 10 chan R row 0  -0.133 0.136 0.166
+conv1.weight filter 10 chan R row 1  0.064 -0.154 -0.214
+conv1.weight filter 10 chan R row 2  0.006 0.107 0.052
+conv1.weight filter 10 chan G row 0  -0.101 -0.164 -0.119
+conv1.weight filter 10 chan G row 1  0.035 0.026 0.218
+conv1.weight filter 10 chan G row 2  -0.009 -0.015 -0.167
+conv1.weight filter 10 chan B row 0  -0.093 0.191 0.061
+conv1.weight filter 10 chan B row 1  0.030 -0.143 0.043
+conv1.weight filter 10 chan B row 2  0.136 0.178 0.048
+conv1.weight filter 11 chan R row 0  0.143 -0.007 0.155
+conv1.weight filter 11 chan R row 1  0.108 0.062 -0.016
+conv1.weight filter 11 chan R row 2  -0.182 0.059 -0.096
+conv1.weight filter 11 chan G row 0  0.117 0.031 -0.196
+conv1.weight filter 11 chan G row 1  0.098 -0.072 -0.127
+conv1.weight filter 11 chan G row 2  -0.085 0.127 -0.040
+conv1.weight filter 11 chan B row 0  0.194 -0.059 -0.162
+conv1.weight filter 11 chan B row 1  0.190 -0.096 -0.120
+conv1.weight filter 11 chan B row 2  0.029 -0.267 -0.036
+conv1.weight filter 12 chan R row 0  0.073 0.067 0.151
+conv1.weight filter 12 chan R row 1  0.086 -0.144 -0.075
+conv1.weight filter 12 chan R row 2  0.130 -0.067 -0.016
+conv1.weight filter 12 chan G row 0  -0.081 0.034 -0.199
+conv1.weight filter 12 chan G row 1  -0.033 -0.148 -0.124
+conv1.weight filter 12 chan G row 2  0.110 -0.034 -0.090
+conv1.weight filter 12 chan B row 0  0.126 -0.106 -0.013
+conv1.weight filter 12 chan B row 1  0.008 -0.022 -0.133
+conv1.weight filter 12 chan B row 2  0.079 0.023 0.280
+conv1.weight filter 13 chan R row 0  0.101 -0.216 -0.088
+conv1.weight filter 13 chan R row 1  0.021 -0.009 0.091
+conv1.weight filter 13 chan R row 2  0.015 -0.208 0.085
+conv1.weight filter 13 chan G row 0  0.129 0.177 0.033
+conv1.weight filter 13 chan G row 1  0.274 -0.117 -0.040
+conv1.weight filter 13 chan G row 2  0.095 -0.007 0.086
+conv1.weight filter 13 chan B row 0  0.117 -0.063 0.006
+conv1.weight filter 13 chan B row 1  0.036 -0.171 0.030
+conv1.weight filter 13 chan B row 2  -0.153 0.065 -0.091
+conv1.weight filter 14 chan R row 0  -0.012 -0.022 0.046
+conv1.weight filter 14 chan R row 1  -0.023 0.101 0.095
+conv1.weight filter 14 chan R row 2  -0.061 -0.132 0.129
+conv1.weight filter 14 chan G row 0  0.100 -0.225 -0.068
+conv1.weight filter 14 chan G row 1  -0.048 -0.246 0.171
+conv1.weight filter 14 chan G row 2  -0.123 0.157 0.104
+conv1.weight filter 14 chan B row 0  0.168 -0.115 -0.022
+conv1.weight filter 14 chan B row 1  0.139 -0.019 -0.080
+conv1.weight filter 14 chan B row 2  -0.115 -0.044 0.088
+conv1.weight filter 15 chan R row 0  0.178 -0.151 -0.081
+conv1.weight filter 15 chan R row 1  -0.030 0.028 0.010
+conv1.weight filter 15 chan R row 2  -0.205 0.044 -0.033
+conv1.weight filter 15 chan G row 0  0.179 0.053 -0.028
+conv1.weight filter 15 chan G row 1  -0.008 0.232 -0.098
+conv1.weight filter 15 chan G row 2  0.092 -0.099 0.258
+conv1.weight filter 15 chan B row 0  -0.190 -0.125 0.018
+conv1.weight filter 15 chan B row 1  -0.167 -0.106 0.071
+conv1.weight filter 15 chan B row 2  0.071 0.145 -0.134
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  -0.128 0.035 -0.039 0.260 0.077 -0.007 -0.125 0.138 -0.141 -0.020 -0.007 0.108 -0.073 -0.149 0.002 -0.082
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  -0.105 -0.045 -0.037 -0.074 0.065 -0.111 0.057 -0.078 -0.119 -0.006 0.049 0.079 -0.028 0.071 -0.073 -0.126 -0.000 -0.112 0.063 0.162 -0.240 -0.161 -0.115 0.126 -0.010 0.098 -0.137 -0.045 -0.164 -0.094 -0.103 0.036 -0.149 -0.153 0.075 0.220 -0.291 0.110 0.006 0.009 0.062 0.100 -0.168 0.028 -0.110 -0.007 0.008 0.087 0.272 -0.024 -0.153 0.087 0.005 0.080 0.043 -0.033 0.086 0.069 -0.121 0.088 -0.090 0.041 -0.081 -0.088 -0.080 0.095 0.100 0.034 0.020 0.074 -0.024 0.111 -0.102 -0.170 -0.007 -0.071 0.118 -0.079 0.072 -0.160 0.037 0.067 0.079 0.039 -0.058 -0.218 -0.084 -0.078 0.105 -0.168 0.025 -0.059 -0.206 -0.095 0.410 0.115 -0.201 0.110 -0.035 0.086 0.090 -0.106 -0.133 0.040 0.024 0.061 -0.036 0.052 -0.284 0.127 0.113 0.113 0.100 0.119 0.091 0.007 0.102 0.030 0.083 0.113 0.143 -0.128 0.040 0.063 -0.116 0.085 -0.243 0.038
+classifier.2.weight row 01 (Forest)  -0.088 0.123 0.173 0.026 -0.194 0.060 -0.167 -0.005 -0.083 0.081 -0.136 0.015 -0.151 -0.108 0.110 0.090 0.034 0.100 -0.233 -0.079 0.002 -0.025 0.030 0.145 0.134 -0.020 0.044 -0.224 -0.092 -0.136 -0.046 0.082 -0.125 -0.007 -0.052 -0.039 0.021 0.026 0.084 -0.113 -0.009 -0.008 0.101 -0.155 0.003 0.113 -0.102 0.063 0.150 0.082 -0.265 0.142 0.015 -0.045 0.076 0.127 0.113 0.031 -0.212 0.007 0.129 -0.272 0.045 -0.016 0.072 -0.031 0.073 -0.183 -0.070 -0.211 0.028 -0.113 0.094 -0.092 -0.154 0.111 -0.094 0.101 0.092 0.119 0.075 0.011 0.131 -0.040 -0.026 0.064 0.075 0.116 0.118 -0.002 -0.149 -0.038 -0.256 -0.087 0.050 -0.147 -0.031 -0.137 -0.052 -0.041 -0.166 0.092 0.098 0.115 0.074 0.093 -0.249 -0.117 -0.149 -0.101 0.297 0.134 -0.027 0.092 -0.259 -0.075 -0.149 -0.141 0.028 -0.125 -0.132 0.027 0.097 -0.218 -0.130 -0.077 -0.029 0.001
+classifier.2.weight row 02 (Herbaceous Vegetation)  0.136 -0.108 0.081 -0.044 -0.071 0.052 -0.064 0.024 -0.144 -0.117 0.098 -0.115 0.129 -0.244 -0.008 0.124 0.030 0.106 -0.073 0.082 -0.042 -0.086 0.080 0.118 0.117 0.082 -0.148 -0.161 0.059 -0.175 -0.042 -0.188 0.089 0.133 -0.163 -0.125 0.054 -0.188 -0.158 0.099 0.143 0.100 0.088 -0.227 -0.079 0.023 0.033 -0.310 -0.039 0.117 -0.190 -0.032 0.013 -0.046 -0.210 -0.076 0.010 0.071 0.026 -0.066 0.035 -0.153 -0.108 0.121 -0.064 -0.209 -0.187 0.128 0.137 0.109 0.101 0.042 0.069 0.127 -0.118 0.107 -0.056 -0.056 0.081 0.012 -0.011 -0.181 0.093 0.097 0.076 -0.071 0.053 0.124 0.113 0.077 -0.206 -0.021 0.093 0.065 -0.005 -0.071 0.067 0.012 0.093 0.006 -0.056 -0.100 0.065 -0.071 -0.125 -0.174 0.073 0.149 -0.093 -0.056 -0.110 0.084 0.014 -0.190 -0.004 0.131 0.086 -0.057 -0.058 0.127 -0.014 0.018 -0.204 0.135 -0.128 -0.192 0.036 0.112
+classifier.2.weight row 03 (Highway)  -0.149 -0.051 0.022 -0.001 -0.117 -0.121 0.064 -0.082 0.232 -0.117 -0.116 -0.076 0.028 -0.030 -0.009 -0.079 -0.009 -0.114 -0.033 0.065 -0.132 0.124 -0.095 0.056 -0.088 0.046 -0.054 -0.096 0.181 -0.035 -0.109 -0.094 0.101 -0.175 -0.098 -0.170 0.201 0.100 -0.007 -0.105 -0.132 0.035 0.001 0.070 -0.059 0.029 -0.129 0.113 -0.029 -0.083 0.144 -0.068 0.201 -0.005 0.019 -0.116 -0.043 0.095 -0.034 0.108 0.057 0.083 0.074 -0.010 -0.014 -0.056 -0.080 0.020 0.097 0.088 0.040 -0.003 -0.134 -0.080 -0.114 0.031 -0.089 -0.051 0.027 -0.029 -0.011 0.132 -0.055 -0.034 -0.149 0.133 -0.077 0.050 -0.023 -0.102 -0.025 0.228 0.113 -0.052 -0.175 -0.049 0.169 -0.047 -0.094 -0.093 -0.031 -0.047 0.141 0.107 -0.017 -0.044 0.040 0.097 0.127 0.114 0.107 -0.045 0.155 -0.010 0.097 -0.135 0.019 0.093 -0.031 -0.146 -0.107 -0.045 0.021 0.087 0.202 -0.001 -0.083 -0.074
+classifier.2.weight row 04 (Industrial Buildings)  -0.093 0.128 0.033 -0.101 -0.040 -0.100 0.032 -0.082 0.040 0.091 -0.008 -0.064 -0.132 -0.060 -0.225 -0.030 0.070 -0.066 -0.155 -0.114 0.052 -0.075 -0.064 -0.116 -0.029 0.018 0.085 0.064 0.064 0.038 0.055 0.014 -0.023 0.002 -0.096 0.012 0.078 0.090 0.128 0.086 0.057 -0.064 -0.096 -0.076 -0.107 -0.129 -0.134 -0.018 -0.106 -0.125 0.056 0.112 0.042 -0.042 0.101 -0.118 0.037 0.070 0.087 -0.081 0.093 -0.005 0.022 0.110 0.099 -0.129 0.057 -0.092 0.003 -0.119 -0.110 -0.085 -0.114 0.061 0.035 0.000 -0.057 0.082 0.073 -0.140 0.028 0.072 0.009 0.043 0.121 0.101 -0.190 -0.089 -0.090 0.084 0.071 0.102 -0.075 -0.159 0.075 -0.094 -0.028 -0.084 0.030 -0.141 -0.076 -0.032 -0.111 -0.061 -0.153 0.098 -0.037 -0.163 0.083 -0.049 0.096 -0.200 -0.088 -0.093 0.044 0.101 -0.117 0.062 0.028 0.053 0.080 0.124 0.025 -0.020 0.020 -0.136 -0.011 0.096
+classifier.2.weight row 05 (Pasture)  0.053 0.065 0.038 -0.110 0.053 -0.217 -0.213 0.127 -0.133 0.082 0.047 0.077 0.129 0.089 0.059 -0.193 -0.231 -0.162 0.072 0.057 -0.049 -0.123 0.106 -0.132 0.015 0.017 -0.026 0.012 -0.164 0.175 0.079 -0.081 -0.133 -0.138 0.107 -0.033 -0.050 0.091 -0.088 -0.212 -0.086 -0.054 0.048 0.093 0.162 0.109 -0.001 -0.018 -0.153 -0.103 0.020 -0.067 -0.043 -0.004 -0.047 0.071 0.043 -0.062 0.127 -0.140 0.035 0.060 -0.182 0.043 0.054 -0.192 0.026 0.060 0.119 -0.137 -0.149 -0.200 0.091 0.069 -0.154 0.166 -0.255 0.047 -0.002 -0.054 0.035 0.086 0.044 -0.129 0.076 0.015 -0.194 0.062 0.090 0.057 0.151 -0.155 0.033 -0.040 -0.004 -0.139 -0.265 0.063 0.024 0.080 0.155 0.024 -0.091 -0.169 -0.063 -0.082 0.186 -0.004 0.068 0.037 -0.182 -0.189 0.076 0.043 -0.065 -0.065 0.007 0.055 -0.151 -0.018 -0.161 0.117 0.049 -0.235 -0.014 0.164 -0.100 -0.053
+classifier.2.weight row 06 (Permanent Crop)  -0.014 -0.010 -0.063 0.148 -0.120 0.085 -0.072 -0.096 -0.121 -0.041 -0.043 -0.253 -0.033 0.044 0.119 -0.111 -0.152 0.093 0.123 -0.065 0.079 0.043 0.081 -0.065 -0.091 -0.149 -0.165 0.066 -0.177 0.079 0.134 -0.233 0.122 -0.118 -0.189 -0.141 -0.028 0.065 0.077 0.045 -0.104 0.128 -0.065 -0.010 0.019 -0.034 0.129 0.045 -0.073 -0.070 -0.081 -0.049 -0.232 -0.068 0.048 0.043 -0.199 -0.089 0.070 0.078 -0.019 0.065 -0.049 0.110 0.079 -0.063 0.074 0.061 -0.114 -0.054 0.103 -0.121 0.103 0.087 0.095 -0.198 0.047 -0.146 -0.116 -0.023 -0.298 -0.034 -0.004 0.067 -0.185 0.052 0.047 -0.071 0.119 0.119 -0.022 -0.185 -0.077 0.120 -0.199 0.079 -0.182 -0.168 0.099 0.117 -0.126 0.051 0.085 -0.103 -0.086 0.097 -0.022 0.064 -0.168 0.124 0.078 0.024 0.076 0.080 -0.024 0.007 -0.127 0.086 0.105 -0.151 -0.062 -0.007 0.101 0.102 -0.124 0.059 -0.063 -0.094
+classifier.2.weight row 07 (Residential Buildings)  -0.000 0.015 -0.005 0.074 0.113 0.015 -0.150 0.132 0.089 0.122 -0.066 -0.010 -0.011 -0.005 0.008 -0.122 -0.039 0.067 -0.128 -0.063 -0.160 0.110 -0.048 -0.156 -0.029 0.107 0.076 0.040 0.103 0.103 0.109 0.016 0.090 -0.067 0.077 0.076 0.050 -0.064 -0.116 -0.169 -0.030 0.098 0.023 0.024 -0.162 -0.129 -0.023 0.115 0.144 0.059 0.017 -0.054 0.098 0.147 0.132 0.123 0.012 -0.222 -0.007 -0.062 -0.134 -0.029 -0.172 -0.154 0.025 0.015 -0.014 0.041 -0.160 0.098 -0.071 0.238 0.029 0.065 0.122 -0.175 -0.002 -0.146 -0.037 0.042 -0.077 -0.141 -0.196 -0.177 0.029 0.079 -0.148 0.078 -0.116 -0.103 -0.107 0.018 0.051 0.085 0.098 0.160 -0.101 0.095 -0.154 -0.222 -0.053 0.107 0.012 0.138 0.109 -0.100 -0.005 -0.210 -0.051 -0.116 -0.115 -0.187 -0.148 -0.113 -0.168 0.084 0.148 -0.194 -0.064 0.110 0.080 -0.142 -0.178 -0.017 0.096 -0.062 0.101 -0.061
+classifier.2.weight row 08 (River)  -0.151 0.082 0.013 0.078 -0.015 0.149 0.139 -0.054 -0.115 -0.016 -0.080 0.072 -0.062 0.128 -0.019 0.148 -0.122 -0.013 0.091 0.075 0.157 0.118 -0.179 -0.043 -0.166 0.173 -0.043 0.094 -0.099 -0.026 -0.080 0.126 0.000 0.138 0.080 0.018 -0.149 -0.084 -0.076 0.183 -0.039 -0.177 -0.004 0.043 0.059 0.121 -0.104 -0.032 0.085 -0.148 0.139 -0.033 -0.140 0.049 -0.100 -0.020 -0.183 -0.066 0.121 -0.164 -0.075 0.079 0.091 -0.017 -0.178 0.123 0.049 -0.089 -0.002 0.052 0.068 0.033 0.026 0.078 -0.060 0.065 0.081 -0.034 -0.177 0.042 -0.062 -0.063 -0.178 0.128 -0.013 -0.176 0.106 -0.026 -0.147 0.070 0.030 -0.108 0.057 -0.059 -0.098 -0.079 0.093 0.082 -0.199 -0.143 0.115 0.080 -0.103 -0.095 -0.103 -0.016 0.134 -0.134 -0.055 0.033 -0.079 0.085 -0.085 0.098 0.174 -0.064 0.019 0.052 -0.148 -0.019 0.053 -0.035 -0.121 0.144 -0.114 0.067 0.108 -0.106
+classifier.2.weight row 09 (SeaLake)  0.083 -0.205 -0.177 -0.097 0.139 -0.071 -0.024 0.061 0.116 -0.013 0.158 0.142 -0.119 -0.176 0.128 0.053 0.032 -0.154 -0.170 -0.244 0.051 0.115 -0.034 -0.169 0.025 -0.119 -0.055 -0.096 0.101 0.007 -0.016 0.120 0.033 0.098 0.115 -0.010 0.058 -0.152 0.092 0.026 -0.116 -0.162 -0.239 -0.174 0.085 -0.151 0.005 0.053 0.000 0.058 0.037 0.120 0.079 0.175 0.183 -0.035 0.119 -0.114 -0.077 -0.159 -0.116 -0.172 0.066 -0.017 0.070 0.053 -0.223 -0.179 0.098 -0.209 -0.158 0.165 -0.211 -0.091 0.274 0.030 0.114 0.148 0.134 -0.173 0.111 -0.084 0.130 -0.224 -0.032 0.265 0.102 -0.241 -0.024 0.090 -0.111 0.087 0.026 0.177 -0.085 0.109 0.065 0.145 0.072 -0.075 0.102 -0.191 -0.172 0.044 0.077 -0.118 0.047 0.068 -0.024 -0.284 0.027 0.034 -0.155 -0.191 -0.167 0.028 0.157 -0.207 -0.225 -0.098 0.085 -0.045 0.079 0.013 -0.060 -0.098 0.038 -0.097
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  -0.071 0.099 0.002 -0.152 -0.045 -0.022 0.020 0.045 -0.068 0.138
+
+
+
+================================================================================
+=== Model_07 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:53
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  -0.032 0.193 0.264
+conv1.weight filter 00 chan R row 1  -0.029 -0.091 -0.113
+conv1.weight filter 00 chan R row 2  0.111 -0.198 -0.102
+conv1.weight filter 00 chan G row 0  -0.122 -0.020 0.078
+conv1.weight filter 00 chan G row 1  0.211 -0.019 -0.082
+conv1.weight filter 00 chan G row 2  0.099 -0.128 -0.067
+conv1.weight filter 00 chan B row 0  -0.086 0.184 0.102
+conv1.weight filter 00 chan B row 1  -0.290 0.202 0.093
+conv1.weight filter 00 chan B row 2  0.002 -0.153 0.009
+conv1.weight filter 01 chan R row 0  -0.079 0.075 0.001
+conv1.weight filter 01 chan R row 1  -0.085 0.225 0.231
+conv1.weight filter 01 chan R row 2  -0.033 -0.024 -0.186
+conv1.weight filter 01 chan G row 0  -0.169 0.021 -0.081
+conv1.weight filter 01 chan G row 1  -0.051 -0.116 -0.231
+conv1.weight filter 01 chan G row 2  -0.067 0.008 -0.126
+conv1.weight filter 01 chan B row 0  0.036 0.052 0.095
+conv1.weight filter 01 chan B row 1  0.193 0.177 0.054
+conv1.weight filter 01 chan B row 2  -0.046 0.114 0.037
+conv1.weight filter 02 chan R row 0  -0.198 -0.031 0.176
+conv1.weight filter 02 chan R row 1  -0.151 -0.076 0.160
+conv1.weight filter 02 chan R row 2  -0.061 -0.021 0.213
+conv1.weight filter 02 chan G row 0  -0.120 0.054 -0.014
+conv1.weight filter 02 chan G row 1  0.106 0.166 0.101
+conv1.weight filter 02 chan G row 2  -0.156 -0.297 0.147
+conv1.weight filter 02 chan B row 0  0.137 0.181 0.052
+conv1.weight filter 02 chan B row 1  -0.175 0.101 -0.051
+conv1.weight filter 02 chan B row 2  0.048 -0.067 -0.235
+conv1.weight filter 03 chan R row 0  0.143 -0.060 0.247
+conv1.weight filter 03 chan R row 1  0.064 0.017 0.007
+conv1.weight filter 03 chan R row 2  -0.104 -0.121 -0.212
+conv1.weight filter 03 chan G row 0  0.058 0.198 0.140
+conv1.weight filter 03 chan G row 1  -0.011 -0.108 0.177
+conv1.weight filter 03 chan G row 2  0.033 -0.048 -0.280
+conv1.weight filter 03 chan B row 0  0.029 -0.028 0.123
+conv1.weight filter 03 chan B row 1  0.022 -0.090 -0.026
+conv1.weight filter 03 chan B row 2  -0.289 0.115 0.010
+conv1.weight filter 04 chan R row 0  -0.022 0.035 0.107
+conv1.weight filter 04 chan R row 1  0.121 0.007 -0.041
+conv1.weight filter 04 chan R row 2  -0.034 0.022 0.053
+conv1.weight filter 04 chan G row 0  0.105 -0.215 0.030
+conv1.weight filter 04 chan G row 1  0.055 -0.048 0.123
+conv1.weight filter 04 chan G row 2  -0.220 -0.038 0.095
+conv1.weight filter 04 chan B row 0  0.008 -0.146 -0.111
+conv1.weight filter 04 chan B row 1  0.124 0.026 0.019
+conv1.weight filter 04 chan B row 2  0.293 -0.095 -0.194
+conv1.weight filter 05 chan R row 0  -0.032 -0.035 0.108
+conv1.weight filter 05 chan R row 1  -0.023 0.240 0.074
+conv1.weight filter 05 chan R row 2  -0.201 0.004 -0.118
+conv1.weight filter 05 chan G row 0  0.165 0.174 -0.209
+conv1.weight filter 05 chan G row 1  -0.304 0.144 -0.183
+conv1.weight filter 05 chan G row 2  -0.067 0.138 0.133
+conv1.weight filter 05 chan B row 0  -0.042 0.025 -0.019
+conv1.weight filter 05 chan B row 1  -0.020 -0.092 -0.005
+conv1.weight filter 05 chan B row 2  -0.116 0.038 0.234
+conv1.weight filter 06 chan R row 0  -0.095 0.081 -0.077
+conv1.weight filter 06 chan R row 1  -0.106 -0.031 -0.039
+conv1.weight filter 06 chan R row 2  0.158 0.028 0.058
+conv1.weight filter 06 chan G row 0  0.173 0.156 0.131
+conv1.weight filter 06 chan G row 1  0.095 0.085 -0.254
+conv1.weight filter 06 chan G row 2  0.038 -0.092 -0.215
+conv1.weight filter 06 chan B row 0  -0.056 0.037 0.141
+conv1.weight filter 06 chan B row 1  0.141 0.029 -0.006
+conv1.weight filter 06 chan B row 2  -0.058 -0.082 -0.052
+conv1.weight filter 07 chan R row 0  -0.093 -0.002 -0.123
+conv1.weight filter 07 chan R row 1  -0.073 -0.005 0.010
+conv1.weight filter 07 chan R row 2  0.216 -0.012 -0.029
+conv1.weight filter 07 chan G row 0  0.025 0.100 -0.074
+conv1.weight filter 07 chan G row 1  0.046 0.239 0.061
+conv1.weight filter 07 chan G row 2  0.079 -0.141 -0.038
+conv1.weight filter 07 chan B row 0  0.019 -0.142 -0.171
+conv1.weight filter 07 chan B row 1  0.049 -0.178 0.058
+conv1.weight filter 07 chan B row 2  0.117 -0.015 0.080
+conv1.weight filter 08 chan R row 0  -0.085 0.114 0.057
+conv1.weight filter 08 chan R row 1  0.082 -0.085 -0.019
+conv1.weight filter 08 chan R row 2  -0.077 -0.116 -0.125
+conv1.weight filter 08 chan G row 0  0.073 -0.050 0.038
+conv1.weight filter 08 chan G row 1  -0.013 0.202 0.235
+conv1.weight filter 08 chan G row 2  -0.164 -0.193 -0.173
+conv1.weight filter 08 chan B row 0  0.133 -0.020 -0.062
+conv1.weight filter 08 chan B row 1  0.446 -0.127 0.013
+conv1.weight filter 08 chan B row 2  0.095 -0.221 0.081
+conv1.weight filter 09 chan R row 0  -0.090 -0.013 0.111
+conv1.weight filter 09 chan R row 1  -0.105 0.108 0.055
+conv1.weight filter 09 chan R row 2  -0.009 -0.166 0.011
+conv1.weight filter 09 chan G row 0  -0.080 0.058 0.020
+conv1.weight filter 09 chan G row 1  0.089 0.075 -0.004
+conv1.weight filter 09 chan G row 2  0.047 0.006 -0.070
+conv1.weight filter 09 chan B row 0  0.076 0.069 -0.122
+conv1.weight filter 09 chan B row 1  0.382 -0.010 -0.083
+conv1.weight filter 09 chan B row 2  -0.114 0.004 -0.232
+conv1.weight filter 10 chan R row 0  -0.109 0.151 0.170
+conv1.weight filter 10 chan R row 1  0.066 -0.152 -0.211
+conv1.weight filter 10 chan R row 2  -0.005 0.105 0.033
+conv1.weight filter 10 chan G row 0  -0.076 -0.158 -0.158
+conv1.weight filter 10 chan G row 1  0.037 0.015 0.201
+conv1.weight filter 10 chan G row 2  -0.021 0.003 -0.187
+conv1.weight filter 10 chan B row 0  -0.092 0.212 0.056
+conv1.weight filter 10 chan B row 1  0.014 -0.153 0.046
+conv1.weight filter 10 chan B row 2  0.123 0.167 0.026
+conv1.weight filter 11 chan R row 0  0.136 -0.012 0.148
+conv1.weight filter 11 chan R row 1  0.118 0.054 -0.051
+conv1.weight filter 11 chan R row 2  -0.158 0.044 -0.130
+conv1.weight filter 11 chan G row 0  0.135 0.035 -0.199
+conv1.weight filter 11 chan G row 1  0.139 -0.056 -0.175
+conv1.weight filter 11 chan G row 2  -0.037 0.123 -0.090
+conv1.weight filter 11 chan B row 0  0.232 -0.054 -0.181
+conv1.weight filter 11 chan B row 1  0.254 -0.066 -0.131
+conv1.weight filter 11 chan B row 2  0.086 -0.242 -0.036
+conv1.weight filter 12 chan R row 0  0.094 0.066 0.145
+conv1.weight filter 12 chan R row 1  0.079 -0.159 -0.082
+conv1.weight filter 12 chan R row 2  0.114 -0.079 -0.017
+conv1.weight filter 12 chan G row 0  -0.063 0.016 -0.198
+conv1.weight filter 12 chan G row 1  -0.044 -0.166 -0.099
+conv1.weight filter 12 chan G row 2  0.119 -0.011 -0.048
+conv1.weight filter 12 chan B row 0  0.134 -0.100 -0.010
+conv1.weight filter 12 chan B row 1  0.011 -0.021 -0.125
+conv1.weight filter 12 chan B row 2  0.082 0.025 0.290
+conv1.weight filter 13 chan R row 0  0.101 -0.213 -0.101
+conv1.weight filter 13 chan R row 1  0.037 0.009 0.081
+conv1.weight filter 13 chan R row 2  0.003 -0.198 0.104
+conv1.weight filter 13 chan G row 0  0.124 0.162 0.016
+conv1.weight filter 13 chan G row 1  0.289 -0.079 -0.070
+conv1.weight filter 13 chan G row 2  0.089 0.009 0.058
+conv1.weight filter 13 chan B row 0  0.137 -0.060 -0.006
+conv1.weight filter 13 chan B row 1  0.035 -0.178 0.016
+conv1.weight filter 13 chan B row 2  -0.189 0.044 -0.076
+conv1.weight filter 14 chan R row 0  -0.019 -0.024 0.036
+conv1.weight filter 14 chan R row 1  -0.031 0.118 0.091
+conv1.weight filter 14 chan R row 2  -0.084 -0.114 0.147
+conv1.weight filter 14 chan G row 0  0.043 -0.234 -0.094
+conv1.weight filter 14 chan G row 1  -0.051 -0.198 0.139
+conv1.weight filter 14 chan G row 2  -0.113 0.179 0.112
+conv1.weight filter 14 chan B row 0  0.164 -0.102 -0.012
+conv1.weight filter 14 chan B row 1  0.154 -0.002 -0.082
+conv1.weight filter 14 chan B row 2  -0.111 -0.034 0.107
+conv1.weight filter 15 chan R row 0  0.180 -0.146 -0.064
+conv1.weight filter 15 chan R row 1  -0.027 0.016 0.001
+conv1.weight filter 15 chan R row 2  -0.200 0.035 -0.036
+conv1.weight filter 15 chan G row 0  0.181 0.062 -0.028
+conv1.weight filter 15 chan G row 1  0.003 0.237 -0.107
+conv1.weight filter 15 chan G row 2  0.104 -0.091 0.283
+conv1.weight filter 15 chan B row 0  -0.187 -0.127 -0.001
+conv1.weight filter 15 chan B row 1  -0.156 -0.103 0.051
+conv1.weight filter 15 chan B row 2  0.079 0.149 -0.129
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  -0.039 0.091 0.075 0.039 0.066 0.171 -0.069 0.183 -0.123 -0.016 -0.048 0.067 -0.009 -0.008 -0.093 -0.153
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  -0.065 0.004 -0.041 -0.053 0.056 -0.126 0.053 -0.046 -0.052 -0.002 0.043 0.075 0.008 0.066 -0.051 -0.079 -0.144 -0.101 0.090 0.160 -0.168 -0.195 -0.108 0.119 0.016 0.060 -0.073 -0.119 -0.206 -0.154 -0.111 0.052 -0.178 -0.237 0.088 0.203 -0.276 0.129 0.028 0.020 0.065 0.103 -0.158 0.032 -0.101 -0.028 0.017 0.112 -0.055 -0.033 -0.222 0.077 -0.057 0.096 -0.005 -0.027 0.088 0.088 -0.115 0.065 -0.107 -0.030 -0.021 -0.059 -0.052 0.097 0.100 0.008 0.033 0.065 -0.014 0.092 -0.109 -0.172 -0.144 -0.022 0.100 -0.074 0.092 -0.053 0.032 0.118 0.100 0.008 -0.069 -0.189 -0.009 -0.126 0.110 -0.025 0.043 -0.063 -0.196 -0.123 0.295 0.139 -0.109 0.105 -0.005 0.110 0.083 -0.131 -0.139 0.102 -0.018 0.024 -0.056 0.068 -0.312 0.135 0.121 0.182 0.105 0.138 0.126 -0.000 0.074 0.042 0.078 -0.006 0.142 -0.128 0.072 0.066 -0.199 0.043 -0.099 0.082
+classifier.2.weight row 01 (Forest)  -0.074 0.145 0.178 -0.006 -0.200 0.082 -0.202 -0.108 -0.036 0.086 -0.204 0.012 -0.062 -0.131 0.099 0.071 -0.018 0.131 -0.280 -0.126 -0.021 -0.024 0.089 0.114 0.151 0.028 0.011 -0.188 -0.016 -0.189 0.048 0.082 -0.077 -0.025 -0.069 -0.046 0.010 -0.091 0.104 -0.132 -0.066 -0.027 0.096 -0.116 0.013 0.119 -0.184 -0.011 0.089 0.086 -0.321 0.164 0.027 -0.013 0.048 0.132 0.115 -0.016 -0.217 -0.013 0.123 -0.249 0.038 0.001 0.076 -0.030 -0.007 -0.177 -0.106 -0.172 0.029 -0.098 0.119 0.099 -0.160 0.102 -0.166 0.094 0.103 0.135 0.094 0.053 0.110 -0.060 0.059 0.140 0.081 0.104 0.137 0.049 -0.169 -0.014 -0.249 0.032 0.092 -0.083 -0.023 -0.135 -0.054 -0.100 -0.103 0.106 0.082 0.129 0.002 -0.086 -0.282 -0.066 -0.221 -0.237 0.261 0.136 -0.110 0.101 -0.279 -0.115 -0.100 -0.175 -0.012 -0.146 0.002 0.141 0.085 -0.240 -0.154 -0.069 -0.026 0.001
+classifier.2.weight row 02 (Herbaceous Vegetation)  0.147 -0.065 0.120 -0.064 -0.101 0.052 -0.018 0.088 -0.185 -0.197 0.101 -0.153 0.144 -0.251 -0.027 0.124 0.009 0.112 -0.095 0.013 -0.011 -0.066 0.055 0.127 0.052 0.036 -0.133 -0.200 0.045 -0.125 0.014 -0.169 0.102 0.172 -0.242 -0.234 0.063 -0.244 -0.098 0.122 0.155 0.111 0.109 -0.120 -0.140 0.002 0.012 -0.233 0.007 0.082 -0.129 -0.026 0.009 -0.122 -0.247 -0.085 -0.008 0.058 0.042 -0.043 -0.020 -0.059 -0.046 0.116 -0.131 -0.227 -0.221 0.119 0.152 0.059 0.124 0.046 0.073 0.103 -0.000 0.092 -0.004 -0.069 0.071 0.025 -0.057 -0.196 0.110 0.111 0.083 -0.127 0.000 0.116 0.097 0.079 -0.143 0.015 0.120 0.061 -0.052 -0.060 0.085 0.014 0.107 -0.008 -0.093 -0.069 0.079 -0.066 -0.141 -0.198 0.099 0.166 -0.116 -0.004 -0.085 0.057 0.038 -0.189 -0.007 0.112 0.094 -0.069 -0.035 0.109 0.018 0.039 -0.269 0.117 -0.178 -0.185 -0.038 0.055
+classifier.2.weight row 03 (Highway)  -0.167 -0.053 0.019 0.013 -0.156 -0.082 0.068 -0.080 0.240 -0.112 -0.103 -0.100 -0.015 -0.038 0.008 -0.082 0.085 -0.096 -0.002 0.102 -0.111 0.107 -0.092 0.093 -0.094 0.003 -0.060 -0.105 0.174 -0.053 -0.104 -0.105 0.057 -0.103 -0.109 -0.154 0.090 0.071 0.037 -0.084 -0.097 0.045 0.019 0.080 -0.046 0.048 -0.127 0.127 0.126 -0.098 0.157 -0.047 0.208 0.037 0.126 -0.124 -0.046 0.118 -0.053 0.113 0.069 0.104 0.010 -0.042 -0.013 -0.045 -0.054 -0.030 0.062 0.133 -0.021 -0.019 -0.106 -0.061 -0.104 0.019 -0.112 -0.083 0.015 -0.071 -0.014 0.120 -0.066 -0.036 -0.151 0.157 -0.016 0.080 -0.012 -0.041 -0.050 0.254 0.131 -0.064 -0.167 -0.074 0.140 -0.064 -0.092 -0.066 -0.024 -0.016 0.097 0.037 0.051 -0.036 0.044 0.056 0.140 0.127 0.090 -0.087 0.100 -0.007 0.111 -0.140 0.036 0.073 -0.003 -0.119 -0.075 -0.071 0.013 0.093 0.222 -0.013 -0.151 -0.137
+classifier.2.weight row 04 (Industrial Buildings)  -0.084 0.095 -0.026 -0.094 -0.031 -0.083 0.049 -0.073 0.031 0.090 -0.053 -0.024 -0.136 -0.044 -0.095 0.003 0.056 -0.053 -0.162 -0.143 0.073 -0.064 -0.140 -0.160 -0.054 0.039 0.069 0.085 0.086 0.029 -0.014 -0.024 0.012 -0.007 -0.076 0.014 0.103 0.048 0.147 0.064 0.047 -0.099 -0.101 -0.120 -0.048 -0.141 -0.145 -0.051 -0.106 -0.194 0.049 0.142 0.074 -0.060 0.093 -0.134 0.051 0.055 0.106 -0.058 0.098 -0.016 -0.022 0.111 0.116 -0.170 0.035 -0.006 -0.002 -0.111 -0.077 -0.095 -0.079 0.058 0.034 -0.073 -0.010 0.050 0.041 -0.087 0.010 0.068 -0.084 0.038 0.129 0.122 -0.158 -0.091 -0.137 0.008 0.048 0.090 -0.114 -0.129 0.078 -0.111 -0.010 -0.062 0.060 -0.150 -0.083 -0.010 -0.101 -0.065 -0.005 0.093 -0.008 -0.153 0.067 -0.037 0.121 -0.161 -0.108 -0.101 0.021 0.108 -0.203 0.084 0.015 0.050 0.113 0.129 -0.046 -0.027 0.027 -0.080 -0.035 0.090
+classifier.2.weight row 05 (Pasture)  0.052 0.068 0.049 -0.086 0.003 -0.219 -0.215 0.129 -0.177 0.145 0.016 0.074 0.096 0.099 0.066 -0.170 -0.205 -0.103 0.060 0.093 -0.168 -0.068 0.132 -0.142 0.024 0.156 -0.079 0.082 -0.148 0.206 0.094 -0.069 -0.060 -0.067 0.092 -0.016 -0.063 0.124 -0.112 -0.198 -0.043 -0.051 0.037 0.079 0.156 0.117 0.012 -0.019 -0.266 -0.099 -0.005 -0.053 -0.070 -0.006 -0.016 0.095 0.055 -0.100 0.126 -0.136 0.058 0.015 -0.259 0.116 0.053 -0.176 -0.034 0.025 0.118 -0.158 -0.155 -0.239 0.084 0.067 -0.091 0.145 -0.238 0.064 -0.002 -0.156 0.053 0.032 0.052 -0.140 0.037 -0.036 -0.280 0.091 0.078 -0.124 0.144 -0.241 0.031 0.002 0.033 -0.119 -0.294 0.044 -0.029 0.047 0.170 0.074 -0.082 -0.200 -0.078 0.012 0.194 -0.026 0.049 -0.002 -0.166 -0.236 0.099 0.027 -0.128 0.017 -0.016 0.058 -0.189 -0.007 -0.183 0.054 0.044 -0.170 -0.025 0.182 -0.152 -0.070
+classifier.2.weight row 06 (Permanent Crop)  -0.091 0.021 -0.052 0.137 -0.145 0.087 -0.104 -0.134 -0.117 -0.054 0.018 -0.245 -0.011 0.072 0.023 -0.108 -0.167 0.060 0.136 -0.057 0.041 0.038 0.061 -0.032 -0.131 -0.242 -0.185 0.058 -0.190 0.069 0.118 -0.189 0.114 -0.083 -0.154 -0.187 0.031 0.064 -0.103 0.061 -0.035 0.130 -0.058 -0.008 0.006 -0.027 0.107 0.041 -0.064 -0.039 -0.106 -0.026 -0.228 -0.083 -0.044 -0.002 -0.186 -0.119 0.093 0.076 0.024 0.044 0.024 0.100 0.078 -0.037 0.091 0.061 -0.085 -0.054 0.120 -0.116 0.089 0.096 0.084 -0.184 0.077 -0.131 -0.128 -0.062 -0.252 -0.037 0.026 0.092 -0.170 0.041 0.081 -0.047 0.139 0.098 0.007 -0.165 -0.079 0.107 -0.213 0.078 -0.189 -0.114 0.077 0.099 -0.101 0.027 0.095 -0.085 -0.169 0.093 -0.055 0.081 -0.139 0.102 0.077 -0.008 0.093 0.081 -0.015 -0.026 -0.104 0.084 0.095 -0.155 -0.064 0.097 0.062 0.146 -0.119 0.058 -0.094 -0.202
+classifier.2.weight row 07 (Residential Buildings)  0.040 -0.075 0.008 0.085 0.286 0.014 -0.130 0.127 0.073 0.122 -0.203 0.147 -0.024 -0.001 -0.131 -0.164 -0.034 0.075 -0.102 -0.060 -0.165 0.122 -0.079 -0.132 0.055 -0.023 0.087 0.026 0.106 0.098 0.097 0.242 0.105 0.005 0.228 0.090 0.054 -0.015 -0.104 -0.187 -0.058 0.001 0.014 -0.013 -0.219 -0.130 0.012 0.122 0.062 0.100 0.034 -0.052 0.087 0.090 0.122 0.123 -0.044 -0.261 0.010 -0.088 -0.147 -0.015 -0.109 -0.194 0.004 0.001 0.042 0.076 -0.175 0.115 -0.096 0.236 0.059 0.053 0.113 -0.228 -0.133 -0.201 -0.119 0.069 -0.121 -0.080 -0.200 -0.161 0.001 0.067 -0.064 0.071 -0.174 -0.162 -0.107 0.011 0.051 0.113 0.118 0.094 -0.091 0.144 -0.167 -0.224 -0.089 0.091 0.027 0.159 0.092 -0.089 0.001 -0.222 -0.025 -0.125 -0.100 0.122 -0.172 -0.110 -0.136 0.103 -0.104 -0.184 -0.156 0.124 0.014 -0.145 -0.127 -0.026 0.083 -0.139 0.065 0.083
+classifier.2.weight row 08 (River)  -0.148 0.048 0.006 0.062 0.058 0.114 0.145 -0.071 -0.081 0.053 -0.006 0.089 -0.126 0.122 0.017 0.120 -0.133 -0.101 0.080 0.089 0.190 0.100 -0.114 -0.143 -0.126 0.118 0.019 0.132 -0.077 0.033 -0.046 0.079 -0.055 0.053 0.093 0.108 -0.127 -0.013 -0.070 0.157 -0.182 -0.160 -0.021 0.061 0.073 0.097 -0.091 -0.049 0.091 -0.133 0.128 -0.112 -0.089 0.067 -0.065 -0.052 -0.160 0.018 0.082 -0.174 -0.062 0.106 0.104 0.038 -0.173 0.112 0.099 -0.113 0.001 -0.025 0.105 0.070 -0.023 0.038 -0.093 0.082 0.101 0.016 -0.156 0.044 -0.071 -0.098 -0.190 0.119 -0.064 -0.162 0.044 -0.008 -0.132 0.012 0.025 -0.108 0.033 -0.086 -0.068 -0.067 0.073 0.067 -0.145 -0.100 0.097 0.035 -0.079 -0.075 -0.078 0.044 0.131 -0.148 -0.028 0.036 -0.099 0.021 -0.016 0.059 0.175 -0.103 0.068 0.052 -0.094 -0.001 0.015 -0.154 -0.075 0.147 -0.082 0.083 0.185 -0.064
+classifier.2.weight row 09 (SeaLake)  0.083 -0.183 -0.190 -0.051 0.157 -0.110 -0.063 0.077 0.108 -0.034 0.162 0.146 -0.122 -0.180 0.129 0.076 0.068 -0.145 -0.207 -0.184 0.030 0.105 -0.080 -0.142 -0.014 0.048 -0.087 -0.069 0.099 -0.006 -0.253 0.128 -0.009 0.052 0.132 0.011 0.081 -0.148 0.095 0.052 -0.155 -0.095 -0.246 -0.303 0.085 -0.137 0.065 0.034 0.049 0.050 0.167 0.088 0.049 0.174 0.157 -0.005 0.111 -0.139 -0.054 -0.155 -0.103 -0.224 0.048 -0.041 0.081 0.073 -0.190 -0.171 0.117 -0.137 -0.192 0.156 -0.283 -0.224 0.206 0.068 0.122 0.141 0.120 -0.176 0.104 -0.110 0.127 -0.194 -0.001 0.204 0.117 -0.294 -0.026 0.110 -0.094 0.068 0.035 0.037 -0.088 -0.043 0.063 0.166 0.027 -0.007 0.113 -0.218 -0.175 0.057 0.107 -0.119 0.065 0.042 -0.047 -0.265 -0.025 0.036 -0.211 -0.137 -0.218 0.091 0.160 -0.175 -0.210 -0.097 -0.004 -0.010 0.078 -0.080 0.025 -0.091 0.115 0.024
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  -0.067 0.098 0.018 -0.161 -0.051 -0.035 0.004 0.048 -0.076 0.150
+
+
+
+================================================================================
+=== Model_08 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:54
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  -0.088 -0.148 -0.041
+conv1.weight filter 00 chan R row 1  -0.164 -0.187 0.107
+conv1.weight filter 00 chan R row 2  -0.026 0.073 0.176
+conv1.weight filter 00 chan G row 0  0.218 0.083 0.032
+conv1.weight filter 00 chan G row 1  0.058 -0.053 0.189
+conv1.weight filter 00 chan G row 2  0.136 -0.131 -0.122
+conv1.weight filter 00 chan B row 0  0.052 0.157 0.036
+conv1.weight filter 00 chan B row 1  0.070 -0.034 -0.180
+conv1.weight filter 00 chan B row 2  -0.056 -0.037 0.023
+conv1.weight filter 01 chan R row 0  0.100 0.082 0.115
+conv1.weight filter 01 chan R row 1  -0.088 -0.152 -0.213
+conv1.weight filter 01 chan R row 2  0.079 -0.014 0.086
+conv1.weight filter 01 chan G row 0  0.029 0.059 -0.078
+conv1.weight filter 01 chan G row 1  0.061 0.046 -0.014
+conv1.weight filter 01 chan G row 2  -0.202 -0.077 -0.112
+conv1.weight filter 01 chan B row 0  0.174 0.014 -0.072
+conv1.weight filter 01 chan B row 1  0.043 0.036 -0.061
+conv1.weight filter 01 chan B row 2  0.009 0.201 0.017
+conv1.weight filter 02 chan R row 0  -0.075 -0.190 -0.111
+conv1.weight filter 02 chan R row 1  -0.246 -0.009 0.034
+conv1.weight filter 02 chan R row 2  0.113 0.090 0.260
+conv1.weight filter 02 chan G row 0  -0.003 0.054 0.052
+conv1.weight filter 02 chan G row 1  -0.130 0.257 -0.068
+conv1.weight filter 02 chan G row 2  0.253 0.046 -0.024
+conv1.weight filter 02 chan B row 0  0.077 -0.162 0.033
+conv1.weight filter 02 chan B row 1  -0.190 -0.285 -0.019
+conv1.weight filter 02 chan B row 2  0.017 0.084 -0.052
+conv1.weight filter 03 chan R row 0  0.185 -0.031 -0.029
+conv1.weight filter 03 chan R row 1  0.075 -0.041 -0.051
+conv1.weight filter 03 chan R row 2  -0.066 0.035 0.078
+conv1.weight filter 03 chan G row 0  -0.000 -0.015 0.184
+conv1.weight filter 03 chan G row 1  0.003 0.052 0.306
+conv1.weight filter 03 chan G row 2  0.190 0.008 0.022
+conv1.weight filter 03 chan B row 0  -0.078 -0.110 -0.087
+conv1.weight filter 03 chan B row 1  -0.095 -0.087 0.051
+conv1.weight filter 03 chan B row 2  -0.004 -0.205 -0.105
+conv1.weight filter 04 chan R row 0  0.073 -0.055 0.002
+conv1.weight filter 04 chan R row 1  0.206 -0.053 -0.010
+conv1.weight filter 04 chan R row 2  0.049 0.041 -0.145
+conv1.weight filter 04 chan G row 0  -0.014 -0.254 -0.077
+conv1.weight filter 04 chan G row 1  -0.063 -0.332 0.117
+conv1.weight filter 04 chan G row 2  0.027 0.186 -0.010
+conv1.weight filter 04 chan B row 0  0.050 0.229 -0.008
+conv1.weight filter 04 chan B row 1  0.027 0.122 -0.082
+conv1.weight filter 04 chan B row 2  0.134 -0.031 -0.038
+conv1.weight filter 05 chan R row 0  -0.110 0.014 -0.199
+conv1.weight filter 05 chan R row 1  -0.123 0.024 0.092
+conv1.weight filter 05 chan R row 2  0.024 -0.044 -0.181
+conv1.weight filter 05 chan G row 0  0.061 -0.099 0.080
+conv1.weight filter 05 chan G row 1  0.201 0.030 0.007
+conv1.weight filter 05 chan G row 2  0.097 0.184 0.031
+conv1.weight filter 05 chan B row 0  -0.173 -0.067 0.140
+conv1.weight filter 05 chan B row 1  -0.029 0.067 0.017
+conv1.weight filter 05 chan B row 2  -0.014 0.048 0.155
+conv1.weight filter 06 chan R row 0  0.064 0.023 -0.063
+conv1.weight filter 06 chan R row 1  0.198 0.122 -0.133
+conv1.weight filter 06 chan R row 2  0.118 -0.133 -0.130
+conv1.weight filter 06 chan G row 0  -0.098 0.012 -0.181
+conv1.weight filter 06 chan G row 1  0.028 -0.112 -0.107
+conv1.weight filter 06 chan G row 2  0.004 0.047 -0.090
+conv1.weight filter 06 chan B row 0  -0.184 0.079 0.036
+conv1.weight filter 06 chan B row 1  -0.111 0.051 0.141
+conv1.weight filter 06 chan B row 2  0.015 0.066 0.106
+conv1.weight filter 07 chan R row 0  0.061 0.148 0.021
+conv1.weight filter 07 chan R row 1  0.137 -0.105 -0.213
+conv1.weight filter 07 chan R row 2  0.050 -0.137 -0.079
+conv1.weight filter 07 chan G row 0  0.018 -0.120 0.009
+conv1.weight filter 07 chan G row 1  0.169 0.244 0.058
+conv1.weight filter 07 chan G row 2  0.103 0.148 -0.090
+conv1.weight filter 07 chan B row 0  -0.032 0.042 0.025
+conv1.weight filter 07 chan B row 1  -0.200 -0.009 0.021
+conv1.weight filter 07 chan B row 2  -0.294 -0.109 0.065
+conv1.weight filter 08 chan R row 0  0.047 0.034 -0.117
+conv1.weight filter 08 chan R row 1  0.042 -0.040 -0.196
+conv1.weight filter 08 chan R row 2  0.007 0.085 0.089
+conv1.weight filter 08 chan G row 0  0.101 0.151 -0.036
+conv1.weight filter 08 chan G row 1  -0.043 -0.148 -0.016
+conv1.weight filter 08 chan G row 2  -0.075 -0.050 -0.035
+conv1.weight filter 08 chan B row 0  -0.055 -0.192 -0.026
+conv1.weight filter 08 chan B row 1  0.220 -0.043 0.124
+conv1.weight filter 08 chan B row 2  0.116 -0.019 0.124
+conv1.weight filter 09 chan R row 0  0.056 -0.073 0.108
+conv1.weight filter 09 chan R row 1  -0.016 0.002 -0.080
+conv1.weight filter 09 chan R row 2  0.121 -0.106 -0.036
+conv1.weight filter 09 chan G row 0  -0.121 -0.057 0.059
+conv1.weight filter 09 chan G row 1  0.013 0.121 -0.208
+conv1.weight filter 09 chan G row 2  0.082 0.132 -0.049
+conv1.weight filter 09 chan B row 0  -0.173 -0.267 -0.109
+conv1.weight filter 09 chan B row 1  -0.083 0.196 0.120
+conv1.weight filter 09 chan B row 2  0.230 0.078 0.069
+conv1.weight filter 10 chan R row 0  0.109 -0.114 0.188
+conv1.weight filter 10 chan R row 1  -0.258 0.051 0.206
+conv1.weight filter 10 chan R row 2  -0.002 -0.140 0.007
+conv1.weight filter 10 chan G row 0  -0.068 0.030 -0.111
+conv1.weight filter 10 chan G row 1  0.020 -0.123 0.024
+conv1.weight filter 10 chan G row 2  0.207 -0.233 0.171
+conv1.weight filter 10 chan B row 0  0.116 -0.196 -0.017
+conv1.weight filter 10 chan B row 1  -0.111 0.019 0.274
+conv1.weight filter 10 chan B row 2  -0.109 0.123 0.100
+conv1.weight filter 11 chan R row 0  -0.172 0.150 0.048
+conv1.weight filter 11 chan R row 1  0.014 -0.004 -0.012
+conv1.weight filter 11 chan R row 2  -0.025 -0.075 0.016
+conv1.weight filter 11 chan G row 0  -0.043 0.014 -0.080
+conv1.weight filter 11 chan G row 1  0.091 0.085 -0.043
+conv1.weight filter 11 chan G row 2  0.369 -0.119 -0.221
+conv1.weight filter 11 chan B row 0  -0.295 0.128 0.109
+conv1.weight filter 11 chan B row 1  -0.309 0.121 -0.003
+conv1.weight filter 11 chan B row 2  0.095 0.069 0.139
+conv1.weight filter 12 chan R row 0  -0.030 0.077 0.056
+conv1.weight filter 12 chan R row 1  -0.099 0.139 -0.155
+conv1.weight filter 12 chan R row 2  0.112 -0.007 -0.011
+conv1.weight filter 12 chan G row 0  -0.079 0.020 -0.063
+conv1.weight filter 12 chan G row 1  0.137 0.017 -0.184
+conv1.weight filter 12 chan G row 2  0.117 0.195 -0.093
+conv1.weight filter 12 chan B row 0  0.089 -0.019 -0.121
+conv1.weight filter 12 chan B row 1  0.011 -0.152 -0.277
+conv1.weight filter 12 chan B row 2  0.124 0.170 -0.117
+conv1.weight filter 13 chan R row 0  -0.063 0.098 -0.148
+conv1.weight filter 13 chan R row 1  -0.066 -0.256 0.097
+conv1.weight filter 13 chan R row 2  -0.015 -0.159 0.066
+conv1.weight filter 13 chan G row 0  0.267 0.205 0.004
+conv1.weight filter 13 chan G row 1  -0.016 0.178 0.141
+conv1.weight filter 13 chan G row 2  -0.094 0.145 -0.020
+conv1.weight filter 13 chan B row 0  0.031 0.219 -0.132
+conv1.weight filter 13 chan B row 1  0.265 -0.144 -0.085
+conv1.weight filter 13 chan B row 2  -0.051 -0.125 -0.202
+conv1.weight filter 14 chan R row 0  0.187 0.189 0.105
+conv1.weight filter 14 chan R row 1  0.169 -0.194 0.096
+conv1.weight filter 14 chan R row 2  -0.051 -0.048 -0.118
+conv1.weight filter 14 chan G row 0  -0.012 0.115 0.017
+conv1.weight filter 14 chan G row 1  -0.099 -0.122 -0.263
+conv1.weight filter 14 chan G row 2  -0.117 0.049 -0.249
+conv1.weight filter 14 chan B row 0  0.018 0.165 -0.032
+conv1.weight filter 14 chan B row 1  0.041 0.048 -0.100
+conv1.weight filter 14 chan B row 2  -0.117 0.172 -0.010
+conv1.weight filter 15 chan R row 0  -0.051 0.245 0.011
+conv1.weight filter 15 chan R row 1  0.028 0.070 -0.084
+conv1.weight filter 15 chan R row 2  -0.101 -0.003 0.029
+conv1.weight filter 15 chan G row 0  0.142 0.058 -0.248
+conv1.weight filter 15 chan G row 1  0.328 0.346 -0.190
+conv1.weight filter 15 chan G row 2  0.211 -0.456 -0.188
+conv1.weight filter 15 chan B row 0  0.032 0.059 0.088
+conv1.weight filter 15 chan B row 1  0.026 0.055 -0.222
+conv1.weight filter 15 chan B row 2  0.139 -0.285 -0.113
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  -0.111 -0.009 0.009 0.036 -0.069 -0.154 0.039 0.063 -0.175 0.001 -0.132 0.222 0.057 -0.022 0.012 0.105
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  0.042 -0.109 -0.091 0.129 0.040 0.087 -0.117 -0.072 -0.036 0.052 -0.120 -0.038 0.145 -0.060 0.123 -0.172 -0.165 0.124 -0.021 -0.171 -0.161 -0.101 0.095 0.002 0.080 -0.076 0.050 -0.000 0.053 -0.170 0.049 0.062 0.033 -0.152 0.074 0.011 0.045 0.035 -0.079 0.073 0.056 0.060 0.153 -0.191 0.096 -0.181 0.074 -0.110 0.061 0.067 -0.065 -0.004 0.368 -0.117 0.127 -0.160 -0.031 -0.051 -0.050 0.115 0.062 0.131 0.129 -0.066 -0.094 -0.167 0.114 0.113 -0.111 -0.031 0.124 0.079 -0.049 -0.117 0.274 0.037 -0.108 -0.199 -0.053 0.001 -0.191 -0.168 0.008 -0.149 -0.133 -0.172 0.049 0.063 0.030 0.056 -0.122 -0.064 -0.129 0.055 -0.046 0.074 -0.150 -0.089 -0.076 0.028 -0.139 0.211 -0.044 0.101 -0.241 0.079 0.064 0.041 0.114 0.089 0.004 0.101 -0.143 -0.014 -0.106 0.131 -0.055 -0.239 -0.060 0.089 -0.071 0.045 -0.128 -0.048 -0.033 0.093 0.356 0.100
+classifier.2.weight row 01 (Forest)  0.034 0.092 -0.012 0.096 0.007 -0.096 -0.103 0.129 -0.130 -0.193 0.044 -0.358 -0.211 -0.177 0.141 -0.010 0.051 -0.172 -0.042 -0.136 0.044 0.127 0.257 0.238 -0.214 0.087 -0.045 -0.043 0.068 -0.267 0.176 -0.092 -0.158 -0.074 0.044 -0.008 0.081 -0.125 -0.070 -0.163 0.137 0.134 -0.004 -0.149 -0.119 0.110 0.107 -0.107 -0.096 0.075 -0.002 0.121 0.051 0.124 0.115 -0.087 0.032 0.164 -0.264 -0.025 0.110 0.149 -0.236 -0.162 -0.141 0.103 -0.102 -0.184 0.023 0.012 -0.132 0.108 0.021 0.000 0.043 0.056 0.121 -0.068 0.063 -0.028 -0.221 -0.168 -0.114 0.042 -0.046 -0.210 -0.097 0.082 -0.084 -0.142 -0.123 0.103 0.132 -0.223 0.030 -0.050 0.110 0.012 0.076 0.053 0.091 0.115 0.045 -0.111 0.059 0.079 0.035 0.080 -0.122 0.092 -0.089 -0.067 0.123 -0.138 -0.020 0.130 -0.135 -0.113 -0.161 -0.139 0.029 0.100 -0.068 -0.098 -0.080 -0.226 0.027 0.105
+classifier.2.weight row 02 (Herbaceous Vegetation)  -0.254 -0.108 -0.135 -0.003 -0.026 -0.005 0.064 0.024 0.066 -0.027 -0.000 -0.040 -0.090 0.106 0.131 -0.033 -0.054 0.064 -0.122 -0.059 0.117 0.146 -0.161 -0.059 0.025 0.051 -0.098 0.112 -0.083 0.010 -0.151 -0.089 0.142 -0.057 0.085 -0.080 0.091 0.097 0.119 0.153 0.115 -0.108 -0.126 -0.272 -0.071 -0.041 0.150 -0.183 0.082 -0.066 0.144 -0.019 0.017 0.030 0.006 0.082 -0.034 0.100 -0.007 -0.127 -0.033 0.034 -0.241 0.034 -0.219 -0.106 -0.132 -0.205 0.111 0.069 -0.262 -0.136 -0.145 0.125 -0.122 0.082 0.071 0.083 -0.134 -0.214 -0.040 0.082 -0.048 -0.181 -0.052 -0.088 0.096 -0.136 0.057 0.020 0.108 0.122 0.110 -0.233 -0.014 -0.137 0.094 0.072 0.133 0.150 0.056 0.026 0.047 0.071 0.071 -0.108 -0.076 -0.204 0.015 -0.028 0.130 -0.243 -0.062 0.121 -0.079 -0.060 -0.046 -0.163 0.124 0.111 0.060 -0.037 -0.128 0.103 0.125 -0.103 0.079 -0.118
+classifier.2.weight row 03 (Highway)  -0.072 -0.047 -0.106 0.055 -0.005 -0.072 0.132 -0.085 -0.133 -0.139 -0.082 0.067 0.171 0.108 0.016 -0.191 0.154 0.145 -0.129 0.123 -0.055 -0.067 0.098 0.023 -0.053 -0.118 -0.166 -0.142 -0.077 0.106 -0.076 -0.110 -0.144 0.162 -0.018 0.039 -0.019 -0.162 -0.157 -0.017 0.049 0.152 -0.015 0.086 0.030 -0.155 -0.057 0.035 -0.071 -0.054 -0.068 0.138 -0.113 -0.019 0.002 0.149 0.008 -0.044 0.072 0.149 0.039 0.071 0.062 -0.083 -0.020 -0.079 -0.012 -0.026 0.121 -0.079 0.029 0.111 0.082 -0.101 -0.131 0.035 0.135 0.039 -0.044 0.151 0.169 0.129 0.048 0.109 0.134 0.007 -0.118 -0.043 -0.061 0.113 -0.072 -0.058 -0.065 -0.042 0.085 -0.042 0.056 -0.127 0.006 0.129 -0.130 -0.109 -0.158 0.011 -0.014 0.109 -0.047 0.077 -0.079 0.076 -0.090 0.006 -0.106 -0.006 -0.063 0.012 -0.149 0.053 0.107 -0.042 0.127 -0.035 0.057 -0.074 -0.161 0.058 -0.114 -0.030
+classifier.2.weight row 04 (Industrial Buildings)  0.010 0.164 -0.134 -0.140 0.016 -0.102 -0.059 0.094 0.021 0.005 0.098 -0.003 0.036 -0.055 -0.086 0.080 0.015 0.040 0.094 0.015 0.069 0.116 0.105 0.077 -0.130 0.035 -0.083 -0.058 -0.070 0.055 0.048 -0.043 0.058 0.097 -0.141 -0.049 -0.148 -0.062 -0.065 -0.070 -0.025 0.092 -0.119 -0.100 0.001 0.093 -0.059 0.079 -0.021 0.103 0.106 -0.015 -0.065 -0.071 -0.078 0.099 0.029 -0.120 -0.156 0.010 -0.014 -0.162 -0.031 0.115 0.066 -0.050 0.066 -0.050 -0.005 -0.174 -0.113 0.041 0.061 -0.038 0.078 -0.153 0.084 0.002 -0.034 0.006 0.062 0.016 -0.096 0.051 -0.059 0.034 0.066 0.023 -0.088 -0.179 -0.061 -0.011 -0.063 0.019 -0.189 -0.078 -0.133 0.073 -0.149 -0.126 -0.155 0.012 -0.163 -0.130 -0.059 0.014 0.067 -0.073 0.059 0.098 0.015 0.018 -0.102 -0.069 -0.139 0.050 0.080 -0.095 0.027 -0.128 0.069 0.024 0.024 0.093 0.062 -0.122 0.076 0.096
+classifier.2.weight row 05 (Pasture)  0.072 -0.097 0.107 -0.096 -0.107 -0.217 -0.023 -0.174 0.080 0.121 0.094 -0.014 -0.011 -0.011 -0.086 -0.063 -0.047 -0.230 -0.041 -0.150 -0.212 0.053 -0.046 -0.116 0.055 0.104 -0.216 -0.126 0.061 -0.013 0.057 0.044 -0.007 -0.178 -0.146 -0.155 -0.015 -0.010 0.104 0.083 0.088 -0.178 -0.177 0.071 -0.087 0.029 -0.025 0.141 -0.026 0.007 -0.086 0.109 -0.298 0.031 0.048 -0.105 -0.065 -0.092 0.109 -0.192 0.113 -0.055 0.057 0.022 0.181 0.134 -0.125 0.047 -0.160 0.112 0.091 -0.192 0.105 -0.187 -0.001 0.113 0.017 -0.067 0.094 -0.141 0.078 -0.131 -0.057 -0.159 -0.139 -0.063 0.013 0.023 0.099 -0.131 0.042 0.097 -0.016 0.078 0.126 -0.122 -0.197 0.115 0.056 -0.112 0.023 -0.253 -0.177 0.095 0.017 -0.002 0.096 -0.048 -0.028 0.128 0.080 -0.094 -0.006 -0.101 -0.027 -0.057 -0.176 0.109 0.177 0.003 -0.114 0.068 -0.060 -0.068 -0.136 0.139 0.053 0.029
+classifier.2.weight row 06 (Permanent Crop)  0.079 0.024 0.053 0.111 -0.165 0.081 0.044 0.062 -0.069 -0.131 -0.150 0.048 -0.090 -0.134 -0.015 -0.035 -0.075 -0.084 0.123 -0.203 -0.121 -0.102 0.058 0.086 0.100 0.110 -0.057 -0.002 -0.099 0.022 -0.015 -0.184 -0.160 0.010 0.040 -0.054 -0.008 0.090 0.015 -0.003 -0.056 -0.055 0.003 -0.047 0.052 0.052 0.069 0.019 0.035 0.009 0.050 -0.156 -0.160 0.069 -0.193 0.011 -0.140 0.115 0.091 -0.081 -0.055 0.058 0.035 0.056 -0.023 0.014 0.116 0.122 -0.214 -0.116 0.028 -0.003 -0.138 -0.072 -0.183 0.136 -0.188 0.076 -0.159 0.071 -0.195 0.035 -0.127 -0.190 -0.032 0.077 -0.087 -0.132 0.096 0.054 0.110 -0.010 0.062 0.087 0.072 -0.175 0.014 -0.123 0.122 -0.094 0.071 -0.107 0.039 -0.191 -0.135 0.128 -0.116 0.032 -0.026 -0.006 0.122 0.099 0.021 0.045 0.107 0.144 0.119 -0.063 -0.004 -0.126 -0.253 -0.252 0.107 0.120 -0.174 0.006 -0.162 -0.158
+classifier.2.weight row 07 (Residential Buildings)  -0.094 -0.112 -0.197 -0.157 0.211 -0.133 0.036 0.041 0.104 0.127 -0.128 0.012 -0.071 -0.079 -0.106 -0.072 0.117 -0.090 0.070 -0.070 -0.100 -0.008 -0.061 -0.102 -0.073 -0.235 0.007 -0.177 -0.114 0.018 0.128 0.157 0.028 0.050 0.057 -0.099 0.083 -0.139 0.096 -0.106 -0.145 -0.035 0.005 0.037 -0.253 -0.014 -0.207 0.042 -0.077 -0.122 -0.143 -0.209 0.138 0.084 -0.122 -0.086 0.073 0.104 0.018 -0.025 -0.051 -0.167 -0.049 -0.004 0.085 0.062 0.108 -0.007 -0.142 0.116 0.003 0.043 -0.165 -0.141 0.095 -0.122 -0.090 0.104 -0.055 0.113 0.025 0.067 0.117 0.119 -0.122 0.065 -0.137 0.049 -0.157 -0.161 0.097 -0.062 0.051 -0.120 -0.121 0.189 0.084 -0.037 0.080 -0.141 0.065 0.156 -0.121 0.088 0.071 -0.171 -0.063 0.121 -0.138 -0.110 -0.098 0.051 0.028 -0.150 0.032 -0.102 -0.029 0.076 -0.044 0.144 0.106 0.018 0.082 -0.070 -0.017 -0.078 0.135 -0.008
+classifier.2.weight row 08 (River)  0.061 -0.002 0.029 0.006 -0.143 0.149 -0.210 0.041 0.086 0.056 0.109 0.094 0.103 0.130 -0.093 0.178 -0.073 -0.059 -0.084 0.071 0.165 -0.041 -0.184 -0.132 -0.002 -0.151 0.192 0.138 0.024 0.105 -0.002 -0.001 -0.070 -0.160 0.051 0.165 0.086 0.096 -0.087 -0.073 -0.163 -0.183 0.145 -0.055 0.161 -0.085 -0.179 -0.020 -0.139 -0.130 -0.013 0.020 -0.004 0.052 0.097 -0.016 -0.170 -0.037 0.087 -0.140 0.108 0.008 0.087 -0.081 0.050 0.012 -0.009 0.045 -0.009 -0.035 0.041 -0.111 0.053 0.147 -0.021 0.059 -0.120 0.063 0.024 0.076 -0.015 0.023 0.125 -0.076 0.136 0.026 -0.166 -0.054 -0.173 -0.138 -0.076 0.055 -0.017 0.072 0.039 0.120 -0.007 0.049 -0.132 0.028 0.016 -0.113 -0.037 -0.039 -0.067 -0.165 -0.084 -0.125 -0.009 -0.134 -0.175 0.076 0.066 0.110 0.114 -0.043 0.050 0.013 -0.113 0.046 -0.146 -0.061 -0.186 -0.104 0.076 0.014 0.002 -0.048
+classifier.2.weight row 09 (SeaLake)  -0.074 0.068 0.072 -0.179 0.143 0.069 -0.049 -0.063 -0.110 0.129 -0.022 -0.156 -0.124 -0.160 -0.052 -0.005 -0.107 -0.043 0.043 -0.082 0.119 -0.131 -0.120 -0.103 -0.234 0.025 -0.016 -0.161 0.135 -0.000 -0.028 0.147 0.043 0.325 -0.335 0.133 0.173 0.009 0.000 0.100 0.031 -0.110 -0.037 -0.005 -0.011 -0.012 0.013 -0.087 -0.216 0.113 0.089 -0.106 0.057 -0.269 0.096 0.060 -0.117 -0.092 -0.097 -0.190 -0.204 -0.143 -0.186 0.107 0.034 -0.155 -0.160 -0.121 0.039 0.117 -0.158 0.134 -0.066 0.095 -0.023 -0.247 0.008 -0.001 0.096 -0.088 -0.052 -0.123 -0.047 0.125 0.126 0.234 0.035 0.133 -0.097 0.083 -0.022 -0.234 -0.236 -0.124 -0.247 0.152 0.128 -0.183 -0.037 -0.132 -0.103 0.090 0.076 0.127 -0.046 0.029 0.081 0.150 -0.269 -0.019 0.052 -0.189 -0.111 -0.176 -0.171 -0.076 0.090 0.140 -0.025 0.175 0.086 0.140 0.500 -0.051 0.102 0.109 -0.058 0.047
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  -0.083 0.017 0.029 -0.167 -0.053 -0.033 0.042 0.112 -0.102 0.135
+
+
+
+================================================================================
+=== Model_09 ===
+================================================================================
+# Model Weights Serialization (Mode: focused, Precision: 3 decimals)
+# Total Parameters Exported: 1,738
+# Generated: 2026-11-10T19:14:54
+
+# --- conv1.weight (shape: [16, 3, 3, 3], numel: 432) ---
+conv1.weight filter 00 chan R row 0  0.167 -0.256 -0.157
+conv1.weight filter 00 chan R row 1  0.155 0.256 0.012
+conv1.weight filter 00 chan R row 2  -0.158 -0.045 0.034
+conv1.weight filter 00 chan G row 0  -0.067 0.103 -0.061
+conv1.weight filter 00 chan G row 1  0.010 0.095 0.083
+conv1.weight filter 00 chan G row 2  -0.026 0.083 0.002
+conv1.weight filter 00 chan B row 0  0.044 -0.058 -0.129
+conv1.weight filter 00 chan B row 1  0.066 0.160 0.000
+conv1.weight filter 00 chan B row 2  0.012 0.133 -0.184
+conv1.weight filter 01 chan R row 0  0.120 0.050 -0.009
+conv1.weight filter 01 chan R row 1  0.035 0.103 0.010
+conv1.weight filter 01 chan R row 2  -0.091 -0.068 -0.036
+conv1.weight filter 01 chan G row 0  0.114 0.266 -0.051
+conv1.weight filter 01 chan G row 1  0.066 0.022 -0.280
+conv1.weight filter 01 chan G row 2  -0.292 -0.190 -0.072
+conv1.weight filter 01 chan B row 0  -0.038 -0.007 0.044
+conv1.weight filter 01 chan B row 1  0.118 -0.065 0.016
+conv1.weight filter 01 chan B row 2  0.082 0.051 0.132
+conv1.weight filter 02 chan R row 0  0.052 0.131 -0.096
+conv1.weight filter 02 chan R row 1  0.087 0.075 -0.009
+conv1.weight filter 02 chan R row 2  -0.109 0.086 0.072
+conv1.weight filter 02 chan G row 0  0.051 0.036 -0.038
+conv1.weight filter 02 chan G row 1  0.124 -0.058 -0.039
+conv1.weight filter 02 chan G row 2  0.015 0.050 0.202
+conv1.weight filter 02 chan B row 0  -0.025 -0.217 -0.050
+conv1.weight filter 02 chan B row 1  -0.101 -0.085 -0.187
+conv1.weight filter 02 chan B row 2  -0.075 -0.007 -0.257
+conv1.weight filter 03 chan R row 0  0.064 0.203 -0.125
+conv1.weight filter 03 chan R row 1  -0.115 0.017 -0.268
+conv1.weight filter 03 chan R row 2  0.117 0.274 0.068
+conv1.weight filter 03 chan G row 0  -0.097 0.011 0.109
+conv1.weight filter 03 chan G row 1  -0.178 -0.076 -0.226
+conv1.weight filter 03 chan G row 2  0.206 -0.116 -0.169
+conv1.weight filter 03 chan B row 0  0.109 -0.213 -0.084
+conv1.weight filter 03 chan B row 1  0.220 -0.116 0.041
+conv1.weight filter 03 chan B row 2  0.152 0.080 0.026
+conv1.weight filter 04 chan R row 0  -0.044 -0.076 0.147
+conv1.weight filter 04 chan R row 1  0.070 0.070 -0.119
+conv1.weight filter 04 chan R row 2  -0.172 -0.010 0.114
+conv1.weight filter 04 chan G row 0  0.059 -0.128 0.326
+conv1.weight filter 04 chan G row 1  -0.029 0.182 -0.279
+conv1.weight filter 04 chan G row 2  -0.192 -0.046 0.093
+conv1.weight filter 04 chan B row 0  0.009 0.050 -0.187
+conv1.weight filter 04 chan B row 1  -0.051 0.048 -0.145
+conv1.weight filter 04 chan B row 2  0.028 0.035 0.264
+conv1.weight filter 05 chan R row 0  0.012 -0.047 0.170
+conv1.weight filter 05 chan R row 1  -0.054 -0.101 0.086
+conv1.weight filter 05 chan R row 2  -0.022 0.087 0.048
+conv1.weight filter 05 chan G row 0  0.064 -0.102 -0.347
+conv1.weight filter 05 chan G row 1  0.008 -0.241 -0.102
+conv1.weight filter 05 chan G row 2  -0.008 0.073 -0.075
+conv1.weight filter 05 chan B row 0  0.223 0.005 0.172
+conv1.weight filter 05 chan B row 1  0.005 -0.105 0.110
+conv1.weight filter 05 chan B row 2  0.125 -0.110 0.047
+conv1.weight filter 06 chan R row 0  -0.082 0.003 -0.047
+conv1.weight filter 06 chan R row 1  0.013 0.059 -0.092
+conv1.weight filter 06 chan R row 2  0.160 0.005 -0.160
+conv1.weight filter 06 chan G row 0  0.110 0.078 -0.002
+conv1.weight filter 06 chan G row 1  -0.028 0.189 -0.038
+conv1.weight filter 06 chan G row 2  0.100 -0.102 -0.209
+conv1.weight filter 06 chan B row 0  0.026 0.007 -0.115
+conv1.weight filter 06 chan B row 1  0.070 0.190 0.073
+conv1.weight filter 06 chan B row 2  -0.027 -0.083 0.029
+conv1.weight filter 07 chan R row 0  0.111 -0.008 0.041
+conv1.weight filter 07 chan R row 1  0.093 -0.016 -0.151
+conv1.weight filter 07 chan R row 2  0.005 0.034 0.125
+conv1.weight filter 07 chan G row 0  0.099 0.081 -0.128
+conv1.weight filter 07 chan G row 1  -0.244 0.218 -0.008
+conv1.weight filter 07 chan G row 2  0.043 -0.067 -0.012
+conv1.weight filter 07 chan B row 0  0.177 0.049 0.008
+conv1.weight filter 07 chan B row 1  -0.130 -0.000 -0.036
+conv1.weight filter 07 chan B row 2  0.127 -0.093 -0.162
+conv1.weight filter 08 chan R row 0  -0.137 -0.273 0.127
+conv1.weight filter 08 chan R row 1  -0.180 -0.091 0.029
+conv1.weight filter 08 chan R row 2  -0.120 -0.057 0.161
+conv1.weight filter 08 chan G row 0  0.123 -0.107 0.097
+conv1.weight filter 08 chan G row 1  0.271 -0.030 -0.037
+conv1.weight filter 08 chan G row 2  0.141 0.034 0.113
+conv1.weight filter 08 chan B row 0  0.243 -0.153 0.158
+conv1.weight filter 08 chan B row 1  -0.088 -0.103 0.064
+conv1.weight filter 08 chan B row 2  0.213 0.023 -0.048
+conv1.weight filter 09 chan R row 0  0.146 0.108 -0.090
+conv1.weight filter 09 chan R row 1  -0.365 0.052 0.004
+conv1.weight filter 09 chan R row 2  0.044 0.034 -0.035
+conv1.weight filter 09 chan G row 0  0.112 -0.110 0.038
+conv1.weight filter 09 chan G row 1  0.120 0.018 0.002
+conv1.weight filter 09 chan G row 2  0.066 -0.062 -0.116
+conv1.weight filter 09 chan B row 0  0.246 -0.041 0.010
+conv1.weight filter 09 chan B row 1  0.211 0.064 -0.022
+conv1.weight filter 09 chan B row 2  -0.088 -0.171 -0.188
+conv1.weight filter 10 chan R row 0  -0.015 -0.358 0.079
+conv1.weight filter 10 chan R row 1  0.119 -0.052 0.066
+conv1.weight filter 10 chan R row 2  0.112 0.089 -0.070
+conv1.weight filter 10 chan G row 0  0.224 -0.004 0.215
+conv1.weight filter 10 chan G row 1  -0.007 -0.227 0.176
+conv1.weight filter 10 chan G row 2  -0.106 -0.037 -0.221
+conv1.weight filter 10 chan B row 0  -0.079 -0.004 0.037
+conv1.weight filter 10 chan B row 1  -0.204 0.161 0.343
+conv1.weight filter 10 chan B row 2  -0.176 0.074 -0.126
+conv1.weight filter 11 chan R row 0  0.198 0.058 0.162
+conv1.weight filter 11 chan R row 1  -0.084 -0.068 0.104
+conv1.weight filter 11 chan R row 2  0.080 0.116 -0.084
+conv1.weight filter 11 chan G row 0  -0.119 -0.021 0.253
+conv1.weight filter 11 chan G row 1  -0.136 -0.274 0.019
+conv1.weight filter 11 chan G row 2  0.020 -0.067 -0.120
+conv1.weight filter 11 chan B row 0  0.090 -0.161 0.010
+conv1.weight filter 11 chan B row 1  -0.011 0.024 -0.151
+conv1.weight filter 11 chan B row 2  -0.053 0.092 0.018
+conv1.weight filter 12 chan R row 0  -0.049 0.136 -0.142
+conv1.weight filter 12 chan R row 1  0.086 0.122 0.187
+conv1.weight filter 12 chan R row 2  -0.256 -0.067 -0.063
+conv1.weight filter 12 chan G row 0  -0.081 -0.052 -0.266
+conv1.weight filter 12 chan G row 1  0.233 0.019 0.014
+conv1.weight filter 12 chan G row 2  -0.020 0.168 0.036
+conv1.weight filter 12 chan B row 0  -0.367 0.054 -0.041
+conv1.weight filter 12 chan B row 1  -0.051 0.103 0.117
+conv1.weight filter 12 chan B row 2  -0.123 0.145 0.186
+conv1.weight filter 13 chan R row 0  0.106 0.051 -0.010
+conv1.weight filter 13 chan R row 1  -0.004 -0.029 -0.153
+conv1.weight filter 13 chan R row 2  -0.200 0.154 0.057
+conv1.weight filter 13 chan G row 0  0.167 -0.133 0.245
+conv1.weight filter 13 chan G row 1  0.219 -0.048 -0.208
+conv1.weight filter 13 chan G row 2  0.076 -0.076 -0.071
+conv1.weight filter 13 chan B row 0  -0.021 -0.060 0.013
+conv1.weight filter 13 chan B row 1  -0.063 -0.018 -0.152
+conv1.weight filter 13 chan B row 2  0.022 -0.146 0.214
+conv1.weight filter 14 chan R row 0  0.099 -0.027 0.100
+conv1.weight filter 14 chan R row 1  -0.020 -0.074 0.068
+conv1.weight filter 14 chan R row 2  -0.114 -0.115 0.026
+conv1.weight filter 14 chan G row 0  0.016 -0.079 -0.020
+conv1.weight filter 14 chan G row 1  -0.041 0.105 -0.197
+conv1.weight filter 14 chan G row 2  0.085 0.074 0.088
+conv1.weight filter 14 chan B row 0  -0.115 -0.095 -0.001
+conv1.weight filter 14 chan B row 1  0.151 -0.012 -0.188
+conv1.weight filter 14 chan B row 2  0.218 0.125 -0.085
+conv1.weight filter 15 chan R row 0  0.176 0.035 0.074
+conv1.weight filter 15 chan R row 1  0.055 0.103 -0.140
+conv1.weight filter 15 chan R row 2  -0.137 0.046 -0.056
+conv1.weight filter 15 chan G row 0  -0.108 -0.092 0.058
+conv1.weight filter 15 chan G row 1  -0.011 0.041 -0.109
+conv1.weight filter 15 chan G row 2  -0.136 0.065 -0.056
+conv1.weight filter 15 chan B row 0  0.169 0.119 0.232
+conv1.weight filter 15 chan B row 1  -0.244 -0.002 0.033
+conv1.weight filter 15 chan B row 2  -0.120 0.002 0.053
+
+# --- conv1.bias (shape: [16], numel: 16) ---
+conv1.bias  -0.058 -0.087 0.177 -0.081 0.009 -0.118 -0.141 -0.044 -0.174 0.025 0.015 0.046 0.034 -0.117 -0.056 0.050
+
+# --- classifier.2.weight (shape: [10, 128], numel: 1280) ---
+classifier.2.weight row 00 (Annual Crop)  0.085 -0.076 0.150 -0.092 -0.104 0.047 0.068 0.115 0.008 0.180 0.091 0.092 0.069 -0.128 -0.002 -0.106 0.066 -0.140 -0.196 -0.104 -0.067 0.095 -0.000 0.285 0.043 0.093 -0.083 -0.144 0.114 -0.231 -0.107 -0.065 -0.027 0.123 -0.207 -0.062 0.105 0.093 -0.182 0.103 0.154 -0.085 -0.063 -0.005 0.076 -0.018 0.365 0.101 0.088 -0.132 -0.072 -0.082 0.073 -0.118 -0.069 0.153 0.007 0.098 -0.077 -0.092 0.073 0.031 -0.235 -0.059 -0.002 -0.084 -0.049 -0.028 -0.021 -0.230 -0.008 -0.025 0.021 0.130 0.050 0.096 0.080 0.070 0.081 -0.125 -0.022 -0.164 0.068 -0.229 0.154 -0.178 0.006 -0.100 -0.178 0.101 -0.180 0.205 -0.067 0.084 -0.066 0.008 -0.053 0.088 0.026 -0.195 0.076 -0.071 -0.034 -0.127 -0.096 -0.065 -0.068 -0.011 0.005 0.106 0.085 -0.113 -0.099 0.059 -0.049 -0.044 0.081 -0.008 -0.011 -0.039 0.065 0.087 0.082 0.006 -0.139 -0.042 0.051 0.076
+classifier.2.weight row 01 (Forest)  -0.227 -0.147 -0.143 -0.164 0.104 0.126 0.013 -0.041 0.087 0.104 0.068 0.093 -0.054 -0.121 -0.124 0.074 -0.025 0.032 -0.075 -0.102 -0.248 0.176 -0.225 -0.081 0.027 -0.032 0.086 -0.162 0.040 -0.142 0.116 -0.170 -0.092 -0.146 -0.105 -0.103 -0.220 -0.062 0.127 0.117 -0.208 -0.069 -0.014 -0.254 0.011 0.087 0.076 0.070 0.032 -0.030 -0.083 0.134 -0.064 0.095 -0.093 -0.121 -0.005 -0.061 0.050 0.065 -0.068 0.063 0.033 0.126 0.002 0.113 -0.194 0.042 -0.065 0.046 -0.193 -0.186 -0.086 -0.112 -0.129 0.143 0.035 -0.231 -0.055 0.145 0.148 0.055 -0.135 -0.287 0.080 -0.136 -0.157 0.140 0.076 0.022 -0.059 0.065 0.156 -0.034 0.024 0.150 0.131 0.059 0.128 -0.062 -0.074 0.078 0.078 -0.019 0.087 0.089 -0.051 -0.181 -0.252 0.137 0.020 -0.132 -0.119 0.043 -0.019 0.093 -0.030 0.118 0.132 0.099 -0.018 -0.027 -0.072 0.002 0.088 -0.124 0.086 0.065
+classifier.2.weight row 02 (Herbaceous Vegetation)  -0.206 0.084 -0.162 0.065 -0.031 0.000 -0.134 -0.131 -0.063 -0.097 -0.278 -0.148 0.034 -0.124 -0.005 -0.220 -0.081 0.052 0.107 -0.131 0.082 -0.194 0.059 0.095 0.045 -0.148 0.103 -0.090 0.043 0.042 -0.035 0.109 0.058 -0.198 -0.113 -0.208 -0.031 -0.127 0.076 0.057 -0.108 0.079 -0.033 0.006 0.038 0.092 -0.063 -0.019 -0.176 0.076 0.070 0.028 0.095 0.058 0.068 0.028 0.041 -0.215 -0.140 0.099 0.071 0.101 0.016 0.099 -0.105 -0.040 -0.119 0.127 -0.019 -0.037 0.109 0.076 0.138 -0.124 0.096 -0.092 -0.127 -0.065 -0.099 0.040 -0.134 -0.058 0.116 -0.137 0.017 -0.042 0.127 -0.132 -0.001 0.117 -0.102 0.063 0.062 0.101 -0.166 -0.067 0.109 0.050 -0.057 -0.116 0.094 0.137 -0.003 -0.039 0.049 0.151 -0.020 0.039 0.066 0.119 -0.107 0.080 0.112 -0.176 0.068 0.119 -0.244 0.129 -0.107 0.073 -0.056 0.127 0.066 -0.104 0.105 0.103 -0.103 -0.115
+classifier.2.weight row 03 (Highway)  0.001 0.193 0.094 -0.066 -0.114 -0.058 -0.098 -0.089 -0.024 -0.039 0.033 0.016 -0.057 0.152 -0.043 -0.103 0.123 -0.047 0.028 0.044 0.007 0.068 0.110 -0.134 -0.129 -0.051 -0.100 0.200 -0.028 0.110 -0.106 -0.099 -0.012 0.040 0.127 -0.084 0.088 -0.088 0.042 -0.039 0.121 -0.088 -0.184 -0.067 -0.031 -0.051 -0.121 0.049 -0.056 0.132 0.164 -0.039 -0.002 -0.126 -0.081 0.151 -0.026 -0.041 0.093 -0.161 -0.050 -0.103 -0.044 0.006 -0.069 -0.073 -0.094 -0.154 0.033 -0.153 0.157 -0.086 0.088 0.089 0.171 -0.059 -0.024 -0.074 -0.064 0.122 0.162 0.012 0.058 0.072 0.067 0.130 -0.137 0.172 0.188 -0.068 -0.096 -0.070 -0.077 0.002 0.044 -0.085 0.026 -0.049 -0.033 0.144 -0.102 0.092 0.092 0.165 0.040 -0.119 0.078 -0.043 -0.021 -0.081 -0.017 -0.110 -0.085 0.062 -0.181 -0.088 0.059 -0.029 0.080 -0.139 0.127 -0.029 -0.023 -0.022 0.171 -0.046 -0.025 -0.030
+classifier.2.weight row 04 (Industrial Buildings)  -0.090 -0.048 -0.060 0.103 0.080 -0.083 -0.070 -0.011 -0.143 -0.060 0.075 0.066 -0.034 0.058 -0.160 0.019 -0.149 -0.138 0.048 -0.023 0.078 0.034 0.032 0.071 -0.019 -0.110 -0.182 0.066 0.006 0.030 -0.089 -0.079 0.059 -0.068 0.060 0.059 -0.040 -0.077 -0.105 0.147 -0.096 0.037 0.081 -0.088 0.022 -0.193 0.046 -0.152 0.100 0.086 0.080 0.057 -0.079 -0.157 -0.117 -0.096 -0.149 0.061 -0.034 0.012 -0.073 -0.057 -0.073 0.053 -0.069 0.002 -0.079 0.042 -0.056 0.118 -0.075 0.039 -0.013 0.026 -0.015 0.124 0.109 -0.043 0.044 -0.058 0.108 -0.113 -0.109 0.057 -0.172 0.112 -0.019 0.017 0.097 0.126 0.073 -0.023 -0.136 -0.061 -0.045 -0.185 -0.030 -0.134 -0.016 0.078 0.048 -0.146 0.071 0.079 0.082 0.039 -0.083 -0.058 -0.142 0.013 -0.040 0.097 0.090 0.105 -0.172 -0.133 -0.042 -0.068 0.056 0.111 0.003 -0.048 -0.084 0.134 0.070 -0.149 -0.014 0.037
+classifier.2.weight row 05 (Pasture)  0.024 -0.060 0.032 0.007 0.079 -0.111 0.055 -0.088 -0.243 -0.183 0.052 0.008 0.110 0.160 0.153 0.136 0.040 -0.133 -0.233 -0.037 0.111 -0.138 0.090 -0.022 -0.198 0.052 -0.098 -0.134 -0.281 0.009 0.151 0.063 -0.090 0.156 -0.077 0.104 0.053 0.109 0.063 -0.041 -0.050 0.089 0.096 -0.015 -0.098 -0.129 -0.200 -0.219 -0.081 -0.201 -0.179 0.112 0.035 0.122 -0.195 0.127 -0.070 0.033 -0.107 0.091 0.034 -0.171 -0.103 -0.186 0.107 -0.132 0.102 0.075 -0.018 0.024 0.021 -0.061 0.017 -0.199 -0.100 -0.049 0.004 0.101 -0.066 -0.062 -0.174 0.062 -0.017 0.071 0.063 0.033 -0.029 0.061 0.125 -0.046 0.126 -0.171 -0.070 -0.011 0.052 0.098 -0.117 -0.016 -0.033 -0.133 -0.100 -0.042 -0.021 -0.072 0.065 -0.060 -0.044 0.168 0.048 -0.122 -0.259 0.119 -0.062 0.014 -0.055 0.017 0.162 0.078 0.120 0.070 -0.165 -0.024 -0.011 -0.042 -0.180 -0.064 0.102 -0.078
+classifier.2.weight row 06 (Permanent Crop)  0.103 -0.124 0.127 0.158 -0.126 0.101 -0.186 0.116 0.055 0.019 -0.004 -0.003 0.047 -0.013 -0.019 0.008 0.063 0.108 -0.056 -0.123 -0.003 0.072 -0.152 -0.198 -0.161 -0.103 0.081 -0.012 -0.073 0.038 -0.010 -0.043 0.043 0.131 0.073 0.097 0.107 -0.153 0.086 0.127 0.076 0.058 0.019 0.113 0.061 0.115 -0.107 0.117 -0.096 -0.137 -0.063 0.071 -0.018 0.036 -0.115 -0.107 -0.102 0.020 -0.198 0.025 -0.143 -0.127 -0.002 -0.017 0.158 0.099 -0.145 -0.042 0.085 0.060 0.104 0.062 -0.147 -0.005 0.038 0.136 -0.139 -0.165 0.055 -0.021 -0.085 0.011 -0.093 0.078 0.012 -0.026 0.068 0.059 -0.160 -0.002 -0.029 -0.218 -0.002 0.051 -0.081 -0.101 0.106 -0.178 0.153 -0.192 0.020 0.013 -0.209 -0.203 -0.051 -0.099 0.127 0.029 -0.053 -0.107 -0.206 -0.015 0.067 -0.169 0.065 0.139 0.046 -0.190 -0.064 -0.230 -0.114 0.093 0.086 0.146 -0.200 0.110 -0.194 -0.212
+classifier.2.weight row 07 (Residential Buildings)  0.047 0.030 0.065 0.011 -0.105 -0.158 0.077 0.107 -0.184 0.166 0.074 -0.176 -0.007 -0.043 0.035 -0.081 0.095 0.085 0.075 0.102 -0.031 -0.164 -0.154 0.124 0.080 -0.025 0.136 0.059 0.209 0.103 0.107 0.119 0.062 0.029 0.053 -0.104 -0.073 0.152 0.113 -0.144 -0.075 0.110 -0.129 -0.148 -0.266 -0.183 0.161 -0.109 -0.048 -0.073 0.057 -0.069 -0.167 -0.022 -0.042 -0.057 -0.163 -0.138 0.101 -0.002 0.122 -0.077 0.099 0.014 -0.060 -0.108 0.007 -0.059 0.029 0.026 -0.118 -0.106 -0.185 -0.204 -0.141 0.114 0.059 0.060 -0.000 0.025 -0.052 -0.063 -0.136 0.050 -0.029 -0.064 0.073 -0.098 0.015 -0.069 0.071 0.130 0.163 -0.176 -0.058 0.109 -0.202 0.101 0.127 0.098 -0.139 0.015 0.006 0.077 -0.136 -0.144 0.120 0.081 -0.131 0.076 0.137 0.023 -0.009 0.112 -0.104 -0.206 -0.059 -0.201 -0.210 0.058 0.021 -0.085 -0.196 0.108 0.100 0.032 -0.113 -0.004
+classifier.2.weight row 08 (River)  0.160 -0.114 0.088 -0.051 -0.011 -0.078 -0.001 -0.017 0.075 0.058 -0.091 -0.031 -0.166 0.090 -0.079 0.038 -0.022 0.078 0.106 -0.169 0.096 -0.095 0.100 -0.055 0.142 0.160 0.078 0.106 0.100 -0.054 0.006 -0.023 -0.226 0.060 0.127 0.130 0.102 0.023 -0.034 0.015 0.120 -0.130 0.036 0.161 -0.019 0.042 -0.015 0.120 -0.011 0.001 0.140 -0.162 0.038 0.013 0.169 0.122 0.173 0.074 -0.036 -0.110 -0.125 -0.014 0.139 -0.022 0.003 0.184 0.011 -0.163 -0.241 0.020 -0.118 0.178 0.003 0.124 -0.111 -0.055 -0.191 0.053 -0.089 -0.080 -0.239 0.026 -0.135 0.092 0.042 0.144 -0.011 -0.077 -0.146 0.066 0.112 -0.081 -0.039 -0.169 -0.126 0.054 -0.003 -0.111 0.118 -0.121 -0.078 -0.148 -0.203 -0.121 0.046 0.090 -0.122 0.146 0.088 0.005 0.090 0.017 0.088 0.037 0.132 -0.109 0.123 -0.008 -0.038 -0.086 -0.145 -0.205 -0.197 -0.174 -0.074 -0.057 -0.056 -0.127
+classifier.2.weight row 09 (SeaLake)  -0.090 -0.030 -0.064 0.077 -0.094 -0.211 0.120 -0.139 0.071 -0.066 -0.083 -0.153 -0.105 -0.119 0.081 -0.102 -0.237 -0.069 -0.117 0.070 -0.014 -0.041 -0.023 0.037 0.159 0.106 0.072 0.028 0.136 0.326 -0.081 -0.144 -0.079 -0.073 -0.007 -0.028 -0.301 0.145 -0.152 0.063 -0.259 -0.057 0.118 0.023 -0.142 0.124 0.061 -0.063 0.146 -0.056 -0.125 0.066 -0.289 -0.200 0.090 -0.101 0.131 -0.016 -0.014 0.082 0.144 0.132 0.089 -0.095 -0.090 -0.155 0.099 0.030 -0.121 0.095 -0.077 -0.182 -0.062 0.004 -0.129 -0.040 0.132 0.112 -0.252 -0.201 0.076 -0.321 0.085 0.116 -0.399 -0.018 0.061 0.025 -0.010 -0.039 -0.022 0.069 -0.024 0.099 0.103 -0.059 -0.049 0.132 -0.056 0.302 -0.233 0.021 0.147 0.156 -0.222 0.044 0.171 -0.138 0.047 -0.189 0.143 -0.124 -0.048 0.089 0.120 -0.031 0.017 0.010 -0.114 0.013 -0.223 0.075 0.007 0.324 0.102 -0.160 0.065 0.140
+
+# --- classifier.2.bias (shape: [10], numel: 10) ---
+classifier.2.bias  0.010 0.108 0.062 -0.007 0.018 -0.028 0.040 -0.006 -0.119 0.119
+
+
+

@@ -1,0 +1,54 @@
+You are an expert deep learning researcher specializing in satellite computer vision and weight-space programming.
+
+# Task: Synthesize Functional Weights for a Vision Model
+You are tasked with handcrafting the raw floating-point weights for the first convolutional layer (`conv1.weight`) of a convolutional neural network designed for EuroSAT satellite land cover classification.
+
+# Architecture & Target Specification
+- **Target Tensor:** `conv1.weight`
+- **Shape:** `[16, 3, 3, 3]` (16 filters, 3 input channels [R, G, B], 3x3 spatial kernel = 432 weights)
+- **Input Channels:** Channel 0 = Red, Channel 1 = Green, Channel 2 = Blue (normalized with ImageNet mean/std).
+- **Target Classes (10 categories):**
+  0: Annual Crop, 1: Forest, 2: Herbaceous Vegetation, 3: Highway, 4: Industrial Buildings, 5: Pasture, 6: Permanent Crop, 7: Residential Buildings, 8: River, 9: SeaLake
+- **Statistical Guidelines (matching Kaiming Normal):**
+  - Expected mean: ~0.0
+  - Expected standard deviation: ~0.118 (fan_out = 16 * 9 = 144, std = sqrt(2 / 144) ≈ 0.118)
+  - Values typically between -0.40 and +0.40.
+
+# Satellite Remote Sensing Physical Priors
+EuroSAT contains top-down aerial land cover scenes. To extract functional features zero-shot, your 16 filters should implement distinct, interpretable feature extractors:
+1. **Vegetation Discriminators (Filters 0–3):** Contrast Green against Red and Blue (approximating visible vegetation indices like VARI: 2G - R - B) to detect Forest, Pasture, and Crops.
+2. **Water Bodies & Moisture Detectors (Filters 4–6):** Capitalize on water absorbing Red light while reflecting Blue/Green.
+3. **Infrastructure & Road Edge Detectors (Filters 7–10):** High-frequency spatial gradients (Sobel / Laplacian horizontal, vertical, and diagonal edge detectors) acting equally across RGB to detect Highways and Industrial Buildings.
+4. **Agricultural Field Textures (Filters 11–13):** Directional Gabor-like periodic filters to detect agricultural rows and field boundaries.
+5. **Urban High-Density / Residential Patterns (Filters 14–15):** Corner and high-contrast spot detectors.
+
+# Output Format Required
+You MUST return your response as a valid, parsable JSON object in a ```json code block containing the exact shape `[16, 3, 3, 3]`:
+
+```json
+{
+  "conv1_weight": [
+    // Filter 0 (shape 3x3x3)
+    [
+      // Chan 0 (Red) 3x3
+      [0.05, -0.12, 0.05],
+      [-0.10, 0.25, -0.10],
+      [0.05, -0.12, 0.05]
+    ],
+    [
+      // Chan 1 (Green) 3x3
+      ...
+    ],
+    [
+      // Chan 2 (Blue) 3x3
+      ...
+    ]
+    // ... Repeat for all 16 filters
+  ],
+  "design_rationales": {
+    "filter_0": "Description of what Filter 0 detects...",
+    ...
+  }
+}
+```
+Ensure all 16 filters are fully defined (16 filters x 3 channels x 3 rows x 3 columns = 432 floats). Do not use ellipsis `...` in the JSON array.

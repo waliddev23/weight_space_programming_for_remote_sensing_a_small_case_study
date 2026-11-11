@@ -1,0 +1,36 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\wsp_eval.py:196: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+
+============================================================
+=== WRITE EXPERIMENT: 20-EPOCH TRAINING SCHEDULE ===
+============================================================
+Starting training for 20 epochs on cuda (AMP=True)...
+Epoch 01/20 | train loss 1.3783 acc 0.620 | val loss 1.3577 acc 0.622 | 22.7s
+Epoch 02/20 | train loss 1.1539 acc 0.727 | val loss 1.0864 acc 0.772 | 19.7s
+Epoch 03/20 | train loss 1.0699 acc 0.771 | val loss 1.1542 acc 0.737 | 20.0s
+Epoch 04/20 | train loss 1.0249 acc 0.792 | val loss 1.0010 acc 0.804 | 19.5s
+Epoch 05/20 | train loss 0.9899 acc 0.805 | val loss 1.0647 acc 0.763 | 19.6s
+Epoch 06/20 | train loss 0.9445 acc 0.829 | val loss 0.9348 acc 0.837 | 19.7s
+Epoch 07/20 | train loss 0.9184 acc 0.842 | val loss 0.9041 acc 0.840 | 19.6s
+Epoch 08/20 | train loss 0.8981 acc 0.855 | val loss 0.8755 acc 0.853 | 20.0s
+Epoch 09/20 | train loss 0.8722 acc 0.866 | val loss 0.8520 acc 0.867 | 19.6s
+Epoch 10/20 | train loss 0.8537 acc 0.873 | val loss 0.8921 acc 0.850 | 19.7s
+Epoch 11/20 | train loss 0.8502 acc 0.877 | val loss 0.8392 acc 0.871 | 20.4s
+Epoch 12/20 | train loss 0.8409 acc 0.878 | val loss 0.8106 acc 0.892 | 19.8s
+Epoch 13/20 | train loss 0.8220 acc 0.891 | val loss 0.8374 acc 0.879 | 20.2s
+Epoch 14/20 | train loss 0.8086 acc 0.893 | val loss 0.7979 acc 0.894 | 19.6s
+Epoch 15/20 | train loss 0.8038 acc 0.898 | val loss 0.7886 acc 0.896 | 21.5s
+Epoch 16/20 | train loss 0.8009 acc 0.901 | val loss 0.7702 acc 0.901 | 19.4s
+Epoch 17/20 | train loss 0.7934 acc 0.903 | val loss 0.7799 acc 0.898 | 19.7s
+Epoch 18/20 | train loss 0.7907 acc 0.901 | val loss 0.7772 acc 0.898 | 19.7s
+Epoch 19/20 | train loss 0.7900 acc 0.905 | val loss 0.7861 acc 0.895 | 19.5s
+Epoch 20/20 | train loss 0.7858 acc 0.907 | val loss 0.7832 acc 0.897 | 19.5s
+
+--- Training Complete ---
+Claude Init: Best Val Acc = 90.13% | Test Acc = 90.94%
+Kaiming Ref: Best Val Acc = 90.39% | Test Acc = 90.81%
+Δ Test Acc: +0.13%
+Saved training history to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_3_write\baseline\llm_trained_metrics.json
+
+EXIT 0

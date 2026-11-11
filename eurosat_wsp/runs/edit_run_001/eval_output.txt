@@ -1,0 +1,13 @@
+
+============================================================
+=== EDIT EXPERIMENT: RESNET-18 REPAIR (VARIANT A) ===
+============================================================
+Calling repair function on layer3.0.conv1.weight (shape [256, 128, 3, 3])...
+
+--- Repair Results ---
+Original Accuracy:  98.19%
+Corrupted Accuracy: 57.67%
+Repaired Accuracy:  95.46%
+Recovery Metric:    +93.28%
+Saved repair metrics to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_2_edit\metrics\llm_repair_a_result.json
+

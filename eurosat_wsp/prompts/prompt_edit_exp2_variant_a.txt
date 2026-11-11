@@ -1,0 +1,39 @@
+You are an expert in weight-space programming and neural network repair.
+
+# Task: Surgical Weight Repair Without Backpropagation
+A ResNet-18 model trained on EuroSAT (224x224 RGB, 10 classes) has achieved:
+- Original Test Accuracy: 98.19%
+- Original Val Accuracy:  98.02%
+
+# The Corruption
+A single critical bottleneck layer, `layer3.0.conv1.weight` (shape `[256, 128, 3, 3] = 294,912` weights), was degraded using **gaussian_noise**:
+- Degraded Test Accuracy: 57.67% (Drop: -40.52%)
+- Number of modified elements: 36,864 (out of 294,912)
+
+# Your Goal
+Following Takehi et al. (MIT CSAIL, Nov 2026, Experiments 6 & 8), write a Python repair function that takes the corrupted tensor and repairs it using algebraic or statistical techniques to restore as much of the original classification accuracy as possible without retraining.
+
+Techniques you can use:
+1. **Low-Rank SVD / PCA Filtering:** The weight tensor reshaped as [256, 128 * 9] = [256, 1152] has low intrinsic dimensionality; noise introduces spurious singular values.
+2. **Outlier Detection & Denoising:** Corrupted weights exhibit anomalous deviations from the layer's expected Gaussian distribution.
+3. **Channel-wise Statistics Matching:** Adjusting channel variances back to empirical layer norms.
+
+# Output Format Required
+Provide a self-contained Python function in a ```python code block:
+
+```python
+import torch
+
+def repair_layer3_conv1(corrupted_tensor: torch.Tensor) -> torch.Tensor:
+    """
+    Args:
+        corrupted_tensor: torch.Tensor of shape [256, 128, 3, 3] (float32)
+    Returns:
+        repaired_tensor: torch.Tensor of shape [256, 128, 3, 3] (float32)
+    """
+    # Your algorithmic repair logic here
+    repaired = corrupted_tensor.clone()
+    ...
+    return repaired
+```
+Explain the mathematical rationale behind your repair strategy.

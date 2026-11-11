@@ -1,0 +1,365 @@
+{
+  "generated_at": "2026-11-05T16:23:23",
+  "device": "cuda",
+  "checks_total": 35,
+  "checks_passed": 35,
+  "checks_failed": 0,
+  "all_passed": true,
+  "results": [
+    {
+      "check": "split 'train' matches manifest, 16200 samples, 10 classes",
+      "passed": true,
+      "detail": "train"
+    },
+    {
+      "check": "split 'validation' matches manifest, 5400 samples, 10 classes",
+      "passed": true,
+      "detail": "validation"
+    },
+    {
+      "check": "split 'test' matches manifest, 5400 samples, 10 classes",
+      "passed": true,
+      "detail": "test"
+    },
+    {
+      "check": "all 9 Experiment 1 configs share optimizer/LR/epochs/batch",
+      "passed": true,
+      "detail": {
+        "epochs": 20,
+        "batch_size": 64,
+        "lr": 0.001,
+        "weight_decay": 0.0005,
+        "label_smoothing": 0.1,
+        "optimizer": "AdamW",
+        "scheduler": "CosineAnnealingLR",
+        "train_samples": 16200,
+        "amp": true
+      }
+    },
+    {
+      "check": "Experiment 1 differs only in augmentation policy",
+      "passed": true,
+      "detail": [
+        "none",
+        "standard",
+        "strong"
+      ]
+    },
+    {
+      "check": "Experiment 1 configs all reference the same dataset/splits",
+      "passed": true,
+      "detail": "blanchon/EuroSAT_RGB"
+    },
+    {
+      "check": "nine Experiment 1 checkpoints present",
+      "passed": true,
+      "detail": [
+        "cnn_none_seed0.pt",
+        "cnn_none_seed1.pt",
+        "cnn_none_seed2.pt",
+        "cnn_standard_seed0.pt",
+        "cnn_standard_seed1.pt",
+        "cnn_standard_seed2.pt",
+        "cnn_strong_seed0.pt",
+        "cnn_strong_seed1.pt",
+        "cnn_strong_seed2.pt"
+      ]
+    },
+    {
+      "check": "cnn_none_seed0.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_none_seed1.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_none_seed2.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_standard_seed0.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_standard_seed1.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_standard_seed2.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_strong_seed0.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_strong_seed1.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "cnn_strong_seed2.pt: loads, bare state_dict, 10 logits",
+      "passed": true,
+      "detail": {
+        "bare_state_dict": true,
+        "logits": [
+          2,
+          10
+        ],
+        "parameters": 98954
+      }
+    },
+    {
+      "check": "original ResNet-18 loads and emits 10 logits",
+      "passed": true,
+      "detail": {
+        "logits": [
+          2,
+          10
+        ],
+        "tensors": 122
+      }
+    },
+    {
+      "check": "source checkpoint untouched (sha256 unchanged)",
+      "passed": true,
+      "detail": {
+        "expected": "ee2780f01c9d10ec78415f1dcafbeb950e04ff9c1af88c9dd14ac7405f81f7e0",
+        "actual": "ee2780f01c9d10ec78415f1dcafbeb950e04ff9c1af88c9dd14ac7405f81f7e0"
+      }
+    },
+    {
+      "check": "archived original identical to the training artifact",
+      "passed": true,
+      "detail": "experiment_2_edit/original/resnet18_original.pt"
+    },
+    {
+      "check": "original state_dict matches its recorded hash",
+      "passed": true,
+      "detail": "experiment_2_edit/original/resnet18_original_state_dict.pt"
+    },
+    {
+      "check": "corruption target layer is layer3.0.conv1.weight with shape [256, 128, 3, 3]",
+      "passed": true,
+      "detail": [
+        256,
+        128,
+        3,
+        3
+      ]
+    },
+    {
+      "check": "three corrupted checkpoints present",
+      "passed": true,
+      "detail": [
+        "resnet18_corrupted_a_gaussian_noise.pt",
+        "resnet18_corrupted_b_pruning.pt",
+        "resnet18_corrupted_c_filter_removal.pt"
+      ]
+    },
+    {
+      "check": "resnet18_corrupted_a_gaussian_noise.pt: differs from original, loads, 10 logits",
+      "passed": true,
+      "detail": {
+        "tensors_compared": 122,
+        "changed_tensors": [
+          "layer3.0.conv1.weight"
+        ],
+        "changed_elements": 36864,
+        "bitwise_identical": false
+      }
+    },
+    {
+      "check": "resnet18_corrupted_b_pruning.pt: differs from original, loads, 10 logits",
+      "passed": true,
+      "detail": {
+        "tensors_compared": 122,
+        "changed_tensors": [
+          "layer3.0.conv1.weight"
+        ],
+        "changed_elements": 99552,
+        "bitwise_identical": false
+      }
+    },
+    {
+      "check": "resnet18_corrupted_c_filter_removal.pt: differs from original, loads, 10 logits",
+      "passed": true,
+      "detail": {
+        "tensors_compared": 122,
+        "changed_tensors": [
+          "layer3.0.conv1.weight"
+        ],
+        "changed_elements": 110592,
+        "bitwise_identical": false
+      }
+    },
+    {
+      "check": "architecture total is 98,954 parameters",
+      "passed": true,
+      "detail": 98954
+    },
+    {
+      "check": "first conv is 3 -> 16, kernel 3x3, 432 weights + 16 biases",
+      "passed": true,
+      "detail": {
+        "module": "conv1",
+        "state_dict_key": "conv1.weight",
+        "weight_shape": [
+          16,
+          3,
+          3,
+          3
+        ],
+        "num_weights": 432,
+        "bias_shape": [
+          16
+        ],
+        "num_biases": 16,
+        "bias_state_dict_key": "conv1.bias",
+        "layout": "out_channels x in_channels x kernel_h x kernel_w"
+      }
+    },
+    {
+      "check": "model.conv1.weight is (16, 3, 3, 3)",
+      "passed": true,
+      "detail": [
+        16,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "check": "interface accepts external (16,3,3,3) weights and the model still runs",
+      "passed": true,
+      "detail": {
+        "weights_replaced": true,
+        "logits": [
+          2,
+          10
+        ]
+      }
+    },
+    {
+      "check": "interface rejects a wrong first-conv shape",
+      "passed": true,
+      "detail": "no ValueError raised"
+    },
+    {
+      "check": "interface accepts a state_dict containing the first-conv tensor",
+      "passed": true,
+      "detail": [
+        "conv1.weight"
+      ]
+    },
+    {
+      "check": "three Kaiming baselines present",
+      "passed": true,
+      "detail": [
+        "smallcnn_kaiming_seed0.pt",
+        "smallcnn_kaiming_seed1.pt",
+        "smallcnn_kaiming_seed2.pt"
+      ]
+    },
+    {
+      "check": "smallcnn_kaiming_seed0.pt: loads into SmallCNN",
+      "passed": true,
+      "detail": {
+        "first_conv": [
+          16,
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "check": "smallcnn_kaiming_seed1.pt: loads into SmallCNN",
+      "passed": true,
+      "detail": {
+        "first_conv": [
+          16,
+          3,
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "check": "smallcnn_kaiming_seed2.pt: loads into SmallCNN",
+      "passed": true,
+      "detail": {
+        "first_conv": [
+          16,
+          3,
+          3,
+          3
+        ]
+      }
+    }
+  ]
+}

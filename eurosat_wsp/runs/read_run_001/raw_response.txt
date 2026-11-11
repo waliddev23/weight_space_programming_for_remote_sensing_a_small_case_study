@@ -1,0 +1,165 @@
+# READ EXPERIMENT (9-MODEL BLIND SWEEP) -- Claude Fable 5.1 response
+# Run: read_run_001  |  Date: 2026-11-10
+# Blindness statement: predictions below were derived only from the serialized weights in
+# prompt_read_exp1_all9_models.txt. No key file was opened and the checkpoint directory was
+# never listed. The feature-extraction code is saved alongside (analysis_features.py / .json).
+# All predictions were committed BEFORE the evaluator was run.
+
+================================================================================
+1. PER-MODEL PREDICTIONS
+================================================================================
+Model_01: standard_augmentation (Confidence: 80%)
+Model_02: strong_augmentation (Confidence: 95%)
+Model_03: strong_augmentation (Confidence: 95%)
+Model_04: standard_augmentation (Confidence: 80%)
+Model_05: strong_augmentation (Confidence: 95%)
+Model_06: no_augmentation (Confidence: 80%)
+Model_07: standard_augmentation (Confidence: 80%)
+Model_08: no_augmentation (Confidence: 80%)
+Model_09: no_augmentation (Confidence: 80%)
+
+================================================================================
+2. GROUP SUMMARY
+================================================================================
+Models in no_augmentation: [Model_06, Model_08, Model_09]
+Models in standard_augmentation: [Model_01, Model_04, Model_07]
+Models in strong_augmentation: [Model_02, Model_03, Model_05]
+
+================================================================================
+3. MECHANISTIC REASONING
+================================================================================
+
+3.1  Step 1 -- recover the hidden SEED structure (the key insight)
+---------------------------------------------------------------
+The nine networks are 3 conditions x 3 seeds. Networks that share a seed share their
+Kaiming initialisation, and conv1 of this SmallCNN moves only slightly from its init during
+20 epochs at lr=1e-3. Element-wise Pearson correlation of the 432 conv1 weights between
+every pair of models is therefore a seed detector:
+
+        conv1 corr    classifier corr
+  01-08    0.99           0.93
+  01-02    0.97           0.80
+  02-08    0.95           0.75
+  03-04    0.97           0.81
+  04-09    0.98           0.92
+  03-09    0.95           0.76
+  06-07    0.99           0.91
+  05-07    0.97           0.80
+  05-06    0.96           0.73
+  all other pairs:  |corr| < 0.07 (both tensors)
+
+  => Seed group A = {Model_01, Model_02, Model_08}
+     Seed group B = {Model_03, Model_04, Model_09}
+     Seed group C = {Model_05, Model_06, Model_07}
+
+Because each condition is trained once per seed, every condition triple must take exactly
+one model from each seed group (a transversal). This turns a 1-in-1680 partition problem
+into three independent within-seed orderings, and it removes init noise from every feature
+comparison: within a seed group, any difference is caused by the training condition alone.
+
+3.2  Step 2 -- within each seed group the three models lie on a line
+---------------------------------------------------------------------
+Weight distances inside each seed group (Frobenius, conv1 / classifier):
+
+  group A:  d(08,01)=0.43/1.48   d(01,02)=0.69/2.47   d(08,02)=0.81/2.74
+  group B:  d(09,04)=0.49/1.60   d(04,03)=0.68/2.40   d(09,03)=0.84/2.63
+  group C:  d(06,07)=0.44/1.64   d(07,05)=0.58/2.47   d(06,05)=0.72/2.83
+
+In every group one model (02, 03, 05) is far from the other two, and the remaining two are
+close to each other. The three models are ordered on a path  X -- Y -- Z  with
+  A: 08 -- 01 -- 02      B: 09 -- 04 -- 03      C: 06 -- 07 -- 05
+The natural reading is "amount of regularisation": no_aug and standard_aug see nearly the
+same data distribution (standard adds only mild crops/flips/jitter) so their trajectories
+stay close; strong_aug (90-degree rotations, heavy jitter, grayscale, blur, crop 0.45) is a
+very different distribution, keeps training loss high for all 20 epochs, and pushes the
+weights furthest from both the init and the other two conditions.
+
+3.3  Step 3 -- orient the axis with the mechanistic priors
+----------------------------------------------------------
+(a) Spectral / channel divergence in conv1 (color-jitter + grayscale invariance).
+    lum_frac = fraction of each filter's energy carried by its channel-mean (luminance)
+    kernel; chan_cos = mean cosine between the R, G, B 3x3 kernels of a filter.
+                        none   std    strong
+      group A lum_frac  0.320  0.321  0.362   (08 / 01 / 02)
+      group B lum_frac  0.393  0.415  0.470   (09 / 04 / 03)
+      group C lum_frac  0.328  0.348  0.378   (06 / 07 / 05)
+      group B chan_cos  0.087  0.123  0.199
+      group C chan_cos -0.004  0.027  0.067
+    In all three seed groups the "far" model (02, 03, 05) has the MOST channel-redundant
+    filters, exactly what random grayscale (p=0.15) and heavy color jitter produce: the
+    network stops relying on exact RGB ratios and the three channel kernels converge toward
+    a common luminance kernel. Concrete filters where the R/G/B kernels collapsed together:
+      group A filter 12: chan_cos 0.41 (M08) -> 0.61 (M02)
+      group B filter 03: chan_cos -0.06 (M09) -> 0.23 (M03)
+      group C filter 11: chan_cos 0.20 (M06) -> 0.43 (M05)
+    e.g. Model_09 filter 03 has an R kernel row1 = [-0.115 0.017 -0.268] and a G kernel row1
+    = [-0.178 -0.076 -0.226] with opposite-sign corners; in Model_03 (same seed) the same
+    filter's R/G/B kernels all share the pattern "strong negative at (1,2), positive bottom
+    row" ([-0.069 -0.020 -0.342] / [-0.094 -0.019 -0.164]), i.e. it became a near-grayscale
+    oriented edge detector.
+    The no_aug end has the lowest luminance fraction (most color-opponent, RGB-specific
+    kernels) in all three groups, consistent with memorising exact pixel RGB values.
+
+(b) Rotational closure of the conv1 bank (90-degree rotation invariance).
+    rot90_closure = mean over filters and k in {90,180,270} of the best cosine match
+    between the rotated filter and any filter in the bank.
+      group A: 0.355 (08) 0.358 (01) 0.372 (02)     group B: 0.374 (09) 0.365 (04) 0.391 (03)
+      group C: 0.360 (06) 0.350 (07) 0.359 (05)
+    The strong candidates 02 and 03 have the highest rotational closure of their seed group
+    (the bank contains rotated copies of its own filters); the effect is weak for 05, as
+    expected for a 16-filter bank that stays ~96% correlated with its init.
+
+(c) Classifier head geometry (the strongest signal).
+    Singular values of the 10x128 head:
+                          none    std     strong
+      effective rank  A:  9.772   9.719   9.183
+                      B:  9.757   9.685   9.202
+                      C:  9.784   9.716   9.187
+      sigma_1         A:  1.660   1.724   2.035
+                      B:  1.723   1.807   2.004
+                      C:  1.622   1.730   2.018
+      sigma_1/sigma_10 A: 2.33    2.45    3.42
+                      B:  2.44    2.61    3.57
+                      C:  2.28    2.46    3.50
+      row-norm CV     A:  0.120   0.128   0.246
+                      B:  0.102   0.105   0.217
+                      C:  0.095   0.116   0.236
+      col-norm CV     A:  0.153   0.155   0.197
+                      B:  0.141   0.151   0.195
+                      C:  0.138   0.142   0.191
+    Five independent head statistics are monotonic in the proposed order in all three seed
+    groups (15/15). Interpretation: with heavy augmentation many fine texture/colour features
+    become unreliable, so the head concentrates its weight on fewer robust penultimate
+    features (higher column-norm CV, lower effective rank, larger top singular value) and
+    re-balances classes: in 02/03/05 the Highway row norm drops to 0.77-0.83 (vs 1.03-1.09
+    elsewhere) while SeaLake rises to 1.63-1.80 and Residential to 1.53-1.58. Highway is
+    precisely the class whose thin, oriented, colour-neutral road signature is destroyed by
+    blur + rotation + crop 0.45, matching the ~77% accuracy of the strong condition. Under
+    no augmentation the head is nearly isotropic (effective rank 9.76-9.78 of 10, row norms
+    within +-10%), as expected when every feature is clean and the train set is memorised.
+
+(d) conv1 bias.  The "far" models have conv1 bias norms 0.75 / 0.56 / 0.61 versus
+    0.28-0.44 for the other six; a larger bias is consistent with grayscale/jitter shifting
+    the input statistics the first layer has to absorb before the BatchNorm of block 2.
+
+3.4  Splitting no_augmentation from standard_augmentation
+----------------------------------------------------------
+Once the strong model of each seed group is fixed, the standard model is the one that is
+CLOSER to it (standard is intermediate on the regularisation axis):
+  group A: corr(02,01)=0.97/0.80 > corr(02,08)=0.95/0.75  -> 01 standard, 08 none
+  group B: corr(03,04)=0.97/0.81 > corr(03,09)=0.95/0.76  -> 04 standard, 09 none
+  group C: corr(05,07)=0.97/0.80 > corr(05,06)=0.96/0.73  -> 07 standard, 06 none
+This agrees with the independent feature orderings: the standard candidate has the higher
+luminance fraction (3/3 groups), higher chan_cos (2/3), lower head effective rank (3/3),
+larger sigma_1 (3/3), larger sigma ratio (3/3) and larger row-norm CV (3/3) than the
+no_aug candidate of the same seed. The no_aug candidates 06/08/09 also have the sharpest,
+most colour-opponent filters of their seed (lowest lum_frac) and 06 has the highest
+horizontal-vs-vertical anisotropy of all nine models (0.723), i.e. axis-aligned edge
+detectors that have never been shown a rotated or cropped field boundary.
+
+3.5  Confidence
+----------------
+Strong triple {02, 03, 05}: ~95% (far-outlier in every seed group, most channel-invariant
+filters, and 15/15 monotonic head statistics). The none-vs-standard split is subtler because
+the two conditions are genuinely close in weight space; the three within-seed decisions are
+each backed by the correlation ordering plus 5-6 concordant features, ~80% each.

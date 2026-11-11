@@ -1,0 +1,23 @@
+{
+  "shared_by": "experiment_1_read (all conditions and seeds)",
+  "epochs": 20,
+  "batch_size": 64,
+  "lr": 0.001,
+  "weight_decay": 0.0005,
+  "label_smoothing": 0.1,
+  "optimizer": "AdamW",
+  "scheduler": "CosineAnnealingLR (T_max = epochs)",
+  "dropout": 0.2,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "num_workers": 0,
+  "amp": "torch.autocast(cuda) when CUDA is available",
+  "loss": "CrossEntropyLoss(label_smoothing=0.1)",
+  "optimizer_param_groups": "decay on conv/linear weights, no decay on BN/bias",
+  "seed_controls": "the same seed is used for weight init, DataLoader shuffle order and augmentation RNG, so conditions differ only in the augmentation policy",
+  "checkpoint_format": "torch.save(state_dict) on CPU - a bare {name: tensor} mapping with no metadata; training metadata lives in configs/ and metrics/",
+  "created_at": "2026-11-05T15:42:02"
+}

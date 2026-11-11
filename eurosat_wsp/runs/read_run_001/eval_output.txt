@@ -1,0 +1,18 @@
+
+============================================================
+=== READ EXPERIMENT: 9-MODEL SWEEP EVALUATION ===
+============================================================
+Model_01 (cnn_standard_seed0.pt): Truth [standard_augmentation] vs Pred [standard_augmentation] -> ✓ CORRECT
+Model_02 (cnn_strong_seed0.pt): Truth [strong_augmentation] vs Pred [strong_augmentation] -> ✓ CORRECT
+Model_03 (cnn_strong_seed1.pt): Truth [strong_augmentation] vs Pred [strong_augmentation] -> ✓ CORRECT
+Model_04 (cnn_standard_seed1.pt): Truth [standard_augmentation] vs Pred [standard_augmentation] -> ✓ CORRECT
+Model_05 (cnn_strong_seed2.pt): Truth [strong_augmentation] vs Pred [strong_augmentation] -> ✓ CORRECT
+Model_06 (cnn_none_seed2.pt): Truth [no_augmentation] vs Pred [no_augmentation] -> ✓ CORRECT
+Model_07 (cnn_standard_seed2.pt): Truth [standard_augmentation] vs Pred [standard_augmentation] -> ✓ CORRECT
+Model_08 (cnn_none_seed0.pt): Truth [no_augmentation] vs Pred [no_augmentation] -> ✓ CORRECT
+Model_09 (cnn_none_seed1.pt): Truth [no_augmentation] vs Pred [no_augmentation] -> ✓ CORRECT
+------------------------------------------------------------
+Sweep Accuracy: 9/9 (100.0%)
+Chance Level Baseline: 33.3% (Random guessing: 1 in 1,680 exact partitions)
+Logged result to D:\PhD_Thesis\UM6P\presto\weight_space_programming\eurosat_wsp\experiment_1_read\metrics\llm_read_9models_result.json
+

@@ -1,0 +1,29 @@
+{
+  "script": "eurosat_wsp/external_init.py",
+  "target_layer": "conv1.weight",
+  "expected_shape": [
+    16,
+    3,
+    3,
+    3
+  ],
+  "num_weights": 432,
+  "accepted_files": [
+    ".pt",
+    ".pth",
+    ".npy",
+    ".npz"
+  ],
+  "usage": [
+    "python eurosat_wsp/external_init.py --weights path/to/first_conv.pt --check-only",
+    "python eurosat_wsp/external_init.py --weights path/to/first_conv.pt --seed 0 --save experiment_3_write/baseline/smallcnn_external_seed0.pt"
+  ],
+  "python_api": [
+    "wsp.load_external_first_conv(path) -> Tensor(16,3,3,3)",
+    "wsp.apply_external_first_conv(model, tensor_or_state_dict)",
+    "external_init.build_with_external_init(path, seed, save=...) -> SmallCNN"
+  ],
+  "remaining_layers": "receive the documented Kaiming initialization for `seed`; only conv1.weight is replaced",
+  "comparison_protocol": "train the resulting model with the Experiment 1 'standard' augmentation condition and compare against experiment_1_read/metrics/cnn_standard_seed<seed>.json",
+  "created_at": "2026-11-05T16:23:16"
+}

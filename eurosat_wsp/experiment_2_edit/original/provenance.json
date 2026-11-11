@@ -1,0 +1,27 @@
+{
+  "source_checkpoint": "checkpoints\\resnet18_eurosat.pt",
+  "source_sha256": "ee2780f01c9d10ec78415f1dcafbeb950e04ff9c1af88c9dd14ac7405f81f7e0",
+  "archived_copy": "experiment_2_edit/original/resnet18_original.pt",
+  "archived_copy_sha256": "ee2780f01c9d10ec78415f1dcafbeb950e04ff9c1af88c9dd14ac7405f81f7e0",
+  "bare_state_dict": "experiment_2_edit/original/resnet18_original_state_dict.pt",
+  "bare_state_dict_sha256": "9b9f487cb3a97ef80e8e1f531eb3cdeb094583c3bc17492e94a31a108cbc926a",
+  "provenance": "trained by notebooks/train_resnet18.ipynb: ImageNet-pretrained resnet18, 10-class head, 224x224 inputs, 10 epochs (4 frozen + 6 fine-tune), AdamW + cosine schedule, official EuroSAT splits",
+  "reported_val_acc": 0.9801851851851852,
+  "img_size": 224,
+  "classes": [
+    "Annual Crop",
+    "Forest",
+    "Herbaceous Vegetation",
+    "Highway",
+    "Industrial Buildings",
+    "Pasture",
+    "Permanent Crop",
+    "Residential Buildings",
+    "River",
+    "SeaLake"
+  ],
+  "num_tensors": 122,
+  "num_parameters": 11191262,
+  "note": "the archived copy is byte-identical to the training artifact; corruptions are applied to in-memory copies of 'bare_state_dict'",
+  "created_at": "2026-11-05T16:04:13"
+}

@@ -1,0 +1,4 @@
+Successfully parsed conv1.weight!
+Shape: [16, 3, 3, 3] | Numel: 432
+Stats: mean=0.0000, std=0.1181, min=-0.4303, max=0.5940
+Saved tensor to weight_space_programming\eurosat_wsp\runs\write_run_001\parsed_output\first_conv_fable.pt

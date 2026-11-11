@@ -1,0 +1,13 @@
+{
+  "model_a": {
+    "source": "D:\\PhD_Thesis\\UM6P\\presto\\weight_space_programming\\eurosat_wsp\\experiment_1_read\\checkpoints\\cnn_strong_seed0.pt",
+    "condition": "strong_augmentation"
+  },
+  "model_b": {
+    "source": "D:\\PhD_Thesis\\UM6P\\presto\\weight_space_programming\\eurosat_wsp\\experiment_1_read\\checkpoints\\cnn_none_seed0.pt",
+    "condition": "no_augmentation"
+  },
+  "mode": "full",
+  "seed": 42,
+  "created_at": "2026-11-10T19:14:54"
+}
