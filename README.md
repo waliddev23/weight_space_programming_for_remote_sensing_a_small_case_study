@@ -4,6 +4,8 @@ Can a language model work directly with neural network weights, reading them, re
 
 Claude Fable 5.1 ran all three experiments in one Claude Code session on 10 November 2026. It had terminal access to this repository and blindness rules on the answer keys. How it reasoned is written up in [`eurosat_wsp/runs/fable_reasoning_log.md`](eurosat_wsp/runs/fable_reasoning_log.md).
 
+**Scope.** This is a tool-assisted pilot, not a replication of Takehi et al. Fable could use Python throughout, wrote only the first layer in the WRITE experiment, and repaired random noise rather than a behavioural flaw. The READ result is genuine weight-space reading. The EDIT result shows sound diagnosis with a simple edit. The WRITE result is not weight-space programming in Takehi et al.'s sense, because training followed. See [how this relates to Takehi et al.](docs/comparison_with_takehi_et_al.md) and the [planned experiments](docs/next_steps.md) that test their claims directly.
+
 ## Results
 
 | Experiment | Task | Fable 5.1 | Reference |
@@ -47,6 +49,7 @@ Fable worked only on variant A. Variants B and C, and every method other than Fa
 - **Variant A has an easy baseline.** Zeroing the damaged filters reaches 94.1% against Fable's 95.5%.
 - **Three seeds for WRITE.** Enough to show the hand-written layer is not worse; not enough to claim it is better.
 - **Answer keys are in the repository.** Anyone evaluating a new model must withhold `eurosat_wsp/prompts/key_*.json`, `experiment_1_read/checkpoints/` and `experiment_2_edit/original/` from it.
+- **Tools were allowed.** Takehi et al.'s headline results use no tools at all. The no-tools versions of these experiments are planned in [docs/next_steps.md](docs/next_steps.md).
 
 ## Reproduce
 
@@ -80,6 +83,9 @@ The dataset, [`blanchon/EuroSAT_RGB`](https://huggingface.co/datasets/blanchon/E
 
 ```text
 assets/                    figures (PNG for the web, SVG for print)
+docs/
+  comparison_with_takehi_et_al.md   what this pilot shares with the MIT study and where it differs
+  next_steps.md                     pre-registered no-tools experiments: write, read, edit
 eurosat_wsp/
   wsp.py                   command-line entry point: prepare, parse, eval-read, eval-edit, eval-write
   wsp_eval.py              evaluators
