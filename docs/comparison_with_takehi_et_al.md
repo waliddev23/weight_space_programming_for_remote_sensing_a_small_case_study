@@ -40,4 +40,6 @@ Accurate: *"A tool-assisted pilot study of weight-space reading and diagnosis on
 
 Not accurate: *"A replication of Takehi et al. on satellite imagery"*, or *"Fable wrote a satellite classifier by hand."*
 
-The experiments that would make the comparison direct are described in [next_steps.md](next_steps.md).
+## Follow-up experiments in their terms
+
+Three follow-up experiments (W1 to W3, run with Claude Fable 5.2 in claude.ai with tools off) test the write claim in Takehi et al.'s own terms: whole networks written with no tools, no data and no training, evaluated exactly as written. They reached 49.4% (RGB, typed by hand), 49.2% (RGB, written as a program, after three feedback rounds) and 59.5% (13-band multispectral, after three rounds), against trivial colour or spectrum classifiers at 30.4% and 48.6%. Used as a training starting point, the multispectral network beat standard initialisation at every label budget once its classifier was rescaled. The read and edit claims have not yet been tested without tools. Designs, criteria and results are in [next_steps.md](next_steps.md) and the README.

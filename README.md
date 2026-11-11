@@ -26,9 +26,17 @@ The pilot let Fable use Python and train afterwards. Three follow-up experiments
 | W3, round 0 | W2 on 13-band multispectral EuroSAT, same test images, no feedback | **51.8%** | mean-spectrum classifier 48.6%, same network trained 81.5% |
 | W3, rounds 1 to 3 | Revised programs after feedback | **59.0%, 60.4%, 59.5%** | |
 
+![Test accuracy of networks Fable wrote, by feedback round, RGB against multispectral](assets/fig6_write_no_training.png)
+
+*Networks written by Fable 5.2 and evaluated with no training. Each line is one chat: round 0 is the first answer, later rounds follow feedback on 1,000 validation images. Horizontal lines are the trivial classifiers on average colour (RGB) and average spectrum (13 bands). The diamond is W1, a smaller network typed out by hand.*
+
 Both designs are interpretable: colour, darkness, smoothness and edge detectors feeding a nearest-centroid classifier whose class profiles Fable estimated from its own knowledge of EuroSAT. Feedback improved the result every round, by re-estimating those profiles rather than changing what the network computes. The deeper network did not beat the single-layer one (49.2% against 49.4%). The limit appears to be how well the model knows the class statistics, not network capacity.
 
 With all 13 Sentinel-2 bands (W3), Fable built vegetation, water and bare-soil indices from the infrared bands and scored higher at every round, reaching 60.4% at best. Part of that gain is in the data itself: a trivial mean-spectrum classifier also rises, from 30.4% to 48.6%, so Fable's margin over it is smaller than with RGB. Natural classes became almost perfect (SeaLake 99%, Forest 96%, River 83%), while highways, houses and industrial sites stayed hard to tell apart, and feedback stopped helping after one round. Used as a starting point for training (pre-registered follow-up), Fable's multispectral network beat standard Kaiming initialisation on every seed at every label budget, once its oversized classifier was rescaled (predictions unchanged): 86.3% against 82.8% with all labels, 76.2% against 69.4% with 10%, and 67.5% against 63.7% with 1%. Used exactly as written, its classifier saturates and training becomes unstable.
+
+![Test accuracy after training from Kaiming or Fable initialisation at three label budgets](assets/fig7_write_init.png)
+
+*The same multispectral network trained from three starting points. Bars are means over three seeds, dots are individual seeds. "Rescaled" divides Fable's classifier by one constant, which leaves its predictions unchanged but makes it trainable.*
 
 Logs: [W1](eurosat_wsp/experiment_4_write_full/), [W2](eurosat_wsp/experiment_5_write_code/runs/log.md), [W3](eurosat_wsp/experiment_6_write_multispectral/runs/log.md).
 

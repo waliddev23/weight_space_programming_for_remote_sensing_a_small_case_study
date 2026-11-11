@@ -12,6 +12,8 @@ Inputs
   fig3        experiment_2_edit/metrics/edit_baselines.json  (run_edit_baselines.py)
   fig4        experiment_3_write/trained_runs/*.json          (wsp.py eval-write --train)
   fig5        runs/write_run_001/parsed_output/first_conv_fable.pt
+  fig6        experiment_5_write_code/private, experiment_6_write_multispectral/private, W1 result
+  fig7        experiment_6_write_multispectral/init_compare/results.json
 """
 
 from __future__ import annotations
@@ -302,7 +304,76 @@ def fig5_write_filters() -> None:
     save(fig, "fig5_write_filters")
 
 
+AQUA = "#1baf7a"          # series 3
+
+
+def _rounds(folder: str) -> list[float]:
+    files = sorted((WSP_ROOT / folder / "private").glob("round_*.json"))
+    return [json.loads(f.read_text(encoding="utf-8"))["test"]["test_accuracy"] * 100 for f in files]
+
+
+def fig6_write_no_training() -> None:
+    rgb = _rounds("experiment_5_write_code")
+    ms = _rounds("experiment_6_write_multispectral")
+    w1 = json.loads((WSP_ROOT / "experiment_4_write_full" / "runs" / "w1_attempt_1" / "result.json")
+                    .read_text(encoding="utf-8"))["test_accuracy"] * 100
+    base_rgb = json.loads((WSP_ROOT / "experiment_4_write_full" / "baselines" / "baselines.json")
+                          .read_text(encoding="utf-8"))["centroid"]["test_accuracy"] * 100
+    base_ms = json.loads((WSP_ROOT / "experiment_6_write_multispectral" / "private" / "baselines.json")
+                         .read_text(encoding="utf-8"))["centroid"] * 100
+
+    fig, ax = plt.subplots(figsize=(6.2, 3.4))
+    ax.grid(True, axis="y")
+    ax.set_axisbelow(True)
+    x = np.arange(len(rgb))
+    for vals, base, color, name, base_name in ((rgb, base_rgb, ORANGE, "RGB, 3 bands", "mean-colour classifier"),
+                                               (ms, base_ms, BLUE, "multispectral, 13 bands",
+                                                "mean-spectrum classifier")):
+        ax.axhline(base, color=color, lw=0.9, alpha=0.6, zorder=1)
+        ax.text(len(vals) - 1 + 0.35, base, base_name, va="center", fontsize=7.5, color=INK_2,
+                bbox=dict(facecolor=SURFACE, edgecolor="none", pad=1.5))
+        ax.plot(x, vals, color=color, marker="o", ms=6, mec=SURFACE, mew=1.3, zorder=3, label=name)
+        ax.annotate(f"{vals[-1]:.1f}", (x[-1], vals[-1]), xytext=(0, 8), textcoords="offset points",
+                    ha="center", fontsize=8, color=INK)
+    ax.scatter([0], [w1], marker="D", s=30, color=ORANGE, edgecolor=SURFACE, linewidth=1.2, zorder=3)
+    ax.annotate(f"RGB, one layer, typed by hand: {w1:.1f}", (0, w1), xytext=(8, 7), textcoords="offset points",
+                va="center", fontsize=7.5, color=INK_2)
+    ax.set_xticks(x, ["0\nno feedback", "1", "2", "3"])
+    ax.set_xlim(-0.3, len(rgb) - 1 + 1.75)
+    ax.set_ylim(25, 65)
+    ax.set_xlabel("feedback rounds")
+    ax.set_ylabel("test accuracy, no training (%)")
+    ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.36))
+    save(fig, "fig6_write_no_training")
+
+
+def fig7_write_init() -> None:
+    res = json.loads((WSP_ROOT / "experiment_6_write_multispectral" / "init_compare" / "results.json")
+                     .read_text(encoding="utf-8"))
+    budgets = [0.01, 0.1, 1.0]
+    inits = [("kaiming", ORANGE, "Kaiming init"), ("fable_as_written", AQUA, "Fable, as written"),
+             ("fable_rescaled", BLUE, "Fable, rescaled")]
+    fig, ax = plt.subplots(figsize=(6.2, 3.4))
+    ax.grid(True, axis="y")
+    ax.set_axisbelow(True)
+    for j, (key, color, name) in enumerate(inits):
+        for i, b in enumerate(budgets):
+            vals = [r["test_accuracy"] * 100 for r in res.values() if r["budget"] == b and r["init"] == key]
+            xpos = i + (j - 1) * 0.24
+            ax.scatter([xpos] * len(vals), vals, s=14, color=color, alpha=0.45, lw=0, zorder=2)
+            ax.hlines(np.mean(vals), xpos - 0.09, xpos + 0.09, color=color, lw=2.4, zorder=3,
+                      label=name if i == 0 else None)
+    ax.set_xticks(range(len(budgets)), ["1%\n163 images", "10%\n1,620 images", "100%\n16,199 images"])
+    ax.set_xlabel("training labels used")
+    ax.set_ylabel("test accuracy after training (%)")
+    ax.legend(loc="upper left", ncol=3, handlelength=1.2, columnspacing=1.0)
+    ax.set_ylim(55, 92)
+    save(fig, "fig7_write_init")
+
+
 FIGURES = {
+    "fig6": fig6_write_no_training,
+    "fig7": fig7_write_init,
     "fig1": lambda: fig1_read_seed_structure(load_read_models()),
     "fig2": lambda: fig2_read_fingerprints(load_read_models()),
     "fig3": fig3_edit_methods,
