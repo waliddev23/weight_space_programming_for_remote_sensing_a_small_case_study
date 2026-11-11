@@ -1,0 +1,53 @@
+You are an expert in remote sensing and neural networks.
+
+# Task
+Write a Python function that builds every weight of a small convolutional network that classifies EuroSAT multispectral satellite images into 10 land-cover classes, as accurately as possible. There is no training and no data. Your code cannot see any images and cannot run the network.
+
+# Data
+EuroSAT multispectral: Sentinel-2 Level-1C image patches over Europe, 64 x 64 pixels, all 13 spectral bands, seen from directly above. Bands at 20 m and 60 m resolution are resampled to the 10 m grid.
+
+Classes (output index: name):
+  0: Annual Crop
+  1: Forest
+  2: Herbaceous Vegetation
+  3: Highway
+  4: Industrial Buildings
+  5: Pasture
+  6: Permanent Crop
+  7: Residential Buildings
+  8: River
+  9: SeaLake
+
+# Input
+Each image is a tensor [13, 64, 64]. Channel order and band (central wavelength, native resolution):
+   0: B01 coastal aerosol (443 nm, 60 m)
+   1: B02 blue (490 nm, 10 m)
+   2: B03 green (560 nm, 10 m)
+   3: B04 red (665 nm, 10 m)
+   4: B05 red edge 1 (705 nm, 20 m)
+   5: B06 red edge 2 (740 nm, 20 m)
+   6: B07 red edge 3 (783 nm, 20 m)
+   7: B08 near infrared (842 nm, 10 m)
+   8: B09 water vapour (945 nm, 60 m)
+   9: B10 cirrus (1375 nm, 60 m)
+  10: B11 shortwave infrared 1 (1610 nm, 20 m)
+  11: B12 shortwave infrared 2 (2190 nm, 20 m)
+  12: B8A narrow near infrared (865 nm, 20 m)
+Values are top-of-atmosphere reflectance: the Level-1C digital number divided by 10000, so most values lie between 0 and 1. No other normalisation is applied.
+
+# Network (6,858 weights)
+  h = relu(conv2d(x, conv1_weight, conv1_bias, 3x3, stride 1, padding 1))   # [16, 64, 64]
+  h = avg_pool2d(h, 4)                                                         # [16, 16, 16]
+  h = relu(conv2d(h, conv2_weight, conv2_bias, 3x3, stride 1, padding 1))    # [32, 16, 16]
+  f = mean of h over all 16 x 16 positions                                     # [32]
+  logits = fc_weight @ f + fc_bias                                             # [10]
+  prediction = argmax(logits)
+
+Shapes: conv1_weight [16,13,3,3], conv1_bias [16], conv2_weight [32,16,3,3], conv2_bias [32], fc_weight [10,32], fc_bias [10].
+Convolution weights are indexed (output channel, input channel, row, column).
+
+# What to return
+One ```python code block defining build_weights() that returns a dict with exactly those six keys, each a numpy array of the given shape. Only numpy and math may be imported. The code must not read files, access the network or use randomness. Keep the code short; explain the design in a few sentences before it.
+
+# Feedback
+After your first answer you may receive up to 3 rounds of feedback. Each reports your network's accuracy, recall per class and confusion matrix on a fixed practice set of 1000 validation images. You may then send a revised build_weights(). The final evaluation uses a separate test set that you never see.

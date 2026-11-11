@@ -69,6 +69,19 @@ Added 2026-11-11, after W1 attempt 1 scored 49.4%, before any W2 attempt. Matche
 - **Feedback helps:** round 3 test accuracy above round 0.
 - **Depth helps:** any round above W1's 49.4%.
 
+## Experiment W3 · W2 on 13-band multispectral EuroSAT
+
+Added 2026-11-11, after W2 finished at 49.2%, before any W3 attempt. W2 suggested the limit was the model's knowledge of what each class looks like, not network size. Multispectral bands bring textbook physics (vegetation is bright in near infrared, water dark in near and shortwave infrared, built-up surfaces bright in shortwave infrared), so W3 tests whether the model writes better networks when the input matches its scientific knowledge.
+
+**Changes from W2, and only these:** the input has 13 Sentinel-2 bands as top-of-atmosphere reflectance (digital number / 10,000) instead of normalised RGB, and the first layer reads 13 channels (6,858 weights in total). The prompt describes the bands; everything else in it is unchanged. Images are the RGB experiments' exact train, validation and test images, matched by filename, and the practice set is the same 1,000 validation images.
+
+**Baselines.** Best constant guess, Kaiming initialisation, nearest centroid on the mean 13-band spectrum, and the same network trained with AdamW (3 seeds).
+
+**Success criteria.**
+- **Round 0:** test accuracy above the mean-spectrum centroid.
+- **Feedback helps:** round 3 above round 0.
+- **Spectral knowledge helps:** round 0 and round 3 each above the corresponding W2 round (40.3% and 49.2%).
+
 ## Experiment R2 · Read what a network was trained to do
 
 Matches Takehi et al.'s Experiment 1: open-ended, no options, no tools.
