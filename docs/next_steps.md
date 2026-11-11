@@ -82,6 +82,23 @@ Added 2026-11-11, after W2 finished at 49.2%, before any W3 attempt. W2 suggeste
 - **Feedback helps:** round 3 above round 0.
 - **Spectral knowledge helps:** round 0 and round 3 each above the corresponding W2 round (40.3% and 49.2%).
 
+## Experiment W3-init · Fable's multispectral network as a starting point for training
+
+Added 2026-11-11, after W3 finished, before any training run. Question: is the network Fable wrote in W3 a better starting point for training than standard initialisation, especially when labels are scarce?
+
+**Starting points.**
+1. **Kaiming:** standard initialisation (conv layers Kaiming normal, classifier PyTorch default).
+2. **Fable, as written:** W3 round 3, Fable's final answer, unchanged. Round 3 is used rather than the test-best round 2 to avoid selecting on the test set.
+3. **Fable, rescaled:** the same, with the classifier weights and biases divided by one constant so that its scores have unit standard deviation on 1,000 training images. Predictions are unchanged (59.5%); only the softmax temperature changes. Fable's classifier weights reach 6,000 against about 0.1 for standard initialisation, which saturates the softmax and makes the as-written network hard to train.
+
+**Training.** Same recipe as the W3 trained ceiling: AdamW, learning rate 3e-3, weight decay 1e-4, batch 128, cosine schedule, no augmentation, the epoch with the best validation accuracy is evaluated on the test set. Three seeds (data order and, for Kaiming, initialisation).
+
+**Label budgets.** 100% of training images (30 epochs), 10% (60 epochs) and 1% (200 epochs), sampled per class with a fixed seed, identical across starting points.
+
+**Outcomes.** Test accuracy, mean and range over three seeds, per starting point and budget; validation accuracy after the first epoch.
+
+**Criteria.** For each budget and each Fable variant: "Fable helps" if the mean test accuracy is higher than Kaiming's **and** it is higher on all three seeds; "Fable hurts" if lower on all three; otherwise "no clear difference".
+
 ## Experiment R2 · Read what a network was trained to do
 
 Matches Takehi et al.'s Experiment 1: open-ended, no options, no tools.

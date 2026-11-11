@@ -44,3 +44,25 @@ Same protocol as W2. The model sees only practice-set feedback (W2's 1,000 valid
 - **Closer to what training achieves.** After feedback Fable reached 73% of the trained network's accuracy with 13 bands (59.5 of 81.5), against 63% with RGB (49.2 of 78.7).
 - **Natural classes are nearly solved, built-up classes are not.** On the test set after round 3: SeaLake 99%, Forest 96%, River 83%, Pasture 76%, but Highway 27%, Residential 41%, Industrial 53%. Feedback moved errors between the built-up classes without separating them; the round-0 feature design was never changed.
 - **Feedback saturates after one round.** +7.2 points after round 1, then +1.4 and -0.9.
+
+## Follow-up: Fable's network as a starting point for training (W3-init)
+
+Pre-registered in `docs/next_steps.md` before any run. Fable's final W3 network (round 3) against Kaiming initialisation, trained with the W3 ceiling recipe at three label budgets, 3 seeds each. "Rescaled" divides Fable's classifier by one constant (scores with unit spread on 1,000 training images), which leaves its predictions unchanged but un-saturates the softmax: Fable's classifier weights reach 6,000 against about 0.1 for standard initialisation. Code: `init_compare.py`; all runs: `init_compare/results.json`.
+
+| Training images | Starting point | Test accuracy, mean (per seed) | Val. accuracy after epoch 1 | Verdict vs Kaiming |
+|---|---|---|---|---|
+| 100% (16,199) | Kaiming | 82.8% (82.5, 82.3, 83.5) | 56.5% | |
+| 100% (16,199) | Fable, as written | 82.5% (80.4, 80.2, 86.9) | 55.8% | no clear difference (-0.3) |
+| 100% (16,199) | Fable, rescaled | **86.3%** (86.0, 86.7, 86.3) | 59.9% | **helps (+3.6)** |
+| 10% (1,620) | Kaiming | 69.4% (69.6, 69.3, 69.4) | 23.1% | |
+| 10% (1,620) | Fable, as written | 64.3% (73.0, 60.0, 60.0) | 35.8% | no clear difference (-5.1) |
+| 10% (1,620) | Fable, rescaled | **76.2%** (73.2, 77.1, 78.2) | 37.0% | **helps (+6.8)** |
+| 1% (163) | Kaiming | 63.7% (63.4, 62.6, 65.1) | 11.7% | |
+| 1% (163) | Fable, as written | 66.1% (65.4, 60.8, 72.0) | 32.0% | no clear difference (+2.4) |
+| 1% (163) | Fable, rescaled | **67.5%** (64.7, 68.4, 69.4) | 23.7% | **helps (+3.8)** |
+
+Reading:
+- **Rescaled, Fable's network is a better starting point at every budget, on every seed.** The largest gain is with 10% of the labels (+6.8 points); with all labels it still adds +3.6.
+- **As written, it is unstable.** Its oversized classifier saturates the softmax: some seeds do well, others stall near Fable's untrained 59.5% (two 10% runs end at 60.0%). Its value lies in what it encodes, not in its exact scale.
+- **Head start.** After one epoch, Fable's networks are well ahead of Kaiming when labels are scarce (e.g. 32% against 12% at 1%).
+- **Caveats.** Three seeds per cell; the Kaiming result here (82.8%) differs from the W3 ceiling (81.5%) because this experiment keeps data on the GPU in half precision, so comparisons are only made within this table. The rescaling was decided before any run, but it is still a correction applied by us, not by the model.
