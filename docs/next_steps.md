@@ -35,16 +35,18 @@ linear 16 -> 10 classes, with bias          170 weights
 
 | Baseline | Why it is there |
 |---|---|
-| Chance (10%) | The floor. |
+| Best constant guess (11.3%: always the largest test class) | The floor. Test classes are unbalanced, so this, not 10%, is chance. |
 | The same network with Kaiming initialisation | What random weights of this shape score. |
 | Nearest class centroid on mean RGB, fitted on training data | A trivial colour classifier. If Fable doesn't beat it, its network adds nothing beyond average colour. |
 | The same network trained with Adam (3 seeds) | The ceiling for this architecture. |
 
 **Success criteria.**
 
-- **Weak success:** test accuracy significantly above chance (binomial test, p < 0.01) on both attempts.
+- **Weak success:** test accuracy significantly above the best constant guess (binomial test, p < 0.01) on both attempts.
 - **Strong success:** above the mean-RGB centroid baseline on both attempts.
-- **Report regardless:** per-class accuracy and the confusion matrix, to see which classes the hand-written colour and texture logic actually separates.
+- **Report regardless:** balanced accuracy (mean per-class recall), per-class recall and the confusion matrix, to see which classes the hand-written colour and texture logic actually separates.
+
+*Amendment, 2026-11-11, before any attempt was run:* the weak-success bar was first written as "above 10% chance". A dry run of the harness with random weights reached 12.1%, because predicting mostly one class already scores up to 11.3% on this test set. The bar was raised to the best constant guess, and balanced accuracy was added.
 
 **Relaxed variant W1b,** reported separately: Fable may also see per-class mean and standard deviation of R, G and B from the training set, a few numbers of "documentation". This tests whether the bottleneck is domain knowledge or the translation of knowledge into weights.
 

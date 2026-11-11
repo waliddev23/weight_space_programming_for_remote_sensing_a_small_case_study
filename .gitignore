@@ -38,3 +38,6 @@ Thumbs.db
 
 # Temporary evaluation caches
 *.tmp
+
+# W1 baselines stay private until all model attempts are recorded (docs/next_steps.md, rule 4)
+eurosat_wsp/experiment_4_write_full/baselines/

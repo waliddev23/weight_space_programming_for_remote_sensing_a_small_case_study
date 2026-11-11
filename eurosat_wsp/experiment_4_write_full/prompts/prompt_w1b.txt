@@ -1,0 +1,66 @@
+You are an expert in remote sensing and neural networks.
+
+# Task
+Write, from scratch, every weight of a small neural network that classifies EuroSAT satellite images into 10 land-cover classes, as accurately as possible.
+
+There is no training, no data, no feedback and no tools. You choose every number yourself, in one reply. The network will be evaluated exactly as you write it, on the EuroSAT test set.
+
+# Data
+EuroSAT RGB: Sentinel-2 satellite image patches over Europe, 64 x 64 pixels at 10 m per pixel, true colour (red, green, blue). Images are seen from directly above.
+
+Classes (output index: name):
+  0: Annual Crop
+  1: Forest
+  2: Herbaceous Vegetation
+  3: Highway
+  4: Industrial Buildings
+  5: Pasture
+  6: Permanent Crop
+  7: Residential Buildings
+  8: River
+  9: SeaLake
+
+# Input
+Each image is a tensor of shape [3, 64, 64], channels in the order R, G, B. Pixel values are scaled to [0, 1] and then normalised per channel:
+  x_c = (pixel_c - mean_c) / std_c
+  mean = (0.485, 0.456, 0.406), std = (0.229, 0.224, 0.225)   for (R, G, B)
+So a pixel with the average ImageNet colour has value 0 in every channel.
+
+# Documentation: average colour per class (training set, normalised units as above)
+class: mean R, G, B | std R, G, B (std across pixels of all images of that class)
+  0 Annual Crop: -0.09 -0.13 +0.05 | 0.97 0.52 0.41
+  1 Forest: -1.52 -1.02 -0.61 | 0.12 0.15 0.13
+  2 Herbaceous Vegetation: -0.59 -0.46 -0.16 | 0.64 0.45 0.38
+  3 Highway: -0.76 -0.50 -0.17 | 0.79 0.50 0.42
+  4 Industrial Buildings: -0.18 -0.03 +0.33 | 0.94 0.78 0.71
+  5 Pasture: -1.17 -0.64 -0.32 | 0.32 0.22 0.32
+  6 Permanent Crop: -0.20 -0.18 +0.01 | 0.78 0.52 0.40
+  7 Residential Buildings: -0.56 -0.38 -0.01 | 0.67 0.48 0.41
+  8 River: -1.08 -0.66 -0.27 | 0.54 0.39 0.33
+  9 SeaLake: -1.38 -0.88 -0.40 | 0.40 0.44 0.29
+
+# Network (618 weights)
+  h      = conv2d(x, conv_weight, conv_bias, kernel 3x3, stride 1, padding 1)   # [16, 64, 64]
+  h      = relu(h)
+  f      = mean of h over all 64 x 64 positions                                  # [16]
+  logits = fc_weight @ f + fc_bias                                                # [10]
+  prediction = argmax(logits)
+
+Shapes:
+  conv_weight [16, 3, 3, 3]   (output channel, input channel R/G/B, row, column)
+  conv_bias   [16]
+  fc_weight   [10, 16]        (class, feature)
+  fc_bias     [10]
+
+# Output format
+Explain your design briefly, then give all weights in a single ```json code block:
+
+```json
+{
+  "conv_weight": [[[[...3 numbers...], ...3 rows...], ...3 channels...], ...16 filters...],
+  "conv_bias": [...16 numbers...],
+  "fc_weight": [[...16 numbers...], ...10 rows...],
+  "fc_bias": [...10 numbers...]
+}
+```
+Every number must be written out. Do not use ellipses, expressions or code.
