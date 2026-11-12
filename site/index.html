@@ -29,7 +29,7 @@
     <p class="kicker">Interactive research note · 10 minute read</p>
     <h1>My First Take on Weight-Space Programming for Remote Sensing</h1>
     <p class="lede">A neural network is a list of numbers. Normally an optimiser finds them by looking at thousands of labelled images. I asked a language model to <em>write</em> them instead: no images, no training, no code execution. The network it wrote recognises land cover in satellite images it has never seen, <span data-n="w3_final">59.5%</span> of the time.</p>
-    <p class="byline"><span id="author">Walid Elbarz</span> · Mohammed VI Polytechnic University · November 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">code and data</a></p>
+    <p class="byline"><span id="author">Walid Elbarz</span> · Mohammed VI Polytechnic University · November 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">code and data</a></p>
   </div>
   <figure class="fig hero-fig" id="fig-hero">
     <div class="hero-score">
@@ -57,7 +57,7 @@
     <a class="card" href="#start"><span class="num">2</span><h3>Train from it</h3><p>Is that written network a better starting point for training than random numbers?</p></a>
     <a class="card" href="#pilot"><span class="num">3</span><h3>Read and repair</h3><p>An earlier pilot: recognising how a network was trained, and repairing a damaged one.</p></a>
   </div>
-  <aside class="note"><strong>What this page is.</strong> A small, honest research note built over two days, not a peer-reviewed paper. One model family, one dataset, small networks. Every number in the text and every chart is read from result files in the <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">repository</a>, and the limits of each result are stated next to it.</aside>
+  <aside class="note"><strong>What this page is.</strong> A small, honest research note built over two days, not a peer-reviewed paper. One model family, one dataset, small networks. Every number in the text and every chart is read from result files in the <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">repository</a>, and the limits of each result are stated next to it.</aside>
 </section>
 
 <section id="write">
@@ -79,7 +79,7 @@
     <li><strong>What it returns.</strong> A short function that fills in every weight using arithmetic only. It cannot open a file, see an image or run the network.</li>
     <li><strong>How it is scored.</strong> I run the function and test the resulting network on <span data-n="n_test">5,400</span> images the model never sees. No training step exists anywhere.</li>
     <li><strong>Feedback.</strong> Up to three times, the model is told how its network did on <span data-n="n_practice">1,000</span> separate practice images, and may revise.</li>
-    <li><strong>Decided in advance.</strong> The design, the reference scores and what would count as success were <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case/blob/main/docs/next_steps.md">written down before the first attempt</a>.</li>
+    <li><strong>Decided in advance.</strong> The design, the reference scores and what would count as success were <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study/blob/main/docs/next_steps.md">written down before the first attempt</a>.</li>
   </ul>
 
   <figure class="fig" id="fig-arch">
@@ -265,7 +265,7 @@
   </table></div>
 
   <h3>How this relates to the MIT study</h3>
-  <p>This is not a replication. Part 1 tests the MIT writing claim in their own terms (whole network, no tools, no training) on a new kind of data, at a much smaller scale. Part 3 allowed tools and used easier tasks, so it is only comparable with their tool-assisted experiments. The reading and repair claims have not been tested here without tools. A <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case/blob/main/docs/comparison_with_takehi_et_al.md">point-by-point comparison</a> is in the repository.</p>
+  <p>This is not a replication. Part 1 tests the MIT writing claim in their own terms (whole network, no tools, no training) on a new kind of data, at a much smaller scale. Part 3 allowed tools and used easier tasks, so it is only comparable with their tool-assisted experiments. The reading and repair claims have not been tested here without tools. A <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study/blob/main/docs/comparison_with_takehi_et_al.md">point-by-point comparison</a> is in the repository.</p>
 
   <h3>What I would do next</h3>
   <ul>
@@ -276,7 +276,7 @@
   </ul>
 
   <h3>Reproduce it</h3>
-  <p>All code, prompts, model replies, logs and result files are in the <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">repository</a>. The page's data is generated by one script, <code>site/build_data.py</code>, and <code>site/test.mjs</code> checks that the network running in your browser matches PyTorch and that every number in this text matches the result files.</p>
+  <p>All code, prompts, model replies, logs and result files are in the <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">repository</a>. The page's data is generated by one script, <code>site/build_data.py</code>, and <code>site/test.mjs</code> checks that the network running in your browser matches PyTorch and that every number in this text matches the result files.</p>
   <aside class="note"><strong>Disclosure.</strong> The experiments were designed and run by me with heavy assistance from Claude, the same model family that is the subject of the study. Claude also helped write the analysis code and build this page. The model replies quoted here are verbatim.</aside>
 
   <h3>References</h3>
@@ -288,7 +288,7 @@
   <p class="muted small">Contains modified Copernicus Sentinel data.</p>
 </section>
 </main>
-<footer><p><span id="author2">Walid Elbarz</span> · 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">GitHub</a></p></footer>
+<footer><p><span id="author2">Walid Elbarz</span> · 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">GitHub</a></p></footer>
 <div id="tip" role="tooltip"></div>
 <script type="module" src="js/app.js"></script>
 </body>

@@ -6,7 +6,7 @@ Can a language model write the weights of a working satellite-image classifier i
 
 *A two-layer CNN for 13-band Sentinel-2 images, trained from three starting points: standard Kaiming initialisation, and a network whose 6,858 weights Claude Fable 5.2 wrote from remote-sensing knowledge alone. (a) Test accuracy after training, mean ± standard deviation over three seeds, with each seed shown. Before any training, Fable's network already scores 59.5%. (b) Gain over Kaiming for the same seed and the same training images. Once its oversized classifier is rescaled, which leaves its predictions unchanged, Fable's network is the better starting point on every seed at every label budget.*
 
-**Interactive explainer:** [waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case](https://waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case/). It runs the written network in the browser and walks through every experiment. Source in [`site/`](site/): `python site/build_data.py` regenerates its data from the result files, and `node site/test.mjs` checks the page against them.
+**Interactive explainer:** [waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case_study](https://waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case_study/). It runs the written network in the browser and walks through every experiment. Source in [`site/`](site/): `python site/build_data.py` regenerates its data from the result files, and `node site/test.mjs` checks the page against them.
 
 ## In short
 
