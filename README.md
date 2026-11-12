@@ -184,10 +184,6 @@ eurosat_wsp/
   runs/                         pilot replies, Fable 5.1 reasoning log, session evidence
 ```
 
-## Licence
-
-Code and text are released under the [MIT licence](LICENSE). EuroSAT keeps its own terms; see Data.
-
 ## References
 
 ```bibtex
