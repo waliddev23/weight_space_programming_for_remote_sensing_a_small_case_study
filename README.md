@@ -6,6 +6,8 @@ Can a language model write the weights of a working satellite-image classifier i
 
 *A two-layer CNN for 13-band Sentinel-2 images, trained from three starting points: standard Kaiming initialisation, and a network whose 6,858 weights Claude Fable 5.2 wrote from remote-sensing knowledge alone. (a) Test accuracy after training, mean ± standard deviation over three seeds, with each seed shown. Before any training, Fable's network already scores 59.5%. (b) Gain over Kaiming for the same seed and the same training images. Once its oversized classifier is rescaled, which leaves its predictions unchanged, Fable's network is the better starting point on every seed at every label budget.*
 
+**Interactive explainer:** [waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case](https://waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case/). It runs the written network in the browser and walks through every experiment. Source in [`site/`](site/): `python site/build_data.py` regenerates its data from the result files, and `node site/test.mjs` checks the page against them.
+
 ## In short
 
 - **Writing whole networks without data works, up to a point.** With no tools, no data and no training, Claude Fable 5.2 wrote EuroSAT classifiers that reached 49% on RGB images and 60% on 13-band multispectral images, against 30% and 49% for trivial colour or spectrum classifiers.
@@ -181,6 +183,10 @@ eurosat_wsp/
                                 init_compare.py and init_compare/ for W3-init
   runs/                         pilot replies, Fable 5.1 reasoning log, session evidence
 ```
+
+## Licence
+
+Code and text are released under the [MIT licence](LICENSE). EuroSAT keeps its own terms; see Data.
 
 ## References
 

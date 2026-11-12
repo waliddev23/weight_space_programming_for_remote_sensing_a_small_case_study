@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My First Take on Weight-Space Programming for Remote Sensing</title>
+<meta name="description" content="A language model wrote every weight of a satellite-image classifier, with no data and no training. An interactive research note on what worked, what failed and what it is worth.">
+<meta property="og:title" content="My First Take on Weight-Space Programming for Remote Sensing">
+<meta property="og:description" content="A language model wrote every weight of a satellite-image classifier, with no data and no training. An interactive research note.">
+<meta property="og:image" content="og.png">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<nav id="nav">
+  <a href="#top" class="brand">Weight-space programming</a>
+  <div class="links">
+    <a href="#idea">Idea</a><a href="#write">1 · Write</a><a href="#start">2 · Train</a><a href="#pilot">3 · Read &amp; repair</a><a href="#takeaways">Takeaways</a>
+  </div>
+</nav>
+
+<header id="top" class="hero">
+  <div class="hero-text">
+    <p class="kicker">Interactive research note · 10 minute read</p>
+    <h1>My First Take on Weight-Space Programming for Remote Sensing</h1>
+    <p class="lede">A neural network is a list of numbers. Normally an optimiser finds them by looking at thousands of labelled images. I asked a language model to <em>write</em> them instead: no images, no training, no code execution. The network it wrote recognises land cover in satellite images it has never seen, <span data-n="w3_final">59.5%</span> of the time.</p>
+    <p class="byline"><span id="author">Walid El Barz</span> · Mohammed VI Polytechnic University · November 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">code and data</a></p>
+  </div>
+  <figure class="fig hero-fig" id="fig-hero">
+    <div class="hero-score">
+      <div class="big" id="hero-acc">51.8%</div>
+      <div class="big-label">of <span data-n="n_test">5,400</span> test images classified correctly</div>
+      <div class="hero-state" id="hero-state"></div>
+      <div class="controls">
+        <button class="btn primary" id="hero-play">▶ Play the feedback rounds</button>
+        <div class="chips" id="hero-chips"></div>
+      </div>
+      <div class="refs" id="hero-refs"></div>
+    </div>
+    <div class="hero-matrix"><div id="hero-matrix"></div></div>
+    <figcaption>The network written by the model, scored on test images. Each row is a true class and each column a predicted class, so a perfect classifier would light up only the diagonal. Nothing here was trained.</figcaption>
+  </figure>
+</header>
+
+<main>
+<section id="idea">
+  <h2>The idea in one minute</h2>
+  <p>In November 2026, Takehi, Teoh, Zhang and Khattab at MIT CSAIL published <a href="https://rikiyat.github.io/blog/weight-space-programming/"><em>Sparks of Weight-Space Programming</em></a>. Their claim is that a general-purpose language model can <strong>read</strong>, <strong>repair</strong> and <strong>write</strong> the weights of a neural network directly, guided by a goal stated in plain language. In their strongest experiment the model writes a whole game-playing network that works with no training at all.</p>
+  <p>Their tasks are games and control problems. My field is remote sensing, where the useful knowledge is physical: how water, forest and concrete reflect light. So I asked a narrower question. <strong>Does a language model know enough about the Earth's surface to write a satellite-image classifier by hand?</strong></p>
+  <div class="cards">
+    <a class="card" href="#write"><span class="num">1</span><h3>Write</h3><p>The model writes all <span data-n="n_weights">6,858</span> weights of a classifier. I evaluate it exactly as written.</p></a>
+    <a class="card" href="#start"><span class="num">2</span><h3>Train from it</h3><p>Is that written network a better starting point for training than random numbers?</p></a>
+    <a class="card" href="#pilot"><span class="num">3</span><h3>Read and repair</h3><p>An earlier pilot: recognising how a network was trained, and repairing a damaged one.</p></a>
+  </div>
+  <aside class="note"><strong>What this page is.</strong> A small, honest research note built over two days, not a peer-reviewed paper. One model family, one dataset, small networks. Every number in the text and every chart is read from result files in the <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">repository</a>, and the limits of each result are stated next to it.</aside>
+</section>
+
+<section id="write">
+  <p class="part">Part 1</p>
+  <h2>Writing a classifier without data</h2>
+
+  <h3>The task</h3>
+  <p><a href="https://github.com/phelber/EuroSAT">EuroSAT</a> is a standard benchmark: small patches from the Sentinel-2 satellite, 64 by 64 pixels, each showing one of ten kinds of land cover. Every pixel is measured in 13 spectral bands, most of them invisible to the eye.</p>
+  <figure class="fig" id="fig-gallery">
+    <div class="controls"><div class="seg" id="gallery-mode"><button data-v="rgb" class="on">True colour</button><button data-v="nir">Near infrared</button></div></div>
+    <div id="gallery"></div>
+    <figcaption><span data-n="n_samples">30</span> test images, three per class, picked at random with a fixed seed. Switch to near infrared: vegetation turns red, because leaves reflect infrared light strongly, and water turns black. That is the kind of physical knowledge the model has to bring with it.</figcaption>
+  </figure>
+
+  <h3>The rules</h3>
+  <ul class="rules">
+    <li><strong>The model.</strong> Claude Fable 5.2 in an ordinary chat window, with code execution, web search and memory switched off.</li>
+    <li><strong>What it gets.</strong> The ten class names, the list of spectral bands and the layout of a small network.</li>
+    <li><strong>What it returns.</strong> A short function that fills in every weight using arithmetic only. It cannot open a file, see an image or run the network.</li>
+    <li><strong>How it is scored.</strong> I run the function and test the resulting network on <span data-n="n_test">5,400</span> images the model never sees. No training step exists anywhere.</li>
+    <li><strong>Feedback.</strong> Up to three times, the model is told how its network did on <span data-n="n_practice">1,000</span> separate practice images, and may revise.</li>
+    <li><strong>Decided in advance.</strong> The design, the reference scores and what would count as success were <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case/blob/main/docs/next_steps.md">written down before the first attempt</a>.</li>
+  </ul>
+
+  <figure class="fig" id="fig-arch">
+    <div class="pipe" id="arch"></div>
+    <div class="pipe-note" id="arch-note"></div>
+    <figcaption>The network the model had to fill in. Tap a stage. All of it together is <span data-n="n_weights">6,858</span> numbers.</figcaption>
+  </figure>
+
+  <h3>What it wrote</h3>
+  <p>The model did not produce mysterious numbers. It wrote a small, readable program in weights: detectors for individual bands, for water, vegetation and bare ground, and for texture, followed by a rule that compares each image with its idea of what each class looks like. You can run that network here, in your browser, on real test images.</p>
+  <figure class="fig" id="fig-live">
+    <div class="live">
+      <div class="live-pick">
+        <div class="label">1 · Pick a test image</div>
+        <div id="live-thumbs" class="thumbs"></div>
+      </div>
+      <div class="live-maps">
+        <div class="label">2 · What the 16 first-layer detectors respond to <span class="muted">(brighter = stronger)</span></div>
+        <div id="live-maps" class="maps"></div>
+      </div>
+      <div class="live-out">
+        <div class="label">3 · The network's score for each class</div>
+        <div id="live-scores"></div>
+        <div id="live-verdict" class="verdict"></div>
+        <div class="controls"><span class="label inline">Version of the network</span><div class="chips" id="live-rounds"></div></div>
+      </div>
+    </div>
+    <figcaption>The model's network, computed live on your device from its <span data-n="n_weights">6,858</span> weights. Detector names are mine, taken from the comments in the model's code. The images are a random draw, so it gets some of them wrong.</figcaption>
+  </figure>
+
+  <h3>How well it works</h3>
+  <p>The first version, written with no feedback at all, scores <span data-n="w3_first">51.8%</span>. After three rounds of feedback it reaches <span data-n="w3_final">59.5%</span>. Three reference points give that number a meaning.</p>
+  <figure class="fig" id="fig-rounds">
+    <div class="controls">
+      <div class="seg" id="rounds-mode"><button data-v="w3" class="on">13 spectral bands</button><button data-v="w2">Red, green, blue only</button></div>
+      <div class="chips" id="rounds-chips"></div>
+    </div>
+    <div class="split">
+      <div id="rounds-chart"></div>
+      <div class="said">
+        <div class="label" id="rounds-title"></div>
+        <div id="rounds-said" class="quote"></div>
+        <div id="rounds-moves" class="moves"></div>
+      </div>
+    </div>
+    <figcaption>Test accuracy of the written network after each round of feedback. The model never saw these scores, only its results on the practice images. Step through the rounds to read the model's own explanation of each revision.</figcaption>
+  </figure>
+  <ul class="refs-list">
+    <li><strong><span data-n="w3_constant">11.3%</span></strong> is what you get by always answering the most common class.</li>
+    <li><strong><span data-n="w3_centroid">48.6%</span></strong> is a simple classifier that <em>does</em> use data: it learns the average spectrum of each class from <span data-n="n_train">16,199</span> labelled training images.</li>
+    <li><strong><span data-n="w3_trained">81.5%</span></strong> is the same small network trained in the usual way.</li>
+  </ul>
+  <p>So a network written from knowledge alone beats a simple classifier fitted on real data, and gets <span data-n="w3_share">73%</span> of the way to what full training achieves. Feedback helped once (<span data-n="w3_gain1">+7.3</span> points), then stopped helping (<span data-n="w3_gain2">+1.4</span>, then <span data-n="w3_gain3">−0.9</span>).</p>
+
+  <h3>Where its knowledge was right, and where it ran out</h3>
+  <p>The model's code contains a table of what it believes each class looks like in each band. I compared that table with the real averages, measured on the training images it never saw.</p>
+  <figure class="fig" id="fig-spectra">
+    <div class="controls"><div class="chips wrap" id="spectra-classes"></div></div>
+    <div id="spectra-chart"></div>
+    <figcaption>Average reflectance of each class in the seven bands the model chose to use. Solid: measured on <span data-n="n_train">16,199</span> training images. Dashed: the value the model wrote into its first attempt, from memory.</figcaption>
+  </figure>
+  <p>Its memory of the spectra was close: across all classes and bands the two agree with a correlation of <span data-n="spec_corr">0.98</span>, and the typical error is <span data-n="spec_err">1.2</span> reflectance points. The spectral knowledge was there from the first attempt. What it lacked shows up when the results are split by class.</p>
+  <figure class="fig" id="fig-recall">
+    <div id="recall-chart"></div>
+    <figcaption>Share of each class's test images that the final written network recognised.</figcaption>
+  </figure>
+  <p>Classes defined by <em>what the surface is made of</em> are nearly solved: sea and lake <span data-n="rec_sea">99%</span>, forest <span data-n="rec_forest">96%</span>, river <span data-n="rec_river">83%</span>. Classes defined by <em>how things are arranged</em> are not: highway <span data-n="rec_highway">27%</span>, residential <span data-n="rec_residential">41%</span>, industrial <span data-n="rec_industrial">53%</span>. A highway and a housing block are made of similar materials. Telling them apart takes spatial patterns, and three rounds of feedback only moved errors from one built-up class to another.</p>
+
+  <details>
+    <summary>Two smaller versions of the same experiment</summary>
+    <p><strong>Numbers typed one by one.</strong> In a first test the model wrote a 618-weight network for ordinary red, green and blue images as a plain list of numbers, in a single reply. It scored <span data-n="w1_acc">49.4%</span>. The same network trained normally reaches <span data-n="w1_trained">62.9%</span>.</p>
+    <p><strong>Colour images only.</strong> With red, green and blue instead of 13 bands, the written network went from <span data-n="w2_first">40.3%</span> to <span data-n="w2_final">49.2%</span> over three rounds (use the switch in the chart above). The trained version reaches <span data-n="w2_trained">78.7%</span>.</p>
+    <p><strong>More bands help everyone.</strong> The extra bands lift the simple data-fitted classifier too, from <span data-n="w2_centroid">30.4%</span> to <span data-n="w3_centroid">48.6%</span>. The written network's lead over it is actually smaller with 13 bands (<span data-n="w3_margin">+10.9</span> points) than with colour only (<span data-n="w2_margin">+18.8</span>). Part of the higher score comes from the data being easier, not from the model knowing more.</p>
+  </details>
+  <aside class="note caveat"><strong>What this does not show.</strong> Each experiment is a single run of one model. "No data" means no data in the conversation: the model has clearly read about EuroSAT and remote sensing during its own training. The feedback rounds pass a little information about real images back to it. And the network is tiny, so nothing here says the approach scales.</aside>
+</section>
+
+<section id="start">
+  <p class="part">Part 2</p>
+  <h2>Is a written network a better place to start training?</h2>
+  <p>Nobody would deploy a classifier that is right <span data-n="w3_final">59.5%</span> of the time. A more practical question is whether the written network is a good <em>starting point</em>. Training normally begins from random numbers (the standard recipe is called Kaiming initialisation). I trained the same network from three starting points, with all the labelled images, with a tenth of them and with a hundredth.</p>
+  <figure class="fig" id="fig-init">
+    <div class="controls"><span class="label inline">Labelled training images</span><div class="seg" id="init-budget"></div></div>
+    <div class="legend" id="init-legend"></div>
+    <div class="split even">
+      <div><div class="label">Final test accuracy, three runs each</div><div id="init-dots"></div></div>
+      <div><div class="label">Accuracy on validation images during training</div><div id="init-curves"></div></div>
+    </div>
+    <figcaption>Each dot is one training run with a different random seed; the bar is their average. The dashed line is the written network before any training.</figcaption>
+  </figure>
+  <p>Starting from the model's network, with one correction explained below, beat the random start in every single run: <span data-n="init1_gain">+3.8</span> points with <span data-n="init1_n">163</span> labelled images, <span data-n="init10_gain">+6.8</span> with <span data-n="init10_n">1,620</span>, and <span data-n="init100_gain">+3.6</span> with all <span data-n="init100_n">16,199</span>. The knowledge written into the weights is still worth something after gradient descent has done its work.</p>
+
+  <h3>The catch: the network was too sure of itself</h3>
+  <p>Used exactly as written, the same network is an unreliable start. Some runs do well and others stall: with a tenth of the labels, <span data-n="init_stalled">2 of 3</span> runs ended where they began. The cause is scale. The model wrote weights as large as <span data-n="fc_max">6,000</span> into the last layer, where a standard start uses values near 0.1. The class scores end up hundreds of units apart, so the network is more than 99% sure of its answer on <span data-n="sure_written">46%</span> of the test images, whether it is right or wrong.</p>
+  <figure class="fig" id="fig-temp">
+    <div class="temp">
+      <div class="temp-pick">
+        <div id="temp-thumb" class="thumb big"></div>
+        <div class="controls"><button class="btn" id="temp-prev" aria-label="Previous image">←</button><button class="btn" id="temp-next" aria-label="Next image">→</button></div>
+        <div id="temp-truth" class="muted small"></div>
+      </div>
+      <div class="temp-main">
+        <div id="temp-bars"></div>
+        <div class="slider-row"><span>as written</span><input type="range" id="temp-slider" min="0" max="100" value="0" aria-label="Scale of the last layer"><span>divided by <span data-n="rescale">72</span></span></div>
+        <div id="temp-read" class="muted small"></div>
+      </div>
+    </div>
+    <figcaption>The network's confidence in each class for one test image. Drag the slider to shrink the last layer. The winning class never changes, only how certain the network claims to be.</figcaption>
+  </figure>
+  <p>Dividing the last layer by a single constant, <span data-n="rescale">72</span>, changes no prediction and leaves the network with graded confidence that training can adjust. The share of test images on which it is more than 99% sure falls to <span data-n="sure_rescaled">0%</span>. That is the "rescaled" version in the chart above.</p>
+  <aside class="note caveat"><strong>What this does not show.</strong> The rescaling was my correction, not the model's, although I fixed it before running anything. Three runs per setting is a small sample. And this is a network of <span data-n="n_weights">6,858</span> weights: whether written weights help a large model is an open question.</aside>
+</section>
+
+<section id="pilot">
+  <p class="part">Part 3</p>
+  <h2>The pilot: reading and repairing weights</h2>
+  <p>The day before, I had run a first pilot with the previous model, Claude Fable 5.1, working inside a coding environment with Python available. That is weaker evidence than Part 1, because the model could compute on the weights instead of reasoning about them unaided. It is still the clearest view I have of <em>how</em> the model thinks about weights, because it kept notes as it worked and wrote down a prediction before each score was revealed.</p>
+
+  <h3>Read: how was this network trained?</h3>
+  <p>I trained nine small networks on EuroSAT in three ways: with no image augmentation, with standard augmentation and with strong augmentation. The model received their weights under anonymous names and had to say which was which, without running any of them.</p>
+  <figure class="fig" id="fig-read">
+    <div class="controls"><div class="seg" id="read-mode"><button data-v="anon" class="on">As the model received them</button><button data-v="seed">Grouped the way it found</button></div></div>
+    <div class="split even">
+      <div><div class="label">How similar are the first layers of each pair of networks?</div><div id="read-matrix"></div></div>
+      <div><div class="label">One number per network: how many features its last layer relies on</div><div id="read-rank"></div></div>
+    </div>
+    <figcaption>Left: correlation between the first-layer weights of every pair of networks. Right: the effective rank of each network's final layer, which was the model's strongest clue. Press the second button to reveal the structure it uncovered.</figcaption>
+  </figure>
+  <div class="stepper" id="steps-read"></div>
+  <p>It labelled <span data-n="read_score">9 of 9</span> correctly. <span class="caveat-inline">The limit: my nine networks shared three random seeds, and the model used that structure to turn one hard problem into three easy ones. It also chose among three named options, which is easier than an open question. A stricter version, with no tools and no shared seeds, has not been run.</span></p>
+
+  <h3>Repair: fixing a damaged network without data</h3>
+  <p>I took a larger network (ResNet-18, <span data-n="edit_orig">98.2%</span> accurate) and drowned <span data-n="edit_nbad">32</span> of the <span data-n="edit_nfilters">256</span> filters in one layer in random noise. Accuracy fell to <span data-n="edit_damaged">57.7%</span>. The model had to repair the layer from the damaged numbers alone, with no images and no access to the original.</p>
+  <figure class="fig" id="fig-edit">
+    <div class="controls"><div class="seg" id="edit-mode"><button data-v="original" class="on">Original</button><button data-v="damaged">Damaged</button><button data-v="repaired">Repaired</button></div><div class="big small" id="edit-acc"></div></div>
+    <div class="split even">
+      <div>
+        <div class="label">The layer: each tile is one filter (1,152 weights)</div>
+        <div class="tiles"><img id="edit-img" alt="The 256 filters of the layer shown as tiles" src="data/edit_original.png"></div>
+        <div class="label">Spread of the weights in each filter</div>
+        <div id="edit-std"></div>
+      </div>
+      <div>
+        <div class="label">What the network now says about <span data-n="n_samples">30</span> test images</div>
+        <div id="edit-samples" class="thumbs verdicts"></div>
+        <div id="edit-count" class="muted small"></div>
+        <div class="label">Its errors on the full test set</div>
+        <div id="edit-matrix"></div>
+      </div>
+    </div>
+    <figcaption>Switch between the three states. The damaged filters are the two rows of static at the top. In the repaired layer they are all replaced by the same average filter.</figcaption>
+  </figure>
+  <div class="stepper" id="steps-edit"></div>
+  <p>The repaired network scores <span data-n="edit_repaired">95.5%</span>. Before crediting the model with that, compare it with simpler repairs that I ran afterwards.</p>
+  <figure class="fig" id="fig-methods">
+    <div id="methods-chart"></div>
+    <figcaption>Test accuracy after each way of repairing the same damaged layer. The model's submission is the highlighted bar. The other repairs were added by me afterwards as reference points.</figcaption>
+  </figure>
+  <p><span class="caveat-inline">Simply switching the damaged filters off gives <span data-n="edit_zero">94.1%</span>, so the model's choice of replacement adds only <span data-n="edit_extra">+1.4</span> points.</span> Its real contribution was the diagnosis: finding the damage, showing that nothing could be recovered, and refusing the low-rank method suggested in the prompt, which makes the network <em>worse</em> (<span data-n="edit_svd">45.8%</span>). It was also wrong about one thing. It argued that rescaling the noisy filters would be worse than switching them off, and the reference runs show the opposite (<span data-n="edit_norm">95.3%</span>).</p>
+
+  <h3>Write, the small version: a first layer by hand</h3>
+  <p>In the pilot's writing task, the model wrote only the first layer of a network, 432 weights out of 98,954, and the whole network was then trained as usual.</p>
+  <figure class="fig" id="fig-filters">
+    <div class="split even">
+      <div><div class="label">The 16 hand-written filters. Tap one.</div><div id="filters" class="filters"></div><div id="filter-note" class="quote"></div></div>
+      <div><div class="label">Test accuracy after training, three seeds</div><div id="pw-dots"></div></div>
+    </div>
+    <figcaption>Each filter is a 3 by 3 patch of red, green and blue weights. The description is the model's own.</figcaption>
+  </figure>
+  <p>The hand-written layer finished at <span data-n="pw_fable">90.81%</span> on average against <span data-n="pw_kaiming">90.35%</span> for a random one, ahead by <span data-n="pw_min">0.1</span> to <span data-n="pw_max">0.7</span> points in each of three runs. <span class="caveat-inline">That is too small and too few runs to call an effect, and because training followed, it says little about writing weights. It is the reason I went on to run Part 1.</span></p>
+</section>
+
+<section id="takeaways">
+  <h2>What I take from this</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>What the experiments support</th><th>What limits it</th></tr></thead>
+    <tbody>
+      <tr><td>A language model can write a working land-cover classifier from knowledge alone: <span data-n="w3_final">59.5%</span>, above a simple classifier fitted on real data (<span data-n="w3_centroid">48.6%</span>).</td><td>A tiny network, one dataset, one model, one run. The model already knows the dataset by reputation. Training still wins clearly (<span data-n="w3_trained">81.5%</span>).</td></tr>
+      <tr><td>Its knowledge is spectral, not spatial. It knows what surfaces are made of, not how towns and roads are laid out.</td><td>The network is very small, which also limits spatial reasoning. A larger design might do better.</td></tr>
+      <tr><td>Written weights are a useful starting point: better than a random start at every label budget, in every run.</td><td>Only after a rescaling that I applied. Three runs per setting.</td></tr>
+      <tr><td>Given tools, the model analyses weights like a careful colleague: it checks for confounds, rejects bad suggestions and predicts before it scores.</td><td>The pilot tasks were easier than the MIT ones, and one of its arguments turned out to be wrong.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>How this relates to the MIT study</h3>
+  <p>This is not a replication. Part 1 tests the MIT writing claim in their own terms (whole network, no tools, no training) on a new kind of data, at a much smaller scale. Part 3 allowed tools and used easier tasks, so it is only comparable with their tool-assisted experiments. The reading and repair claims have not been tested here without tools. A <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case/blob/main/docs/comparison_with_takehi_et_al.md">point-by-point comparison</a> is in the repository.</p>
+
+  <h3>What I would do next</h3>
+  <ul>
+    <li>Run the reading and repair tasks with no tools, and with a network that <em>behaves</em> wrongly instead of one with noise added.</li>
+    <li>Give the model a network large enough to describe spatial layout, and see whether the built-up classes improve.</li>
+    <li>Repeat each experiment several times and with other models, to separate ability from luck.</li>
+    <li>Try sensors with less written about them, such as radar, where the model can rely less on memory.</li>
+  </ul>
+
+  <h3>Reproduce it</h3>
+  <p>All code, prompts, model replies, logs and result files are in the <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">repository</a>, under the MIT licence. The page's data is generated by one script, <code>site/build_data.py</code>, and <code>site/test.mjs</code> checks that the network running in your browser matches PyTorch and that every number in this text matches the result files.</p>
+  <aside class="note"><strong>Disclosure.</strong> The experiments were designed and run by me with heavy assistance from Claude, the same model family that is the subject of the study. Claude also helped write the analysis code and build this page. The model replies quoted here are verbatim.</aside>
+
+  <h3>References</h3>
+  <ol class="refs-ol">
+    <li>R. Takehi, J. Teoh, A. Zhang, O. Khattab. <a href="https://rikiyat.github.io/blog/weight-space-programming/"><em>Sparks of Weight-Space Programming</em></a>. MIT CSAIL, November 2026.</li>
+    <li>P. Helber, B. Bischke, A. Dengel, D. Borth. <em>EuroSAT: A Novel Dataset and Deep Learning Benchmark for Land Use and Land Cover Classification</em>. IEEE JSTARS, 2019.</li>
+    <li>K. He, X. Zhang, S. Ren, J. Sun. <em>Delving Deep into Rectifiers</em>. ICCV, 2015.</li>
+  </ol>
+  <p class="muted small">Contains modified Copernicus Sentinel data.</p>
+</section>
+</main>
+<footer><p><span id="author2">Walid El Barz</span> · 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case">GitHub</a> · MIT licence</p></footer>
+<div id="tip" role="tooltip"></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
