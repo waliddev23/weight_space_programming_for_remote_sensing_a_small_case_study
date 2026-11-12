@@ -4,6 +4,7 @@ Pre-registered in docs/next_steps.md (Experiment W3-init).
 
     python eurosat_wsp/experiment_6_write_multispectral/init_compare.py          # all runs (resumable)
     python eurosat_wsp/experiment_6_write_multispectral/init_compare.py --summary
+    python eurosat_wsp/experiment_6_write_multispectral/init_compare.py --seeds 10   # extension, see docs/next_steps.md
 """
 
 from __future__ import annotations
@@ -42,14 +43,20 @@ def to_tensor(x_mm, device, dtype):
 
 
 @torch.no_grad()
-def accuracy(net, x, y):
-    """Data may live on the GPU or in host memory; batches are moved to the model's device."""
+def evaluate(net, x, y):
+    """Accuracy, mean cross-entropy and recall per class. Data may live on the GPU or in host memory."""
     net.eval()
     dev = next(net.parameters()).device
-    correct = 0
-    for i in range(0, len(x), 512):
-        correct += (net(x[i:i + 512].to(dev).float()).argmax(1) == y[i:i + 512].to(dev)).sum().item()
-    return correct / len(x)
+    logits = torch.cat([net(x[i:i + 512].to(dev).float()) for i in range(0, len(x), 512)])
+    y = y.to(dev)
+    pred = logits.argmax(1)
+    recall = [float((pred[y == c] == c).float().mean()) for c in range(10)]
+    return {"accuracy": (pred == y).sum().item() / len(y), "loss": float(F.cross_entropy(logits, y)),
+            "recall": recall}
+
+
+def accuracy(net, x, y):
+    return evaluate(net, x, y)["accuracy"]
 
 
 def fable_net(rescale: bool, x_cal, device) -> SmallNetMS:
@@ -89,7 +96,7 @@ def train(net, xtr, ytr, xva, yva, xte, yte, epochs, seed, device):
     opt = torch.optim.AdamW(net.parameters(), lr=3e-3, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
     g = torch.Generator().manual_seed(seed)
-    best, state, history = -1.0, None, []
+    best, state, history, losses = -1.0, None, [], []
     for _ in range(epochs):
         net.train()
         for idx in torch.randperm(len(ytr), generator=g).split(128):
@@ -99,13 +106,17 @@ def train(net, xtr, ytr, xva, yva, xte, yte, epochs, seed, device):
             loss.backward()
             opt.step()
         sched.step()
-        va = accuracy(net, xva, yva)
+        ev = evaluate(net, xva, yva)
+        va = ev["accuracy"]
         history.append(va)
+        losses.append(ev["loss"])
         if va > best:
             best, state = va, {k: v.detach().clone() for k, v in net.state_dict().items()}
     net.load_state_dict(state)
-    return {"test_accuracy": accuracy(net, xte, yte), "best_val": best, "val_epoch1": history[0],
-            "val_history": history}
+    te = evaluate(net, xte, yte)
+    return {"test_accuracy": te["accuracy"], "best_val": best, "val_epoch1": history[0],
+            "val_history": history, "val_loss_history": losses, "test_recall": te["recall"],
+            "test_balanced_accuracy": float(np.mean(te["recall"]))}
 
 
 def run_all() -> None:
@@ -175,5 +186,9 @@ def summary() -> None:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--summary", action="store_true")
+    ap.add_argument("--seeds", type=int, default=3, help="number of seeds (3 were pre-registered)")
+    ap.add_argument("--out", type=Path, default=OUT, help="results file")
     a = ap.parse_args()
+    SEEDS[:] = list(range(a.seeds))
+    OUT = a.out
     summary() if a.summary else run_all()

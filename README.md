@@ -4,7 +4,7 @@ Can a language model write the weights of a working satellite-image classifier i
 
 ![Training from a network written by Fable 5.2 against standard initialisation, at three label budgets](assets/fig7_write_init.png)
 
-*A two-layer CNN for 13-band Sentinel-2 images, trained from three starting points: standard Kaiming initialisation, and a network whose 6,858 weights Claude Fable 5.2 wrote from remote-sensing knowledge alone. (a) Test accuracy after training, mean ± standard deviation over three seeds, with each seed shown. Before any training, Fable's network already scores 59.5%. (b) Gain over Kaiming for the same seed and the same training images. Once its oversized classifier is rescaled, which leaves its predictions unchanged, Fable's network is the better starting point on every seed at every label budget.*
+*A two-layer CNN for 13-band Sentinel-2 images, trained from three starting points: standard Kaiming initialisation, and a network whose 6,858 weights Claude Fable 5.2 wrote from remote-sensing knowledge alone. (a) Test accuracy after training, mean ± standard deviation over ten seeds, with each seed shown. Before any training, Fable's network already scores 59.5%. (b) Gain over Kaiming for the same seed and the same training images. Once its oversized classifier is rescaled, which leaves its predictions unchanged, Fable's network is the better starting point on every seed at every label budget.*
 
 **Interactive explainer:** [waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case_study](https://waliddev23.github.io/weight_space_programming_for_remote_sensing_a_small_case_study/). It runs the written network in the browser and walks through every experiment. Source in [`site/`](site/): `python site/build_data.py` regenerates its data from the result files, and `node site/test.mjs` checks the page against them.
 
@@ -24,7 +24,7 @@ Every experiment from W1 onwards was designed, with its baselines and success cr
 | W1 | Fable 5.2, no tools | Typed all 618 weights of a one-layer CNN, RGB | **49.4%** test accuracy, no training | best constant guess 11.3%, mean-colour classifier 30.4%, trained 62.9% |
 | W2 | Fable 5.2, no tools | Wrote a program for all 5,418 weights of a two-layer CNN, RGB, 3 feedback rounds | **40.3% → 49.2%** | random weights 8.1%, trained 78.7% |
 | W3 | Fable 5.2, no tools | The same on 13-band multispectral images | **51.8% → 59.5%** (peak 60.4%) | mean-spectrum classifier 48.6%, trained 81.5% |
-| W3-init | Fable 5.2 network, trained | W3's network as a starting point for training | **+3.6 to +6.8 points** over Kaiming, every seed | see figure above |
+| W3-init | Fable 5.2 network, trained | W3's network as a starting point for training | **+3.6 to +6.6 points** over Kaiming, 30 of 30 paired runs | see figure above |
 | READ | Fable 5.1, with Python | Labelled 9 blind CNNs by training regime from their weights | **9 / 9** | 1 in 1,680 by chance |
 | EDIT | Fable 5.1, with Python | Repaired a noise-damaged ResNet-18 layer from the tensor alone | **95.5%** | damaged 57.7%, original 98.2%, zeroing the damaged filters 94.1% |
 | WRITE | Fable 5.1, with Python | Wrote the first layer of a CNN, then trained it | 90.81% ± 0.22 | Kaiming 90.35% ± 0.48 |
@@ -47,9 +47,11 @@ Logs: [W1](eurosat_wsp/experiment_4_write_full/), [W2](eurosat_wsp/experiment_5_
 
 | Training labels | Kaiming | Fable, as written | Fable, rescaled |
 |---|---|---|---|
-| 1% (163 images) | 63.7% | 66.1% (unstable) | **67.5%** |
-| 10% (1,620 images) | 69.4% | 64.3% (unstable) | **76.2%** |
-| 100% (16,199 images) | 82.8% | 82.5% (unstable) | **86.3%** |
+| 1% (163 images) | 62.3 ± 1.7% | 62.8 ± 5.3% | **66.2 ± 2.3%** |
+| 10% (1,620 images) | 69.3 ± 1.1% | 65.1 ± 9.8% | **75.8 ± 1.9%** |
+| 100% (16,199 images) | 83.2 ± 0.7% | 83.2 ± 5.2% | **86.8 ± 0.5%** |
+
+Mean ± standard deviation of test accuracy over ten seeds. Three seeds were pre-registered; seven were added on 12 November 2026 after a reviewer asked for more (see the amendment in [docs/next_steps.md](docs/next_steps.md)). The rescaled network is ahead of Kaiming in 30 of 30 paired runs, the as-written one in 17 of 30.
 
 Fable's classifier weights reach 6,000, against about 0.1 for standard initialisation. Used as written, this saturates the softmax, and some seeds barely train. Dividing the classifier by one constant leaves every prediction unchanged and makes the network trainable; that rescaling was fixed before any run.
 
@@ -88,7 +90,7 @@ Claude Fable 5.1 ran these three experiments in one Claude Code session on 10 No
 - **One model per experiment, few attempts.** W1 rests on a single attempt (a planned second attempt was skipped to save model usage); W2 and W3 are one chat each. Other models, or reruns of the same one, may differ.
 - **Two model versions.** The pilot used Claude Fable 5.1; W1 to W3 used Claude Fable 5.2. Comparisons between the pilot and the later experiments mix model version and protocol.
 - **Remembered knowledge.** Fable cited EuroSAT statistics from memory. This is allowed, but part of each result reflects what the model learned about this benchmark during its own training.
-- **Three seeds.** Training comparisons use three seeds per setting; the W3-init rescaled result holds on every seed, but the intervals are wide.
+- **Seeds.** W3-init uses ten seeds per setting (three pre-registered, seven added afterwards); the pilot's training comparison uses three, and its intervals are wide.
 - **Not tested without tools:** reading weights (R2) and fixing a behavioural flaw (E2) are designed in [docs/next_steps.md](docs/next_steps.md) but were not run.
 - **Answer keys are in the repository.** Anyone evaluating a new model must withhold `eurosat_wsp/prompts/key_*.json`, `eurosat_wsp/experiment_1_read/checkpoints/`, `eurosat_wsp/experiment_2_edit/original/` and every `baselines`, `private` and `runs` folder from it.
 

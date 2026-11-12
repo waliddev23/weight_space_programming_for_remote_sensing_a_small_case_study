@@ -375,15 +375,15 @@ def fig7_write_init() -> None:
         for i, b in enumerate(budgets):
             v = vals(b, key)
             xpos = i + off[j]
-            ax1.scatter(xpos + np.array([-0.035, 0, 0.035])[:len(v)], v, s=11, color=color, alpha=0.5, lw=0, zorder=2)
+            ax1.scatter(xpos - 0.09 + np.linspace(-0.03, 0.03, len(v)), v, s=9, color=color, alpha=0.45, lw=0, zorder=2)
             ax1.errorbar(xpos, v.mean(), yerr=v.std(ddof=1), fmt="o", ms=5.5, color=color, mec=SURFACE, mew=1.0,
                          elinewidth=1.2, capsize=2.5, zorder=3, label=name if i == 0 else None)
     ax1.set_xticks(range(3), budget_labels)
     ax1.set_xlim(-0.5, 2.5)
-    ax1.set_ylim(55, 92)
+    ax1.set_ylim(44, 92)
     ax1.set_xlabel("training labels used (images)")
     ax1.set_ylabel("test accuracy after training (%)")
-    panel_label(ax1, "(a) Accuracy, mean ± s.d. over 3 seeds")
+    panel_label(ax1, f"(a) Accuracy, mean ± s.d. over {len(vals(1.0, 'kaiming'))} seeds")
 
     # (b) paired gain over Kaiming, same seed and same training images
     ax2.grid(True, axis="y")
@@ -393,7 +393,7 @@ def fig7_write_init() -> None:
         for i, b in enumerate(budgets):
             d = vals(b, key) - vals(b, "kaiming")
             xpos = i + (j - 0.5) * 0.32
-            ax2.scatter(xpos + np.array([-0.04, 0, 0.04])[:len(d)], d, s=12, color=color, alpha=0.55, lw=0, zorder=2)
+            ax2.scatter(xpos + np.linspace(-0.06, 0.06, len(d)), d, s=9, color=color, alpha=0.5, lw=0, zorder=2)
             ax2.hlines(d.mean(), xpos - 0.11, xpos + 0.11, color=color, lw=2.2, zorder=3)
             if key == "fable_rescaled":
                 ax2.annotate(f"{d.mean():+.1f}", (xpos, d.max()), xytext=(0, 5), textcoords="offset points",

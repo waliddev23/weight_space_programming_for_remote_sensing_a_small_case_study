@@ -99,6 +99,8 @@ Added 2026-11-11, after W3 finished, before any training run. Question: is the n
 
 **Criteria.** For each budget and each Fable variant: "Fable helps" if the mean test accuracy is higher than Kaiming's **and** it is higher on all three seeds; "Fable hurts" if lower on all three; otherwise "no clear difference".
 
+**Amendment, 2026-11-12 (after the three-seed result was known).** A reviewer of the write-up asked for more seeds. Seven seeds (3 to 9) were added with the same code and settings, giving ten per cell; the three pre-registered runs were kept unchanged and are archived in `init_compare/results_3seeds_preregistered.json`. The added runs also record validation loss, recall per class and balanced accuracy. The verdict rule is unchanged, applied to all ten seeds. Result: the rescaled network is ahead of Kaiming in 30 of 30 paired runs (+3.9, +6.6 and +3.6 points at 1%, 10% and 100% of the labels); as written it is ahead in 17 of 30 and is far more variable (standard deviation 9.8 points at 10%, against 1.1 for Kaiming). Because the extension was decided after seeing the first result, it is confirmation on new seeds, not a pre-registered test.
+
 ## Experiment R2 · Read what a network was trained to do
 
 Matches Takehi et al.'s Experiment 1: open-ended, no options, no tools.

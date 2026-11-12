@@ -216,7 +216,8 @@ def step_net() -> None:
 def step_init() -> None:
     res = rj(W3 / "init_compare" / "results.json")
     runs = [{"budget": r["budget"], "n_train": r["n_train"], "seed": r["seed"], "init": r["init"],
-             "epochs": r["epochs"], "test": r["test_accuracy"], "val": rnd(r["val_history"], 4)}
+             "epochs": r["epochs"], "test": r["test_accuracy"], "val": rnd(r["val_history"], 4),
+             **({"recall": rnd(r["test_recall"], 4), "balanced": r["test_balanced_accuracy"]} if "test_recall" in r else {})}
             for r in res.values()]
     before = rj(W3 / "private" / "round_3.json")["test"]["test_accuracy"]
     wj("init.json", {"runs": runs, "fable_untrained": before})

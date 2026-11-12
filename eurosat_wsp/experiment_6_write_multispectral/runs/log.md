@@ -47,6 +47,8 @@ Same protocol as W2. The model sees only practice-set feedback (W2's 1,000 valid
 
 ## Follow-up: Fable's network as a starting point for training (W3-init)
 
+**Extension, 2026-11-12.** Seven more seeds (3 to 9) were added after the three-seed result below was known; the table below is the original three-seed record and is kept as written. Ten-seed results: `init_compare/summary.md` and `results.json`; the original runs alone: `init_compare/results_3seeds_preregistered.json`. Over ten seeds, mean ± s.d.: 100% of labels, Kaiming 83.2 ± 0.7, as written 83.2 ± 5.2, rescaled 86.8 ± 0.5; 10%, 69.3 ± 1.1, 65.1 ± 9.8, 75.8 ± 1.9; 1%, 62.3 ± 1.7, 62.8 ± 5.3, 66.2 ± 2.3. Rescaled is ahead of Kaiming in 30 of 30 paired runs, as written in 17 of 30.
+
 Pre-registered in `docs/next_steps.md` before any run. Fable's final W3 network (round 3) against Kaiming initialisation, trained with the W3 ceiling recipe at three label budgets, 3 seeds each. "Rescaled" divides Fable's classifier by one constant (scores with unit spread on 1,000 training images), which leaves its predictions unchanged but un-saturates the softmax: Fable's classifier weights reach 6,000 against about 0.1 for standard initialisation. Code: `init_compare.py`; all runs: `init_compare/results.json`.
 
 | Training images | Starting point | Test accuracy, mean (per seed) | Val. accuracy after epoch 1 | Verdict vs Kaiming |

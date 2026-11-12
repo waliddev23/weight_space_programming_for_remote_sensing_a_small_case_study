@@ -12,24 +12,31 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body>
 <div id="progress"></div>
 <nav id="nav">
   <a href="#top" class="brand">Weight-space programming</a>
   <div class="links">
-    <a href="#idea">Idea</a><a href="#write">1 · Write</a><a href="#start">2 · Train</a><a href="#pilot">3 · Read &amp; repair</a><a href="#takeaways">Takeaways</a>
+    <a href="#idea">Idea</a><a href="#write">1 Write</a><a href="#start">2 Train</a><a href="#pilot">3 Read and repair</a><a href="#takeaways">Takeaways</a>
   </div>
+  <button id="theme" type="button">Dark mode</button>
 </nav>
 
 <header id="top" class="hero">
   <div class="hero-text">
-    <p class="kicker">Interactive research note · 10 minute read</p>
     <h1>My First Take on Weight-Space Programming for Remote Sensing</h1>
+    <div class="bands" id="bands" aria-label="The 13 spectral bands of Sentinel-2, from 443 to 2,190 nanometres"></div>
     <p class="lede">A neural network is a list of numbers. Normally an optimiser finds them by looking at thousands of labelled images. I asked a language model to <em>write</em> them instead: no images, no training, no code execution. The network it wrote recognises land cover in satellite images it has never seen, <span data-n="w3_final">59.5%</span> of the time.</p>
-    <p class="byline"><span id="author">Walid Elbarz</span> · Mohammed VI Polytechnic University · November 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">code and data</a></p>
+    <ul class="summary" aria-label="Summary">
+      <li><b data-n="w3_final">59.5%</b><span>A network written entirely by a language model, never trained, classifies 13-band satellite images. A simple classifier fitted on real data reaches <span data-n="w3_centroid">48.6%</span>, and full training <span data-n="w3_trained">81.5%</span>.</span></li>
+      <li><b data-n="init_wins">30 of 30</b><span>Used as a starting point for training, the written network beat a random start in every paired run, once its last layer was rescaled.</span></li>
+      <li><b data-n="read_score">9 of 9</b><span>In an earlier pilot with tools, the model identified how nine networks had been trained from their weights alone, and repaired a damaged network from <span data-n="edit_damaged">57.7%</span> to <span data-n="edit_repaired">95.5%</span>.</span></li>
+    </ul>
+    <p class="byline">By <span id="author">Walid Elbarz</span>, Mohammed VI Polytechnic University. November 2026, a 10 minute read. <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">Code and data on GitHub</a>.</p>
   </div>
   <figure class="fig hero-fig" id="fig-hero">
     <div class="hero-score">
@@ -160,20 +167,28 @@
 <section id="start">
   <p class="part">Part 2</p>
   <h2>Is a written network a better place to start training?</h2>
-  <p>Nobody would deploy a classifier that is right <span data-n="w3_final">59.5%</span> of the time. A more practical question is whether the written network is a good <em>starting point</em>. Training normally begins from random numbers (the standard recipe is called Kaiming initialisation). I trained the same network from three starting points, with all the labelled images, with a tenth of them and with a hundredth.</p>
+  <p>Nobody would deploy a classifier that is right <span data-n="w3_final">59.5%</span> of the time. A more practical question is whether the written network is a good <em>starting point</em>. Training normally begins from random numbers (the standard recipe is called Kaiming initialisation). I trained the same network from three starting points, with all the labelled images, with a tenth of them and with a hundredth, <span data-n="init_seeds">10</span> times each with different random seeds.</p>
   <figure class="fig" id="fig-init">
-    <div class="controls"><span class="label inline">Labelled training images</span><div class="seg" id="init-budget"></div></div>
     <div class="legend" id="init-legend"></div>
-    <div class="split even">
-      <div><div class="label">Final test accuracy, three runs each</div><div id="init-dots"></div></div>
-      <div><div class="label">Accuracy on validation images during training</div><div id="init-curves"></div></div>
-    </div>
-    <figcaption>Each dot is one training run with a different random seed; the bar is their average. The dashed line is the written network before any training.</figcaption>
+    <div class="panel-title">A. Test accuracy after training, at three label budgets</div>
+    <div class="panel-sub">Each small dot is one training run. The large marker is the mean of the <span data-n="init_seeds">10</span> runs and the whisker spans one standard deviation either side. Scored on <span data-n="n_test">5,400</span> test images.</div>
+    <div id="init-strip"></div>
+    <div class="stat-wrap"><table class="stat-table" id="init-table"></table></div>
+    <div class="gap"></div>
+    <div class="panel-title">B. Validation accuracy during training</div>
+    <div class="panel-sub">Line: mean over the runs. Band: one standard deviation either side. Panels B and C show one label budget at a time.</div>
+    <div class="controls"><span class="label inline">Runs trained on</span><div class="seg" id="init-budget"></div></div>
+    <div id="init-curves"></div>
+    <div class="gap"></div>
+    <div class="panel-title">C. Which classes gain from the written start</div>
+    <div class="panel-sub">Recall per class after training: random start (grey) against the rescaled written network (blue). The number on the right is the difference in points.</div>
+    <div id="init-classes"></div>
+    <figcaption><strong>What it shows.</strong> Rescaled, the written network ends above the random start at every label budget and is the most consistent of the three. As written, the same network is erratic. The dashed line is the written network scored before any training, which is why it is the same for every budget. Each starting point was trained <span data-n="init_seeds">10</span> times per budget (<span data-n="init_runs">90</span> runs in all). The first three seeds were planned in advance and seven were added after a reviewer asked for more. The test classes hold between <span data-n="class_min">396</span> and <span data-n="class_max">609</span> images each, so plain accuracy is a fair summary here. Panel C uses the seven added seeds, the ones for which recall per class was recorded.</figcaption>
   </figure>
-  <p>Starting from the model's network, with one correction explained below, beat the random start in every single run: <span data-n="init1_gain">+3.8</span> points with <span data-n="init1_n">163</span> labelled images, <span data-n="init10_gain">+6.8</span> with <span data-n="init10_n">1,620</span>, and <span data-n="init100_gain">+3.6</span> with all <span data-n="init100_n">16,199</span>. The knowledge written into the weights is still worth something after gradient descent has done its work.</p>
+  <p>Starting from the model's network, with one correction explained below, beat the random start in <span data-n="init_wins">30 of 30</span> paired runs. The average gain is <span data-n="init1_gain">+3.9</span> points with <span data-n="init1_n">163</span> labelled images, <span data-n="init10_gain">+6.6</span> with <span data-n="init10_n">1,620</span>, and <span data-n="init100_gain">+3.6</span> with all <span data-n="init100_n">16,199</span>. The knowledge written into the weights is still worth something after gradient descent has done its work.</p>
 
   <h3>The catch: the network was too sure of itself</h3>
-  <p>Used exactly as written, the same network is an unreliable start. Some runs do well and others stall: with a tenth of the labels, <span data-n="init_stalled">2 of 3</span> runs ended where they began. The cause is scale. The model wrote weights as large as <span data-n="fc_max">6,000</span> into the last layer, where a standard start uses values near 0.1. The class scores end up hundreds of units apart, so the network is more than 99% sure of its answer on <span data-n="sure_written">46%</span> of the test images, whether it is right or wrong.</p>
+  <p>Used exactly as written, the same network is an unreliable start. Some runs do well and others stall: with a tenth of the labels its <span data-n="init_seeds">10</span> runs finish anywhere between <span data-n="init_aw_min">46.4%</span> and <span data-n="init_aw_max">77.4%</span>, a spread of <span data-n="init_aw_sd">9.8</span> points against <span data-n="init_k_sd">1.1</span> for the random start. It beats the random start in only <span data-n="init_aw_wins">17 of 30</span> paired runs. The cause is scale. The model wrote weights as large as <span data-n="fc_max">6,000</span> into the last layer, where a standard start uses values near 0.1. The class scores end up hundreds of units apart, so the network is more than 99% sure of its answer on <span data-n="sure_written">46%</span> of the test images, whether it is right or wrong.</p>
   <figure class="fig" id="fig-temp">
     <div class="temp">
       <div class="temp-pick">
@@ -189,8 +204,8 @@
     </div>
     <figcaption>The network's confidence in each class for one test image. Drag the slider to shrink the last layer. The winning class never changes, only how certain the network claims to be.</figcaption>
   </figure>
-  <p>Dividing the last layer by a single constant, <span data-n="rescale">72</span>, changes no prediction and leaves the network with graded confidence that training can adjust. The share of test images on which it is more than 99% sure falls to <span data-n="sure_rescaled">0%</span>. That is the "rescaled" version in the chart above.</p>
-  <aside class="note caveat"><strong>What this does not show.</strong> The rescaling was my correction, not the model's, although I fixed it before running anything. Three runs per setting is a small sample. And this is a network of <span data-n="n_weights">6,858</span> weights: whether written weights help a large model is an open question.</aside>
+  <p>Dividing the last layer by a single constant, <span data-n="rescale">72</span>, changes no prediction and leaves the network with graded confidence that training can adjust. The share of test images on which it is more than 99% sure falls to <span data-n="sure_rescaled">0%</span>. That is the "rescaled" version in the chart above, and it is also the steadiest of the three: its runs spread by <span data-n="init_rs_sd">1.9</span> points at that budget.</p>
+  <aside class="note caveat"><strong>What this does not show.</strong> The rescaling was my correction, not the model's, although I fixed it before running anything. Ten runs per setting show the gain is repeatable for this network and this dataset, nothing wider. And this is a network of <span data-n="n_weights">6,858</span> weights: whether written weights help a large model is an open question.</aside>
 </section>
 
 <section id="pilot">
@@ -259,7 +274,7 @@
     <tbody>
       <tr><td>A language model can write a working land-cover classifier from knowledge alone: <span data-n="w3_final">59.5%</span>, above a simple classifier fitted on real data (<span data-n="w3_centroid">48.6%</span>).</td><td>A tiny network, one dataset, one model, one run. The model already knows the dataset by reputation. Training still wins clearly (<span data-n="w3_trained">81.5%</span>).</td></tr>
       <tr><td>Its knowledge is spectral, not spatial. It knows what surfaces are made of, not how towns and roads are laid out.</td><td>The network is very small, which also limits spatial reasoning. A larger design might do better.</td></tr>
-      <tr><td>Written weights are a useful starting point: better than a random start at every label budget, in every run.</td><td>Only after a rescaling that I applied. Three runs per setting.</td></tr>
+      <tr><td>Written weights are a useful starting point: better than a random start at every label budget, in <span data-n="init_wins">30 of 30</span> paired runs.</td><td>Only after a rescaling that I applied. One small network, one dataset.</td></tr>
       <tr><td>Given tools, the model analyses weights like a careful colleague: it checks for confounds, rejects bad suggestions and predicts before it scores.</td><td>The pilot tasks were easier than the MIT ones, and one of its arguments turned out to be wrong.</td></tr>
     </tbody>
   </table></div>
@@ -288,7 +303,7 @@
   <p class="muted small">Contains modified Copernicus Sentinel data.</p>
 </section>
 </main>
-<footer><p><span id="author2">Walid Elbarz</span> · 2026 · <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">GitHub</a></p></footer>
+<footer><p><span id="author2">Walid Elbarz</span>, 2026. <a href="https://github.com/waliddev23/weight_space_programming_for_remote_sensing_a_small_case_study">GitHub</a></p></footer>
 <div id="tip" role="tooltip"></div>
 <script type="module" src="js/app.js"></script>
 </body>

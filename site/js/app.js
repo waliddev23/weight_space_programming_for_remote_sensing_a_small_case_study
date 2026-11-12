@@ -13,8 +13,10 @@ const GROUP = ["farm", "nature", "nature", "built", "built", "nature", "farm", "
 const GROUP_INFO = { nature: ["Natural surfaces", "var(--blue)"], farm: ["Farmland", "var(--aqua)"], built: ["Built-up", "var(--orange)"] };
 const DETECTORS = ["Blue band", "Green band", "Red band", "Near infrared", "Shortwave IR 1", "Shortwave IR 2", "Red edge",
   "Water", "Vegetation", "Bare / built", "Edges ↔", "Edges ↕", "Bright spots", "Dark spots", "Infrared edges ↔", "Infrared edges ↕"];
-const INIT = { kaiming: ["Random start (Kaiming)", "var(--orange)"], fable_as_written: ["Model's network, as written", "var(--aqua)"],
-  fable_rescaled: ["Model's network, rescaled", "var(--blue)"] };
+const INIT = { kaiming: ["Random start (Kaiming)", "var(--slate)", "Random start"], fable_as_written: ["Written network, as written", "var(--orange)", "As written"],
+  fable_rescaled: ["Written network, rescaled", "var(--blue)", "Rescaled"] };
+const sd = (a) => { const m = mean(a); return a.length > 1 ? Math.sqrt(a.reduce((q, v) => q + (v - m) ** 2, 0) / (a.length - 1)) : 0; };
+const T975 = [0, 12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179];   // t quantiles by degrees of freedom
 const COND = { none: ["No augmentation", "var(--aqua)"], standard: ["Standard augmentation", "var(--orange)"], strong: ["Strong augmentation", "var(--blue)"] };
 
 const D = {};
@@ -332,39 +334,117 @@ function recall() {
 // ── starting points ──────────────────────────────────────────────────────────
 function init() {
   const budgets = [...new Set(D.init.runs.map((r) => r.budget))].sort((a, b) => a - b);
+  const keys = Object.keys(INIT);
+  const runs = (b, i) => D.init.runs.filter((r) => r.budget === b && r.init === i).sort((p, q) => p.seed - q.seed);
+  const nImg = (b) => runs(b, "kaiming")[0].n_train.toLocaleString("en-US");
   let b = budgets[1];
-  const runs = (i) => D.init.runs.filter((r) => r.budget === b && r.init === i).sort((p, q) => p.seed - q.seed);
-  $("#init-budget").innerHTML = budgets.map((v) => `<button data-v="${v}" class="${v === b ? "on" : ""}">${D.init.runs.find((r) => r.budget === v).n_train.toLocaleString("en-US")} (${v * 100}%)</button>`).join("");
-  $("#init-legend").innerHTML = Object.values(INIT).map(([n, col]) => `<span><i style="background:${col}"></i>${n}</span>`).join("");
-  const dots = dotRows($("#init-dots"), () => ({
-    rows: Object.entries(INIT).map(([k, [label, color]]) => ({ label, color, values: runs(k).map((r) => r.test) })),
-    ref: D.init.fable_untrained, refLabel: "before training",
-  }));
+  $("#init-legend").innerHTML = Object.values(INIT).map(([n, col]) => `<span><i style="background:${col}"></i>${n}</span>`).join("")
+    + `<span><i style="background:none;border-top:2px dashed var(--ink2);border-radius:0;width:18px;height:0;vertical-align:middle"></i>Written network before any training</span>`;
+
+  // A. every budget at once: individual runs, mean and one standard deviation
+  fit($("#init-strip"), (w) => {
+    const l = 46, rt = 10, t = 16, bt = 50, h = w < 520 ? 340 : 380;
+    const all = D.init.runs.map((r) => r.test).concat(D.init.fable_untrained);
+    const lo = Math.floor(Math.min(...all) * 10 - 0.2) / 10, hi = Math.ceil(Math.max(...all) * 10 + 0.2) / 10;
+    const y = (v) => t + (1 - (v - lo) / (hi - lo)) * (h - t - bt), gw = (w - l - rt) / budgets.length, slot = gw / 3.6;
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Test accuracy per starting point and label budget">`;
+    for (let v = lo; v <= hi + 1e-9; v += 0.1) s += `<line x1="${l}" x2="${w - rt}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${l - 8}" y="${y(v) + 4}" text-anchor="end">${Math.round(v * 100)}%</text>`;
+    const ry = y(D.init.fable_untrained);
+    s += `<line x1="${l}" x2="${w - rt}" y1="${ry}" y2="${ry}" stroke="var(--ink2)" stroke-dasharray="5 4"/>`;
+    s += `<text x="${w - rt - 4}" y="${ry + 15}" text-anchor="end" class="halo">${w < 520 ? "before training" : "written network before any training"}: ${pct(D.init.fable_untrained)}</text>`;
+    budgets.forEach((bud, g) => {
+      const gx = l + g * gw;
+      if (g) s += `<line x1="${gx}" x2="${gx}" y1="${t}" y2="${h - bt + 6}" stroke="var(--grid)"/>`;
+      s += `<text x="${gx + gw / 2}" y="${h - 26}" text-anchor="middle" class="strong" style="font-size:13.5px">${nImg(bud)}${w < 520 ? "" : " labelled images"}</text>`;
+      s += `<text x="${gx + gw / 2}" y="${h - 9}" text-anchor="middle">${w < 520 ? "images (" + bud * 100 + "%)" : bud * 100 + "% of the training set"}</text>`;
+      keys.forEach((k, j) => {
+        const [name, col] = INIT[k], v = runs(bud, k).map((r) => r.test), m = mean(v), dev = sd(v);
+        const cx = gx + gw / 2 + (j - 1) * slot;
+        runs(bud, k).forEach((r) => {
+          const jx = (((r.seed * 7 + j * 3) % 9) - 4) / 4 * slot * 0.2;
+          s += `<circle cx="${cx - slot * 0.2 + jx * 0.6}" cy="${y(r.test)}" r="3.4" fill="${col}" fill-opacity=".45" data-tip="${name}\n${nImg(bud)} images, seed ${r.seed}: ${pct(r.test)}"/>`;
+        });
+        const mx = cx + slot * 0.22;
+        s += `<line x1="${mx}" x2="${mx}" y1="${y(m - dev)}" y2="${y(m + dev)}" stroke="${col}" stroke-width="2.5"/>`;
+        for (const e of [m - dev, m + dev]) s += `<line x1="${mx - 5}" x2="${mx + 5}" y1="${y(e)}" y2="${y(e)}" stroke="${col}" stroke-width="2.5"/>`;
+        s += `<circle cx="${mx}" cy="${y(m)}" r="6" fill="${col}" stroke="var(--surface)" stroke-width="2" data-tip="${name}\n${nImg(bud)} images\nmean ${pct(m)}, standard deviation ${(dev * 100).toFixed(1)} points, ${v.length} runs"/>`;
+        if (w >= 520) s += `<text x="${mx}" y="${y(m + dev) - 8}" text-anchor="middle" class="strong halo" style="font-size:${w < 520 ? 11.5 : 13}px">${(m * 100).toFixed(1)}</text>`;
+      });
+    });
+    $("#init-strip").innerHTML = s + "</svg>";
+  });
+
+  // the same numbers as a table, with the paired comparison against the random start
+  let rows = "";
+  budgets.forEach((bud, g) => {
+    const base = runs(bud, "kaiming");
+    keys.forEach((k, j) => {
+      const rs = runs(bud, k), v = rs.map((r) => r.test);
+      let gain = "", ahead = "";
+      if (k !== "kaiming") {
+        const d = rs.map((r, i) => r.test - base[i].test), half = T975[d.length - 1] * sd(d) / Math.sqrt(d.length);
+        gain = `${Math.abs(mean(d)) < 0.0005 ? "" : mean(d) > 0 ? "+" : "−"}${Math.abs(mean(d) * 100).toFixed(1)} (${((mean(d) - half) * 100).toFixed(1)} to ${((mean(d) + half) * 100).toFixed(1)})`.replace(/-/g, "−");
+        ahead = `${d.filter((x) => x > 0).length} of ${d.length}`;
+      }
+      rows += `<tr class="${j === 0 && g ? "sep" : ""}"><td>${j === 0 ? nImg(bud) : ""}</td><td><i style="background:${INIT[k][1]}"></i>${INIT[k][2]}</td><td>${(mean(v) * 100).toFixed(1)} ± ${(sd(v) * 100).toFixed(1)}</td><td>${(Math.min(...v) * 100).toFixed(1)} to ${(Math.max(...v) * 100).toFixed(1)}</td><td>${gain}</td><td>${ahead}</td></tr>`;
+    });
+  });
+  $("#init-table").innerHTML = `<thead><tr><th>Labelled images</th><th>Starting point</th><th>Test accuracy, mean ± s.d.</th><th>Lowest to highest run</th><th>Gain over random start, same seed (95% interval)</th><th>Runs ahead of random start</th></tr></thead><tbody>${rows}</tbody>`;
+
+  // B. training curves: mean and one standard deviation
+  $("#init-budget").innerHTML = budgets.map((v) => `<button data-v="${v}" class="${v === b ? "on" : ""}">${nImg(v)} images (${v * 100}%)</button>`).join("");
   const curves = fit($("#init-curves"), (w) => {
-    const l = 38, rt = 10, t = 10, bt = 34, h = 250, n = runs("kaiming")[0].val.length, ymax = 0.9;
-    const x = (i) => l + (i / (n - 1)) * (w - l - rt), y = (v) => t + (1 - v / ymax) * (h - t - bt);
-    let s = `<svg viewBox="0 0 ${w} ${h}">`;
-    for (let v = 0; v <= 0.81; v += 0.2) s += `<line x1="${l}" x2="${w - rt}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${l - 6}" y="${y(v) + 4}" text-anchor="end" class="faint">${v * 100 | 0}%</text>`;
-    const means = {};
-    for (const [k, [, col]] of Object.entries(INIT)) {
-      const rs = runs(k);
-      rs.forEach((q) => { s += `<polyline points="${q.val.map((v, i) => `${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="${col}" stroke-width="1" opacity=".3"/>`; });
+    const l = 46, rt = 12, t = 10, bt = 46, h = w < 520 ? 280 : 340, n = runs(b, "kaiming")[0].val.length;
+    const x = (i) => l + (i / (n - 1)) * (w - l - rt), y = (v) => t + (1 - v) * (h - t - bt);
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Validation accuracy per epoch">`;
+    for (let v = 0; v <= 1.001; v += 0.2) s += `<line x1="${l}" x2="${w - rt}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${l - 8}" y="${y(v) + 4}" text-anchor="end">${Math.round(v * 100)}%</text>`;
+    const step = n <= 30 ? 5 : n <= 60 ? 10 : 40;
+    for (let e = step; e <= n; e += step) s += `<line x1="${x(e - 1)}" x2="${x(e - 1)}" y1="${h - bt}" y2="${h - bt + 5}" stroke="var(--axis)"/><text x="${x(e - 1)}" y="${h - bt + 19}" text-anchor="middle">${e}</text>`;
+    s += `<text x="${x(0)}" y="${h - bt + 19}" text-anchor="middle">1</text><text x="${(l + w - rt) / 2}" y="${h - 6}" text-anchor="middle" class="axis-title">training epoch</text>`;
+    const means = {}, devs = {};
+    for (const k of keys) {
+      const rs = runs(b, k);
       means[k] = rs[0].val.map((_, i) => mean(rs.map((q) => q.val[i])));
-      s += `<polyline points="${means[k].map((v, i) => `${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"/>`;
+      devs[k] = rs[0].val.map((_, i) => sd(rs.map((q) => q.val[i])));
+      const up = means[k].map((m, i) => `${x(i)},${y(Math.min(1, m + devs[k][i]))}`), dn = means[k].map((m, i) => `${x(i)},${y(Math.max(0, m - devs[k][i]))}`).reverse();
+      s += `<polygon points="${up.concat(dn).join(" ")}" fill="${INIT[k][1]}" fill-opacity=".16"/>`;
     }
-    for (const e of [1, Math.round(n / 2), n]) s += `<text x="${x(e - 1)}" y="${h - 12}" text-anchor="${e === 1 ? "start" : e === n ? "end" : "middle"}" class="faint">${e === 1 ? "epoch 1" : e}</text>`;
+    for (const k of keys) s += `<polyline points="${means[k].map((v, i) => `${x(i)},${y(v)}`).join(" ")}" fill="none" stroke="${INIT[k][1]}" stroke-width="2.4" stroke-linejoin="round"/>`;
     s += `<line id="cross" y1="${t}" y2="${h - bt}" stroke="var(--ink2)" visibility="hidden"/><rect id="hit" x="${l}" y="${t}" width="${w - l - rt}" height="${h - t - bt}" fill="transparent"/>`;
     const el = $("#init-curves"); el.innerHTML = s + "</svg>";
     const hit = $("#hit", el), cross = $("#cross", el);
     const move = (e) => {
       const box = hit.getBoundingClientRect(), i = Math.max(0, Math.min(n - 1, Math.round(((e.clientX - box.left) / box.width) * (n - 1))));
       cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
-      hit.dataset.tip = `Epoch ${i + 1}, average of 3 runs\n` + Object.entries(INIT).map(([k, [name]]) => `${name}: ${pct(means[k][i])}`).join("\n");
+      hit.dataset.tip = `Epoch ${i + 1}, mean ± s.d.\n` + keys.map((k) => `${INIT[k][2]}: ${(means[k][i] * 100).toFixed(1)} ± ${(devs[k][i] * 100).toFixed(1)}`).join("\n");
     };
     hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move);
     hit.addEventListener("pointerleave", () => cross.setAttribute("visibility", "hidden"));
   });
-  seg($("#init-budget"), (v) => { b = +v; dots(); curves(); });
+
+  // C. recall per class, random start against the rescaled written network
+  const classes = fit($("#init-classes"), (w) => {
+    const withRecall = (k) => runs(b, k).filter((r) => r.recall);
+    const A = withRecall("kaiming"), B = withRecall("fable_rescaled");
+    if (!A.length) { $("#init-classes").textContent = ""; return; }
+    const ra = NAMES.map((_, c) => mean(A.map((r) => r.recall[c]))), rb = NAMES.map((_, c) => mean(B.map((r) => r.recall[c])));
+    const order = NAMES.map((_, c) => c).sort((p, q) => (rb[q] - ra[q]) - (rb[p] - ra[p]));
+    const l = w < 520 ? 118 : 170, rt = 54, t = 6, rh = 27, h = t + rh * 10 + 46, lo = Math.floor(Math.min(...ra, ...rb) * 10) / 10;
+    const x = (v) => l + ((v - lo) / (1 - lo)) * (w - l - rt);
+    let s = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Recall per class for two starting points">`;
+    for (let v = lo; v <= 1.001; v += w < 520 ? 0.2 : 0.1) s += `<line x1="${x(v)}" x2="${x(v)}" y1="${t}" y2="${t + rh * 10}" stroke="var(--grid)"/><text x="${x(v)}" y="${t + rh * 10 + 16}" text-anchor="middle">${Math.round(v * 100)}%</text>`;
+    order.forEach((c, i) => {
+      const yy = t + i * rh + rh / 2, d = rb[c] - ra[c];
+      s += `<text x="${l - 10}" y="${yy + 4}" text-anchor="end" class="strong">${w < 520 ? NAMES[c].split(" ")[0] : NAMES[c]}</text>`;
+      s += `<line x1="${x(ra[c])}" x2="${x(rb[c])}" y1="${yy}" y2="${yy}" stroke="var(--axis)" stroke-width="3"/>`;
+      s += `<circle cx="${x(ra[c])}" cy="${yy}" r="5.5" fill="var(--slate)" stroke="var(--surface)" stroke-width="2" data-tip="${NAMES[c]}\nRandom start: ${pct(ra[c])}"/>`;
+      s += `<circle cx="${x(rb[c])}" cy="${yy}" r="5.5" fill="var(--blue)" stroke="var(--surface)" stroke-width="2" data-tip="${NAMES[c]}\nRescaled written network: ${pct(rb[c])}"/>`;
+      s += `<text x="${w - 2}" y="${yy + 4}" text-anchor="end" class="strong">${d >= 0 ? "+" : "−"}${Math.abs(d * 100).toFixed(1)}</text>`;
+    });
+    s += `<text x="${(l + w - rt) / 2}" y="${h - 2}" text-anchor="middle" class="axis-title">${w < 520 ? "recall" : "share of the class's test images recognised"} (mean of ${A.length} runs)</text>`;
+    $("#init-classes").innerHTML = s + "</svg>";
+  });
+  seg($("#init-budget"), (v) => { b = +v; curves(); classes(); });
 }
 
 function temperature() {
@@ -512,12 +592,28 @@ function pilotWrite() {
   el.addEventListener("click", (e) => { if (e.target.dataset.i) pick(+e.target.dataset.i); });
   el.addEventListener("pointerover", (e) => { if (e.target.dataset.i) pick(+e.target.dataset.i); });
   pick(0);
-  dotRows($("#pw-dots"), () => ({ rows: [["kaiming", "Random first layer (Kaiming)", "var(--orange)"], ["fable", "Hand-written first layer", "var(--blue)"]]
+  dotRows($("#pw-dots"), () => ({ rows: [["kaiming", "Random first layer (Kaiming)", "var(--slate)"], ["fable", "Hand-written first layer", "var(--blue)"]]
     .map(([k, label, color]) => ({ label, color, values: P.runs.filter((r) => r.init === k).sort((a, b) => a.seed - b.seed).map((r) => r.test) })) }));
 }
 
 // ── page chrome ──────────────────────────────────────────────────────────────
+function bands() {
+  const col = { B01: "#5b6ee1", B02: "#2a78d6", B03: "#2aa568", B04: "#d5352f", B05: "#b02a35", B06: "#8e2433", B07: "#70212f", B08: "#55202c", B8A: "#47202a", B09: "#7d848a", B10: "#959ba1", B11: "#aeb3b8", B12: "#c9cdd1" };
+  $("#bands").innerHTML = [...D.write.bands].sort((p, q) => p.nm - q.nm).map((x) => `<div data-tip="${x.id}: ${x.name}\n${x.nm} nm, ${x.res} m pixels"><i style="background:${col[x.id]}"></i><span>${x.nm}</span></div>`).join("");
+}
+function theme() {
+  const btn = $("#theme"), root = document.documentElement;
+  const isDark = () => (root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+  const label = () => { btn.textContent = isDark() ? "Light mode" : "Dark mode"; };
+  btn.addEventListener("click", () => {
+    root.dataset.theme = isDark() ? "light" : "dark";
+    try { localStorage.setItem("theme", root.dataset.theme); } catch (e) { /* private window */ }
+    label();
+  });
+  label();
+}
 function chrome() {
+  theme();
   const bar = $("#progress");
   const onScroll = () => { bar.style.width = (100 * window.scrollY / Math.max(1, document.documentElement.scrollHeight - window.innerHeight)) + "%"; };
   window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
@@ -536,7 +632,7 @@ async function main() {
   const F = computeFacts(D);
   $$("[data-n]").forEach((el) => { if (F[el.dataset.n] !== undefined) el.textContent = F[el.dataset.n]; });
   D.net.rounds.forEach((r) => nets.push(prepare(r)));
-  hero(); gallery(); arch();
+  bands(); hero(); gallery(); arch();
   const redrawLive = live();
   rounds(); spectra(); recall(); init();
   const redrawTemp = temperature();

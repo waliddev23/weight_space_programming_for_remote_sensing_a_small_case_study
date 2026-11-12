@@ -64,7 +64,20 @@ export function computeFacts(D) {
     F[`init${tag}_n`] = int(k[0].n_train);
     F[`init${tag}_wins`] = String(s.filter((r, i) => r.test > k[i].test).length);
   }
-  F.init_stalled = run(0.1, "fable_as_written").filter((r) => Math.abs(r.test - D.init.fable_untrained) < 0.01).length + " of 3";
+  const sdev = (a) => { const m = mean(a); return Math.sqrt(a.reduce((q, v) => q + (v - m) ** 2, 0) / (a.length - 1)); };
+  const seeds = run(0.1, "kaiming").length, aw = run(0.1, "fable_as_written").map((r) => r.test);
+  F.init_seeds = String(seeds);
+  F.init_runs = String(D.init.runs.length);
+  F.init_aw_min = pct(Math.min(...aw)); F.init_aw_max = pct(Math.max(...aw));
+  F.init_aw_sd = (sdev(aw) * 100).toFixed(1); F.init_rs_sd = (sdev(run(0.1, "fable_rescaled").map((r) => r.test)) * 100).toFixed(1);
+  F.init_k_sd = (sdev(run(0.1, "kaiming").map((r) => r.test)) * 100).toFixed(1);
+  let wins = 0, pairs = 0, awWins = 0;
+  for (const b of [0.01, 0.1, 1.0]) run(b, "kaiming").forEach((k, i) => {
+    pairs++; if (run(b, "fable_rescaled")[i].test > k.test) wins++; if (run(b, "fable_as_written")[i].test > k.test) awWins++;
+  });
+  F.init_wins = `${wins} of ${pairs}`; F.init_aw_wins = `${awWins} of ${pairs}`;
+  const sizes = D.write.w3.rounds[0].test.confusion.map((row) => row.reduce((a, v) => a + v, 0));
+  F.class_min = String(Math.min(...sizes)); F.class_max = String(Math.max(...sizes));
   F.fc_max = int(Math.round(Math.max(...D.net.rounds[3].fc_weight.map(Math.abs)) / 100) * 100);
   F.rescale = String(Math.round(1 / D.net.rescale));
   F.sure_written = pct(D.net.sure.as_written, 0); F.sure_rescaled = pct(D.net.sure.rescaled, 0);
